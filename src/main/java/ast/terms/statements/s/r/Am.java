@@ -1,6 +1,9 @@
 package ast.terms.statements.s.r;
 
-public final class Am implements RBase {
+import ast.terms.Terminal;
+
+
+public final class Am implements RTerminal {
     private final String a;
     private final String m;
 
@@ -16,4 +19,6 @@ public final class Am implements RBase {
     public String getM() {
         return m;
     }
+
+    
 }

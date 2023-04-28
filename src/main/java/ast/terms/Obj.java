@@ -1,5 +1,7 @@
 package ast.terms;
 
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,4 +26,6 @@ public final class Obj {
     public void addDelta(Delta d){
         this.overline_delta.add(d);
     }
+
+    
 }

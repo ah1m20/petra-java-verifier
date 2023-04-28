@@ -1,5 +1,7 @@
 package ast.terms.expressions.e;
 
+
+
 public final class EBinary implements E{
     private final E left;
     private final BinaryOperator operator;
@@ -22,4 +24,9 @@ public final class EBinary implements E{
     public E getRight() {
         return right;
     }
+
+//    @Override
+//    public String toString() {
+//        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+//    }
 }

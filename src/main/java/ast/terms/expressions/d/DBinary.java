@@ -1,5 +1,7 @@
 package ast.terms.expressions.d;
 
+
+
 public final class DBinary implements D {
     private final D left;
     private final D right;
@@ -15,4 +17,6 @@ public final class DBinary implements D {
     public D getRight() {
         return right;
     }
+
+    
 }

@@ -1,19 +1,23 @@
 package ast.terms;
 
+
+
 public class Beta {
-    private final String variableName;
-    private final String objectIdentifier;
+    private final String fieldId;
+    private final String objectId;
 
-    public Beta(String variableName, String objectIdentifier) {
-        this.variableName = variableName;
-        this.objectIdentifier = objectIdentifier;
+    public Beta(String fieldId, String objectId) {
+        this.fieldId = fieldId;
+        this.objectId = objectId;
     }
 
-    public String getVariableName() {
-        return variableName;
+    public String getFieldId() {
+        return fieldId;
     }
 
-    public String getObjectIdentifier() {
-        return objectIdentifier;
+    public String getObjectId() {
+        return objectId;
     }
+
+    
 }
