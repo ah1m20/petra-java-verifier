@@ -7,6 +7,7 @@ import ast.terms.statements.s.r.Par;
 import ast.terms.statements.s.r.R;
 import ast.terms.statements.s.r.RTerminal;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.Statement;
 
@@ -35,8 +36,10 @@ public final class SParser {
                     methodCallExpr.getArguments().size()>1){
             Par par = new Par();
             for (Expression arg : methodCallExpr.getArguments()){
-                if (arg.isMethodCallExpr()){
-                    par.addR((RTerminal) parse(arg.asMethodCallExpr()));
+                if (arg.isLambdaExpr() &&
+                        arg.asLambdaExpr().getBody().isExpressionStmt() &&
+                        arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
+                    par.addR((RTerminal) parse(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr()));
                 }
             }
             return par;

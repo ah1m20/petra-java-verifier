@@ -10,8 +10,8 @@ public class Room {
 			assert(on());
 		}
 		if (on()){
-			centre.turnOff();
-			side.turnOff();
+			par(()-> centre.turnOff(),
+				()-> side.turnOff());
 			assert(off());
 		}
 	}
