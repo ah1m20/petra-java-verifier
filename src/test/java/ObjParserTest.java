@@ -12,6 +12,9 @@ public class ObjParserTest {
         URL resource = ObjParserTest.class.getResource("/Room.java");
         ObjParser objParser = new ObjParser(Paths.get(resource.toURI()).toFile().getAbsolutePath(),true);
         Obj obj = objParser.parse("Room");
+
+
+
         System.out.println(new Gson().toJson(obj));
     }
 }

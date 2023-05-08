@@ -8,19 +8,19 @@ import java.util.List;
 public final class Delta {
 
     private final String m;
-    private final List<C> overline_c;
+    private final List<C> overlineC;
 
-    public Delta(String methodLabel, List<C> overline_c) {
+    public Delta(String methodLabel, List<C> overlineC) {
         this.m = methodLabel;
-        this.overline_c = overline_c;
+        this.overlineC = overlineC;
     }
 
     public String getM() {
         return m;
     }
 
-    public List<C> getOverline_c() {
-        return overline_c;
+    public List<C> getOverlineC() {
+        return overlineC;
     }
 
     
