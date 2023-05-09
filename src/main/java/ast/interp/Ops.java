@@ -48,7 +48,6 @@ public final class Ops {
     }
 
     public static <T> Func<T> functionUnion(List<Func<T>> funcs){
-        List<String> names = funcs.stream().map(f->f.name()).collect(Collectors.toList());
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         List<Set<Mapsto<T,T>>> defs = funcs.stream().map(f->f.def()).collect(Collectors.toList());
@@ -56,7 +55,6 @@ public final class Ops {
     }
 
     public static <T> Func<List<T>> functionProduct(List<Func<T>> funcs){
-        List<String> names = funcs.stream().map(f->f.name()).collect(Collectors.toList());
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         Set<List<T>> productDom = Ops.product(doms);
