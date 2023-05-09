@@ -1,13 +1,18 @@
 package ast.interp;
 
+import ast.interp.util.Ops;
+
+import static ast.interp.util.Collections.set;
+import static ast.interp.util.Collections.list;
+import static ast.interp.util.Collections.forEach;
+import static ast.interp.util.Collections.forall;
+
 import ast.terms.*;
 import ast.terms.expressions.e.E;
 import ast.terms.statements.c.C;
 import ast.terms.statements.s.S;
 import com.google.common.collect.Sets;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class Symbolic {
 
@@ -25,10 +30,14 @@ public final class Symbolic {
     }
 
     public Set<String> Theta(Obj A){
-        return A.getOverlinePhi().stream().map(e->e.getP()).collect(Collectors.toSet());
+        return set(A.getOverlinePhi(), (e->e.getP()));
+    }
+
+    private Obj objectDef(Beta beta){
+        return objectTable.lookup(beta.getObjectId());
     }
     public IObj interp(Obj A){
-        List<Set<String>> Thetas = A.getOverlineBeta().stream().map(beta->Theta(objectTable.lookup(beta.getObjectId()))).collect(Collectors.toList());
+        List<Set<String>> Thetas = list(A.getOverlineBeta(), beta->Theta(objectDef(beta)) );
         Set<List<String>> Omega = Ops.product(Thetas);
         return new IObj(Omega,overlinePhiHelper.interp(A.getOverlinePhi()),overlineDeltaHelper.interp(A.getOverlineDelta(),A));
     }
@@ -36,9 +45,7 @@ public final class Symbolic {
     private class OverlinePhiHelper {
         public Map<String, E> interp(List<Phi> overlinePhi){
             Map<String, E> record = new HashMap<>();
-            for (Phi phi : overlinePhi){
-                record.put(phi.getP(),phi.getE());
-            }
+            forEach(overlinePhi, phi->record.put(phi.getP(),phi.getE()));
             return record;
         }
     }
@@ -46,17 +53,15 @@ public final class Symbolic {
     private class OverlineDeltaHelper {
         public Map<String, Optional<Func<String>>> interp(List<Delta> overlineDelta, Obj A){
             Map<String, Optional<Func<String>>> record = new HashMap<>();
-            for (Delta delta : overlineDelta){
-                record.put(delta.getM(),overlineCHelper.interp(delta.getOverlineC(),A));
-            }
+            forEach(overlineDelta, delta->record.put(delta.getM(),overlineCHelper.interp(delta.getOverlineC(),A)));
             return record;
         }
     }
 
     private class OverlineCHelper {
         public Optional<Func<String>> interp(List<C> ovelineC, Obj A){
-            if (ovelineC.stream().allMatch(c->interp(c,A).isPresent()) && pairwiseDisjoint(ovelineC,A)){
-                return Optional.of(Ops.functionUnion(ovelineC.stream().map(c->interp(c,A).get()).collect(Collectors.toList())));
+            if (forall(ovelineC,c->interp(c,A).isPresent()) && pairwiseDisjoint(ovelineC,A)){
+                return Optional.of(Ops.functionUnion(list(ovelineC, c->interp(c,A).get())));
             } else {
                 return Optional.empty();
             }

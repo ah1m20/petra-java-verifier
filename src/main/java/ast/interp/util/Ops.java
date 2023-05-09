@@ -1,4 +1,4 @@
-package ast.interp.util.math;
+package ast.interp.util;
 
 import java.util.*;
 import java.util.stream.Collectors;
