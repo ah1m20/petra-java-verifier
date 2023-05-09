@@ -15,13 +15,7 @@ import com.google.common.collect.Sets;
 import java.util.*;
 
 public final class Symbolic {
-
     private final ObjectTable objectTable = new ObjectTable();
-    private final OverlinePhiHelper overlinePhiHelper = new OverlinePhiHelper();
-    private final OverlineDeltaHelper overlineDeltaHelper = new OverlineDeltaHelper();
-    private final OverlineCHelper overlineCHelper = new OverlineCHelper();
-
-    private final SHelper sHelper = new SHelper();
 
     public Symbolic(Prog prog){
         for (Obj obj : prog.getObjs()){
@@ -39,71 +33,61 @@ public final class Symbolic {
     public IObj interp(Obj A){
         List<Set<String>> Thetas = list(A.getOverlineBeta(), beta->Theta(objectDef(beta)) );
         Set<List<String>> Omega = Ops.product(Thetas);
-        return new IObj(Omega,overlinePhiHelper.interp(A.getOverlinePhi()),overlineDeltaHelper.interp(A.getOverlineDelta(),A));
+        return new IObj(Omega,interp(A.getOverlinePhi()),interpDeltas(A.getOverlineDelta(),A));
     }
 
-    private class OverlinePhiHelper {
-        public Map<String, E> interp(List<Phi> overlinePhi){
-            Map<String, E> record = new HashMap<>();
-            forEach(overlinePhi, phi->record.put(phi.getP(),phi.getE()));
-            return record;
+    public Map<String, E> interp(List<Phi> overlinePhi){
+        Map<String, E> record = new HashMap<>();
+        forEach(overlinePhi, phi->record.put(phi.getP(),phi.getE()));
+        return record;
+    }
+
+    public Map<String, Optional<Func<String>>> interpDeltas(List<Delta> overlineDelta, Obj A){
+        Map<String, Optional<Func<String>>> record = new HashMap<>();
+        forEach(overlineDelta, delta->record.put(delta.getM(),interp(delta.getOverlineC(),A)));
+        return record;
+    }
+
+    public Optional<Func<String>> interp(List<C> ovelineC, Obj A){
+        if (forall(ovelineC,c->interp(c,A).isPresent()) && pairwiseDisjoint(ovelineC,A)){
+            return Optional.of(Ops.functionUnion(list(ovelineC, c->interp(c,A).get())));
+        } else {
+            return Optional.empty();
         }
     }
 
-    private class OverlineDeltaHelper {
-        public Map<String, Optional<Func<String>>> interp(List<Delta> overlineDelta, Obj A){
-            Map<String, Optional<Func<String>>> record = new HashMap<>();
-            forEach(overlineDelta, delta->record.put(delta.getM(),overlineCHelper.interp(delta.getOverlineC(),A)));
-            return record;
-        }
-    }
-
-    private class OverlineCHelper {
-        public Optional<Func<String>> interp(List<C> ovelineC, Obj A){
-            if (forall(ovelineC,c->interp(c,A).isPresent()) && pairwiseDisjoint(ovelineC,A)){
-                return Optional.of(Ops.functionUnion(list(ovelineC, c->interp(c,A).get())));
-            } else {
-                return Optional.empty();
-            }
-        }
-
-        private boolean pairwiseDisjoint(List<C> ovelineC, Obj A) {
-            for (C i : ovelineC){
-                for (C j : ovelineC){
-                    if (i!=j){
-                        Optional<Func<String>> a = interp(i,A);
-                        Optional<Func<String>> b = interp(j,A);
-                        if (Sets.intersection(a.get().dom(),b.get().dom()).size()!=0){
-                            return false;
-                        }
+    private boolean pairwiseDisjoint(List<C> ovelineC, Obj A) {
+        for (C i : ovelineC){
+            for (C j : ovelineC){
+                if (i!=j){
+                    Optional<Func<String>> a = interp(i,A);
+                    Optional<Func<String>> b = interp(j,A);
+                    if (Sets.intersection(a.get().dom(),b.get().dom()).size()!=0){
+                        return false;
                     }
                 }
             }
-            return true;
         }
-
-        // TODO
-        public Optional<Func<String>> interp(C c, Obj A){
-            Func<String> f = null;
-            if (sHelper.interp(c.getS(),A).isPresent() && condition2(c)){
-                return Optional.of(f);
-            } else {
-                return Optional.empty();
-            }
-        }
-
-        // TODO
-        private boolean condition2(C c) {
-            return false;
-        }
-
+        return true;
     }
 
-    private class SHelper {
-        // TODO
-        public Optional<Func<String>> interp(S s, Obj A){
-            return null;
+    // TODO
+    public Optional<Func<String>> interp(C c, Obj A){
+        Func<String> f = null;
+        if (interp(c.getS(),A).isPresent() && condition2(c)){
+            return Optional.of(f);
+        } else {
+            return Optional.empty();
         }
+    }
+
+    // TODO
+    private boolean condition2(C c) {
+        return false;
+    }
+
+    public Optional<Func<String>> interp(S s, Obj A){
+        return null;
     }
 
 }
