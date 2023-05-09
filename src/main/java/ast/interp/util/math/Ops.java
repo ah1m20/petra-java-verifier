@@ -1,8 +1,10 @@
-package ast.interp;
+package ast.interp.util.math;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import ast.interp.Func;
+import ast.interp.Mapsto;
 import com.google.common.collect.Sets;
 
 public final class Ops {
