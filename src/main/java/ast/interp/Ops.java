@@ -52,7 +52,7 @@ public final class Ops {
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         List<Set<Mapsto<T,T>>> defs = funcs.stream().map(f->f.def()).collect(Collectors.toList());
-        return new Func<T>(names.stream().reduce("",(a,b)->a+" U "+b), Ops.union(doms), Ops.union(ranges), Ops.union(defs));
+        return new Func<T>(Ops.union(doms), Ops.union(ranges), Ops.union(defs));
     }
 
     public static <T> Func<List<T>> functionProduct(List<Func<T>> funcs){
@@ -69,6 +69,6 @@ public final class Ops {
             }
             productDef.add(new Mapsto<>(in,out));
         }
-        return new Func<>(names.stream().reduce("",(a,b)->a+" x "+b), productDom, productRange, productDef);
+        return new Func<>(productDom, productRange, productDef);
     }
 }
