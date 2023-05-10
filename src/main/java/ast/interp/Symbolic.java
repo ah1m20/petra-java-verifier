@@ -36,11 +36,11 @@ public final class Symbolic {
     public Optional<IObj> interp(Obj A){
         List<Obj> A_i = list(A.getOverlineBeta(), beta -> lookup(beta.getObjectId()));
         List<E> e_j = list(A.getOverlinePhi(), phi->phi.getE());
-        List<String> m_k = list(A.getOverlineDelta(), delta->delta.getM());
+        List<List<C>> overline_c_k = list(A.getOverlineDelta(), delta->delta.getOverlineC());
         if (forall(A_i, x->interp(x).isPresent()) &&
             forall(e_j, x-> !interp(x, A).isEmpty()) &&
             pairwiseDisjointE(e_j, A) &&
-            forall(m_k, x-> interp(x, A).isPresent())){
+            forall(overline_c_k, x-> interp(x, A).isPresent())){
             List<Set<String>> Thetas = list(A.getOverlineBeta(), beta->Theta(objectDef(beta)) );
             Set<List<String>> Omega = Ops.product(Thetas);
             return Optional.of(new IObj(Omega,interp(A.getOverlinePhi()),interpDeltas(A.getOverlineDelta(),A)));
@@ -119,10 +119,6 @@ public final class Symbolic {
     }
 
     public Set<List<String>> interp(E e, Obj A){
-        return null;
-    }
-
-    public Optional<Func<String>> interp(String m, Obj A){
         return null;
     }
 
