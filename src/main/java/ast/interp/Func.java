@@ -1,14 +1,15 @@
 package ast.interp;
 
-import java.util.Set;
-import java.util.SortedSet;
+import ast.interp.util.Set;
+
+import static ast.interp.util.Collections.set;
 
 public final class Func<T> {
     private final Set<T> domain;
     private final Set<T> range;
-    private final SortedSet<Mapsto<T,T>> def;
+    private final Set<Mapsto<T,T>> def;
 
-    public Func(Set<T> domain, Set<T> range, SortedSet<Mapsto<T,T>> def) {
+    public Func(Set<T> domain, Set<T> range, Set<Mapsto<T,T>> def) {
         this.domain = domain;
         this.range = range;
         this.def = def;
@@ -37,6 +38,10 @@ public final class Func<T> {
             }
         }
         throw new IllegalArgumentException("no mapping exists for this input.");
+    }
+
+    public Set<T> image(Set<T> in){
+        return set(in, x->apply(x));
     }
 
     @Override

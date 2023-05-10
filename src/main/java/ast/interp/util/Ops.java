@@ -1,52 +1,76 @@
 package ast.interp.util;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import ast.interp.Func;
 import ast.interp.Mapsto;
 import com.google.common.collect.Sets;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static ast.interp.util.Collections.list;
+
 public final class Ops {
 
     public static void main(String[] args){
-        Set<String> a = new HashSet<>();
+        Set<String> a = new Set<>();
         a.add("x");
         a.add("y");
-        Set<String> b = new HashSet<>();
+        Set<String> b = new Set<>();
         b.add("a");
         b.add("b");
         System.out.println(Ops.product(a,b));
     }
-    public static <T> SortedSet<T> union(Set<T>... sets){
-        SortedSet<T> newSet = new TreeSet<>();
+
+    public static <T> boolean subseteq(Set<T> a, Set<T> b){
+        return b.containsAll(a);
+    }
+    public static <T> Set<T> union(Set<T>... sets){
+        Set<T> newSet = new Set<>();
         for (Set<T> s : sets){
             newSet.addAll(s);
         }
         return newSet;
     }
 
-    public static <T> SortedSet<T> union(List<Set<T>> sets){
-        SortedSet<T> newSet = new TreeSet<>();
+    public static <T> Set<T> union(List<Set<T>> sets){
+        Set<T> newSet = new Set<>();
         for (Set<T> s : sets){
             newSet.addAll(s);
         }
         return newSet;
     }
 
-    public static <T> SortedSet<T> intersect(Set<T> a, Set<T> b){
-        SortedSet<T> newSet = new TreeSet<>();
+    public static <T> Set<T> union(Set<Set<T>> sets){
+        Set<T> newSet = new Set<>();
+        for (Set<T> s : sets){
+            newSet.addAll(s);
+        }
+        return newSet;
+    }
+
+    public static <T> Set<T> intersect(Set<T> a, Set<T> b){
+        Set<T> newSet = new Set<>();
         newSet.addAll(a);
         newSet.retainAll(b);
         return newSet;
     }
 
+    public static <T> Set<T> toSet(java.util.Set<T> s){
+        return new Set<>(s);
+    }
+
+    public static <T> java.util.Set<T> toJavaSet(Set<T> s){
+        return s;
+    }
     public static <T> Set<List<T>> product(Set<T>... sets){
-        return Sets.cartesianProduct(sets);
+        List<java.util.Set<T>> javaSets = list(sets, s->toJavaSet(s));
+        return toSet(Sets.cartesianProduct(javaSets));
     }
 
     public static <T> Set<List<T>> product(List<Set<T>> sets){
-        return Sets.cartesianProduct(sets);
+        List<java.util.Set<T>> javaSets = list(sets, s->toJavaSet(s));
+        return toSet(Sets.cartesianProduct(javaSets));
     }
 
     public static <T> Func<T> functionUnion(List<Func<T>> funcs){
@@ -61,7 +85,7 @@ public final class Ops {
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         Set<List<T>> productDom = Ops.product(doms);
         Set<List<T>> productRange = Ops.product(ranges);
-        SortedSet<Mapsto<List<T>,List<T>>> productDef = new TreeSet<>();
+        Set<Mapsto<List<T>,List<T>>> productDef = new Set<>();
         for (List<T> in : productDom){
             List<T> out = new ArrayList<>();
             for (int i=0;i<in.size();i++){

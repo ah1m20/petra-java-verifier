@@ -1,15 +1,10 @@
 package ast.terms;
-
-
-
-import java.util.ArrayList;
-import java.util.List;
-
+import ast.interp.util.Set;
 public final class Obj {
     private final String A;
-    private final List<Beta> overlineBeta = new ArrayList<Beta>();
-    private final List<Phi> overlinePhi = new ArrayList<Phi>();
-    private final List<Delta> overlineDelta = new ArrayList<Delta>();
+    private final Set<Beta> overlineBeta = new Set<>();
+    private final Set<Phi> overlinePhi = new Set<>();
+    private final Set<Delta> overlineDelta = new Set<>();
 
     public Obj(String A) {
         this.A = A;
@@ -31,15 +26,15 @@ public final class Obj {
         return A;
     }
 
-    public List<Beta> getOverlineBeta() {
+    public Set<Beta> getOverlineBeta() {
         return overlineBeta;
     }
 
-    public List<Phi> getOverlinePhi() {
+    public Set<Phi> getOverlinePhi() {
         return overlinePhi;
     }
 
-    public List<Delta> getOverlineDelta() {
+    public Set<Delta> getOverlineDelta() {
         return overlineDelta;
     }
 }

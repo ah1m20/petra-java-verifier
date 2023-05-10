@@ -1,8 +1,11 @@
 package ast.interp;
 
-import ast.terms.expressions.e.E;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import java.util.*;
+import ast.interp.util.Set;
+import ast.terms.expressions.e.E;
 
 public class IObj {
     private Set<List<String>> Omega;
