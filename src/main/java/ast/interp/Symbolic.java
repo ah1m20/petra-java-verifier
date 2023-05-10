@@ -27,13 +27,26 @@ public final class Symbolic {
         return set(A.getOverlinePhi(), (e->e.getP()));
     }
 
+    private Obj lookup(String objectId){
+        return objectTable.lookup(objectId);
+    }
     private Obj objectDef(Beta beta){
         return objectTable.lookup(beta.getObjectId());
     }
-    public IObj interp(Obj A){
-        List<Set<String>> Thetas = list(A.getOverlineBeta(), beta->Theta(objectDef(beta)) );
-        Set<List<String>> Omega = Ops.product(Thetas);
-        return new IObj(Omega,interp(A.getOverlinePhi()),interpDeltas(A.getOverlineDelta(),A));
+    public Optional<IObj> interp(Obj A){
+        List<Obj> A_i = list(A.getOverlineBeta(), beta -> lookup(beta.getObjectId()));
+        List<E> e_j = list(A.getOverlinePhi(), phi->phi.getE());
+        List<String> m_k = list(A.getOverlineDelta(), delta->delta.getM());
+        if (forall(A_i, x->interp(x).isPresent()) &&
+            forall(e_j, x-> !interp(x, A).isEmpty()) &&
+            pairwiseDisjointE(e_j, A) &&
+            forall(m_k, x-> interp(x, A).isPresent())){
+            List<Set<String>> Thetas = list(A.getOverlineBeta(), beta->Theta(objectDef(beta)) );
+            Set<List<String>> Omega = Ops.product(Thetas);
+            return Optional.of(new IObj(Omega,interp(A.getOverlinePhi()),interpDeltas(A.getOverlineDelta(),A)));
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Map<String, E> interp(List<Phi> overlinePhi){
@@ -54,6 +67,21 @@ public final class Symbolic {
         } else {
             return Optional.empty();
         }
+    }
+
+    private boolean pairwiseDisjointE(List<E> e_j, Obj A) {
+        for (E i : e_j){
+            for (E j : e_j){
+                if (i!=j){
+                    Set<List<String>> a = interp(i,A);
+                    Set<List<String>> b = interp(j,A);
+                    if (Sets.intersection(a,b).size()!=0){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private boolean pairwiseDisjoint(List<C> ovelineC, Obj A) {
@@ -87,6 +115,14 @@ public final class Symbolic {
     }
 
     public Optional<Func<String>> interp(S s, Obj A){
+        return null;
+    }
+
+    public Set<List<String>> interp(E e, Obj A){
+        return null;
+    }
+
+    public Optional<Func<String>> interp(String m, Obj A){
         return null;
     }
 
