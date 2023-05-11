@@ -2,7 +2,12 @@ package ast.interp;
 
 import ast.interp.util.Set;
 
+import java.util.Optional;
+
+import static ast.interp.util.Collections.filter;
 import static ast.interp.util.Collections.set;
+import static ast.interp.util.Ops.mapsto;
+import static ast.interp.util.Ops.subseteq;
 
 public final class Func<T> {
     private final Set<T> domain;
@@ -38,6 +43,24 @@ public final class Func<T> {
             }
         }
         throw new IllegalArgumentException("no mapping exists for this input.");
+    }
+
+    public Func<T> compose(Func<T> f){
+        Set<Mapsto<T,T>> comp = set();
+        for (Mapsto<T,T> left : f.def()){
+            for (Mapsto<T,T> right : f.def()){
+                if (left.getToo().equals(right.getFrom())){
+                    comp.add(mapsto(left.getFrom(),right.getToo()));
+                }
+            }
+        }
+        return new Func<>(f.dom(),this.range(),comp);
+    }
+
+    public Func<T> restrict(Set<T> dom){
+        Set<Mapsto<T,T>> restricted = filter(def(), map->dom.contains(map.getFrom()));
+        Set<T> range = set(restricted, map->map.getToo());
+        return new Func<>(dom,range,restricted);
     }
 
     public Set<T> image(Set<T> in){

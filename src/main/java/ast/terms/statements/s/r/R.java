@@ -1,4 +1,6 @@
 package ast.terms.statements.s.r;
 
-public interface R {
+import ast.terms.statements.s.S;
+
+public interface R extends S {
 }

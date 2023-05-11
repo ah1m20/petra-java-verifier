@@ -1,12 +1,11 @@
 package ast.parsers;
 
-import ast.terms.expressions.e.Ap;
-import ast.terms.expressions.e.BinaryOperator;
-import ast.terms.expressions.e.E;
-import ast.terms.expressions.e.EBinary;
+import ast.terms.expressions.e.*;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.ReturnStmt;
+
+import static com.github.javaparser.ast.expr.UnaryExpr.Operator.LOGICAL_COMPLEMENT;
 
 public final class EParser {
     public E parse(MethodDeclaration declaration){
@@ -32,7 +31,9 @@ public final class EParser {
                 throw new IllegalArgumentException("invalid syntax, not the required format: a.p()");
             }
         } else if (expression.isEnclosedExpr()){
-            return parse(expression.asEnclosedExpr().getInner());
+            return new EUnary(parse(expression.asEnclosedExpr().getInner()),UnaryOperator.PAREN);
+        } else if (expression.isUnaryExpr() && expression.asUnaryExpr().getOperator()==LOGICAL_COMPLEMENT){
+            return new EUnary(parse(expression.asUnaryExpr().getExpression()),UnaryOperator.NOT);
         } else if (expression.isBinaryExpr()){
             return new EBinary(
                     parse(expression.asBinaryExpr().getLeft()),

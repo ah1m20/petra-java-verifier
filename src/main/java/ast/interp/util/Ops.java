@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ast.interp.util.Collections.list;
+import static ast.interp.util.Collections.set;
 
 public final class Ops {
 
@@ -73,6 +74,10 @@ public final class Ops {
         return toSet(Sets.cartesianProduct(javaSets));
     }
 
+    public static <T> Mapsto<T,T> mapsto(T from, T too){
+        return new Mapsto<>(from,too);
+    }
+
     public static <T> Func<T> functionUnion(List<Func<T>> funcs){
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
@@ -94,5 +99,10 @@ public final class Ops {
             productDef.add(new Mapsto<>(in,out));
         }
         return new Func<>(productDom, productRange, productDef);
+    }
+
+    public static <T> Func<T> id(Set<T> set){
+        Set<Mapsto<T,T>> def = set(set, e->mapsto(e,e));
+        return new Func<>(set,set,def);
     }
 }

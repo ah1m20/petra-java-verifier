@@ -10,5 +10,11 @@ public class EUnary implements E{
         this.operator = operator;
     }
 
-    
+    public E getInner() {
+        return inner;
+    }
+
+    public UnaryOperator getOperator() {
+        return operator;
+    }
 }

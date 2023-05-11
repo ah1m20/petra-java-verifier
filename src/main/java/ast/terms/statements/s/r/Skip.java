@@ -1,4 +1,6 @@
 package ast.terms.statements.s.r;
 
-public final class Skip implements RTerminal {
+import ast.terms.statements.s.S;
+
+public final class Skip implements S, RTerminal {
 }

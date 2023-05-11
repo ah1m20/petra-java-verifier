@@ -1,10 +1,14 @@
 package ast.interp.util;
 
-import java.util.*;
+import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Set<T> extends LinkedHashSet<T> {
-    public Set(){}
-    public Set(Collection<T> collection){
+    Set(){}
+    Set(Collection<T> collection){
         super(collection);
     }
     public List<T> toList(){

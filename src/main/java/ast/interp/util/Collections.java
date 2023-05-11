@@ -12,6 +12,13 @@ import java.util.stream.Collectors;
 
 public final class Collections {
 
+    public static <T> Set<T> singleton(T e){
+        return set(e);
+    }
+
+    public static <T> Set<T> set(Collection<T> e){
+        return new Set<>(e);
+    }
     public static <T> Set<T> set(T... e){
         Set<T> set = new Set<>();
         for (T t : set){
@@ -32,8 +39,12 @@ public final class Collections {
         return list.stream().filter(predicate).findAny();
     }
 
+    public static <T> Set<T> filter(Set<T> set, Predicate<T> predicate){
+        return set.stream().filter(predicate).collect(Collectors.toCollection(()->set()));
+    }
+
     public static <T,R> Set<R> set(Set<T> set, Function<T,R> mapper){
-        return set.stream().map(mapper).collect(Collectors.toCollection(()->new Set<>()));
+        return set.stream().map(mapper).collect(Collectors.toCollection(()->set()));
     }
 
     public static <T,R> List<R> list(List<T> list, Function<T,R> mapper){
