@@ -67,7 +67,7 @@ public final class Symbolic {
 
     private Set<List<String>> Omega(Obj A){
         List<Set<String>> Thetas = list(A.getOverlineBeta(), beta->Theta(objectDef(beta)) );
-        return Ops.product(Thetas);
+        return product(Thetas);
     }
 
     public Optional<IObj> interp(Obj A){
@@ -99,7 +99,7 @@ public final class Symbolic {
 
     public Optional<Func<String>> interp(List<C> ovelineC, Obj A){
         if (forall(ovelineC,c->interp(c,A).isPresent()) && pairwiseDisjoint(ovelineC,A)){
-            return Optional.of(Ops.functionUnion(list(ovelineC, c->interp(c,A).get())));
+            return Optional.of(functionUnion(list(ovelineC, c->interp(c,A).get())));
         } else {
             return Optional.empty();
         }
@@ -111,7 +111,7 @@ public final class Symbolic {
                 if (i!=j){
                     Set<List<String>> a = interp(i,A);
                     Set<List<String>> b = interp(j,A);
-                    if (Ops.intersect(a,b).size()!=0){
+                    if (intersect(a,b).size()!=0){
                         return false;
                     }
                 }
@@ -126,7 +126,7 @@ public final class Symbolic {
                 if (i!=j){
                     Optional<Func<String>> a = interp(i,A);
                     Optional<Func<String>> b = interp(j,A);
-                    if (Ops.intersect(a.get().dom(),b.get().dom()).size()!=0){
+                    if (intersect(a.get().dom(),b.get().dom()).size()!=0){
                         return false;
                     }
                 }
@@ -156,8 +156,8 @@ public final class Symbolic {
         Set<String> Q = interp(c.getPost(),A);
         Set<E> e_p = set(P, p->lookup(p,A));
         Set<E> e_q = set(Q, q->lookup(q,A));
-        Set<List<String>> in = Ops.union(set(e_p, e->interp(e,A)));
-        Set<List<String>> out = Ops.union(set(e_q, e->interp(e,A)));
+        Set<List<String>> in = union(set(e_p, e->interp(e,A)));
+        Set<List<String>> out = union(set(e_q, e->interp(e,A)));
         return subseteq(interpS.image(in), out);
     }
 
@@ -295,7 +295,7 @@ public final class Symbolic {
             DBinary binary = ((DBinary) d);
             D left = binary.getLeft();
             D right = binary.getRight();
-            return Ops.union(interp(left,A),interp(right,A));
+            return union(interp(left,A),interp(right,A));
         }
         throw new IllegalArgumentException("d must be instanceof P or DBinary.");
     }

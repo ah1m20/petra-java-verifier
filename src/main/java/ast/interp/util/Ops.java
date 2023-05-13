@@ -20,7 +20,7 @@ public final class Ops {
         Set<String> b = new Set<>();
         b.add("a");
         b.add("b");
-        System.out.println(Ops.product(a,b));
+        System.out.println(product(a,b));
     }
 
     public static <T> boolean subseteq(Set<T> a, Set<T> b){
@@ -82,14 +82,14 @@ public final class Ops {
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         List<Set<Mapsto<T,T>>> defs = funcs.stream().map(f->f.def()).collect(Collectors.toList());
-        return new Func<T>(Ops.union(doms), Ops.union(ranges), Ops.union(defs));
+        return new Func<T>(union(doms), union(ranges), union(defs));
     }
 
     public static <T> Func<List<T>> functionProduct(List<Func<T>> funcs){
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
-        Set<List<T>> productDom = Ops.product(doms);
-        Set<List<T>> productRange = Ops.product(ranges);
+        Set<List<T>> productDom = product(doms);
+        Set<List<T>> productRange = product(ranges);
         Set<Mapsto<List<T>,List<T>>> productDef = new Set<>();
         for (List<T> in : productDom){
             List<T> out = new ArrayList<>();
