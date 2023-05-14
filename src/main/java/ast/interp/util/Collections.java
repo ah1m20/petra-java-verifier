@@ -76,4 +76,32 @@ public final class Collections {
     public static <T> boolean exists(Collection<T> collection, Predicate<T> toHold){
         return collection.stream().anyMatch(toHold);
     }
+
+    public static <T,R> Set<R> builder(Function<T,R> mapper, Set<T> set){
+        return builder(mapper,set,t->true);
+    }
+
+    public static <T> Set<T> builder(Set<T> set, Predicate<T> predicate){
+        return builder(x->x,set,predicate);
+    }
+
+    public static <T,R> Set<R> builder(Function<T,R> mapper, Set<T> set, Predicate<T> predicate){
+        return set.stream().filter(predicate).map(mapper).collect(Collectors.toCollection(()->set()));
+    }
+
+    public static <T,R> List<R> builder(Function<T,R> mapper, List<T> list){
+        return builder(mapper,list,t->true);
+    }
+
+    public static <T,R> List<R> builder(Function<T,R> mapper, List<T> list, Predicate<T> predicate){
+        return builder(mapper, new ArrayList<>(list), predicate);
+    }
+
+    public static <T,R> List<R> builder(Function<T,R> mapper, T[] list){
+        return builder(mapper,list,t->true);
+    }
+
+    public static <T,R> List<R> builder(Function<T,R> mapper, T[] list, Predicate<T> predicate){
+        return builder(mapper, Arrays.asList(list), predicate);
+    }
 }
