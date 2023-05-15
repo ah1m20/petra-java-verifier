@@ -32,11 +32,11 @@ public class ObjParserTest {
         Symbolic symbolic = new Symbolic(prog);
         for (Obj o : objs){
             if (o instanceof Obj){
-                System.out.println(o.getA()+": "+symbolic.interp(o));
+                System.out.println(o.getA()+": "+symbolic.interpObj(o));
                 for (Delta d : o.getOverlineDelta()){
                     System.out.println("\t"+d.getM()+":");
                     for (C c : d.getOverlineC()){
-                        System.out.println("\t\tcase: "+symbolic.interp(c,o));
+                        System.out.println("\t\tcase: "+symbolic.interpC(c,o));
                     }
                 }
             }
