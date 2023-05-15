@@ -1,4 +1,5 @@
-import ast.interp.Symbolic;
+package ast.interp;
+
 import ast.parsers.ObjParser;
 import ast.terms.Delta;
 import ast.terms.Obj;
