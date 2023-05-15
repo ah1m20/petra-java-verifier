@@ -19,6 +19,6 @@ public class Mapsto<A,B> {
 
     @Override
     public String toString() {
-        return from + "\\mapsto" +too;
+        return from + " \\mapsto " +too;
     }
 }

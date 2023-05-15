@@ -2,12 +2,9 @@ package ast.interp;
 
 import ast.interp.util.Set;
 
-import java.util.Optional;
-
 import static ast.interp.util.Collections.filter;
 import static ast.interp.util.Collections.set;
 import static ast.interp.util.Ops.mapsto;
-import static ast.interp.util.Ops.subseteq;
 
 public final class Func<T> {
     private final Set<T> domain;
@@ -70,6 +67,6 @@ public final class Func<T> {
     @Override
     public String toString() {
         String signature = domain + "\\rightarrow" + range;
-        return name() + ":" + signature + "\n" + name() + " = " + def;
+        return name() + ":" + signature + "\\\\" + name() + " = " + def;
     }
 }

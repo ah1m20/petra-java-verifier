@@ -20,19 +20,11 @@ public final class Collections {
         return new Set<>(e);
     }
     public static <T> Set<T> set(T... e){
-        Set<T> set = new Set<>();
-        for (T t : set){
-            set.add(t);
-        }
-        return set;
+        return set(Arrays.asList(e));
     }
 
     public static <T> List<T> list(T... e){
-        List<T> list = new ArrayList<>();
-        for (T t : list){
-            list.add(t);
-        }
-        return list;
+        return Arrays.asList(e);
     }
 
     public static <T> Optional<T> find(Collection<T> list, Predicate<T> predicate){

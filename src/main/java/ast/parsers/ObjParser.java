@@ -70,7 +70,7 @@ public final class ObjParser {
     }
 
     private Obj parseNonPrimitive(ClassOrInterfaceDeclaration declaration){
-        Obj obj = new Obj(declaration.getNameAsString());
+        Obj obj = new Obj(declaration.getNameAsString(),false);
         for (FieldDeclaration f : declaration.getFields()){
             if (!f.isPrivate() || !f.isFinal() || f.getVariables().size()!=1){
                 throw new IllegalArgumentException("expected a single private final field.");
@@ -88,7 +88,7 @@ public final class ObjParser {
                 obj.addPhi(phi);
             } else if (m.getType().isVoidType()){
                 // process delta
-                Delta delta = new Delta(m.getNameAsString(),cparser.parse(m));
+                Delta delta = new Delta(m.getNameAsString(),cparser.parse(m,false));
                 obj.addDelta(delta);
             } else {
                 throw new IllegalArgumentException("expected boolean or void method.");
@@ -98,7 +98,7 @@ public final class ObjParser {
     }
 
     private Obj parsePrimitive(ClassOrInterfaceDeclaration declaration){
-        Obj obj = new Obj(declaration.getNameAsString());
+        Obj obj = new Obj(declaration.getNameAsString(),true);
         for (FieldDeclaration f : declaration.getFields()){
             if (!f.isPrivate() || !f.isVolatile() || f.getVariables().size()!=1){
                 throw new IllegalArgumentException("expected a single private final field.");
@@ -109,9 +109,13 @@ public final class ObjParser {
                 throw new IllegalArgumentException("expected public method.");
             }
             if (m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")){
-                // process p
+                // process phi
+                Phi phi = new Phi(m.getNameAsString(),null);
+                obj.addPhi(phi);
             } else if (m.getType().isVoidType()){
-                // process m
+                // process delta
+                Delta delta = new Delta(m.getNameAsString(),cparser.parse(m,true));
+                obj.addDelta(delta);
             } else {
                 throw new IllegalArgumentException("expected boolean or void method.");
             }

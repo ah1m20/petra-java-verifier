@@ -10,8 +10,11 @@ public final class Obj {
     private final List<Phi> overlinePhi = new ArrayList<>();
     private final List<Delta> overlineDelta = new ArrayList<>();
 
-    public Obj(String A) {
+    private final boolean isPrimitive;
+
+    public Obj(String A, boolean isPrimitive) {
         this.A = A;
+        this.isPrimitive = isPrimitive;
     }
 
     public void addBeta(Beta b){
@@ -40,5 +43,9 @@ public final class Obj {
 
     public List<Delta> getOverlineDelta() {
         return overlineDelta;
+    }
+
+    public boolean isPrimitive() {
+        return isPrimitive;
     }
 }

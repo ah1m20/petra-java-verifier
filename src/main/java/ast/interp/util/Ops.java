@@ -94,9 +94,9 @@ public final class Ops {
         for (List<T> in : productDom){
             List<T> out = new ArrayList<>();
             for (int i=0;i<in.size();i++){
-                out.set(i,funcs.get(i).apply(in.get(i)));
+                out.add(funcs.get(i).apply(in.get(i)));
             }
-            productDef.add(new Mapsto<>(in,out));
+            productDef.add(mapsto(in,out));
         }
         return new Func<>(productDom, productRange, productDef);
     }

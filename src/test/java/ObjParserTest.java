@@ -1,7 +1,9 @@
 import ast.interp.Symbolic;
 import ast.parsers.ObjParser;
+import ast.terms.Delta;
 import ast.terms.Obj;
 import ast.terms.Prog;
+import ast.terms.statements.c.C;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -14,9 +16,9 @@ import java.util.List;
 
 public class ObjParserTest {
     public static void main(String[] args) throws IOException, URISyntaxException {
-        URL resource = ObjParserTest.class.getResource("/Room.java");
+        URL resource = ObjParserTest.class.getResource("/Room2.java");
         ObjParser objParser = new ObjParser(Paths.get(resource.toURI()).toFile().getAbsolutePath(),true);
-        Obj obj = objParser.parse("Room");
+        Obj obj = objParser.parse("Room2");
         System.out.println(new Gson().toJson(obj));
 
         List<Obj> objs = new ArrayList<>();
@@ -29,8 +31,15 @@ public class ObjParserTest {
         Prog prog = new Prog("toggle","Flat",objs);
         Symbolic symbolic = new Symbolic(prog);
         for (Obj o : objs){
-            System.out.println(o.getA()+": "+symbolic.interp(o));
+            if (o instanceof Obj){
+                System.out.println(o.getA()+": "+symbolic.interp(o));
+                for (Delta d : o.getOverlineDelta()){
+                    System.out.println("\t"+d.getM()+":");
+                    for (C c : d.getOverlineC()){
+                        System.out.println("\t\tcase: "+symbolic.interp(c,o));
+                    }
+                }
+            }
         }
-
     }
 }
