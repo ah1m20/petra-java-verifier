@@ -3,6 +3,7 @@ package ast.interp;
 import ast.parsers.ObjParser;
 import ast.terms.Delta;
 import ast.terms.Obj;
+import ast.terms.Phi;
 import ast.terms.Prog;
 import ast.terms.statements.c.C;
 import com.google.gson.Gson;
@@ -34,6 +35,15 @@ public class ObjParserTest {
         for (Obj o : objs){
             if (o instanceof Obj){
                 System.out.println(o.getA()+": "+symbolic.interpObj(o));
+                System.out.println("\t\\Omega = "+symbolic.Omega(o));
+                System.out.println("\t\\Theta = "+symbolic.Theta(o));
+                for (Phi p : o.getOverlinePhi()){
+                    if (!o.isPrimitive()){
+                        System.out.println("\t"+p.getP()+" = "+symbolic.interpE(symbolic.lookupE(p.getP(),o),o));
+                    } else {
+                        System.out.println("\t"+p.getP());
+                    }
+                }
                 for (Delta d : o.getOverlineDelta()){
                     System.out.println("\t"+d.getM()+":");
                     for (C c : d.getOverlineC()){
