@@ -296,9 +296,10 @@ public final class Symbolic {
     Set<List<String>> interpAp(Ap ap, Obj A){
         List<Set<String>> listOfStates = new ArrayList<>();
         for (int i=0;i<A.getOverlineBeta().size();i++){
+            String fieldId = A.getOverlineBeta().get(i).getFieldId();
             String objectId = A.getOverlineBeta().get(i).getObjectId();
             Obj A_i = lookupObj(objectId);
-            if (ap.getA().equals(objectId)){
+            if (ap.getA().equals(fieldId)){
                 listOfStates.add(singleton(ap.getP()));
             } else {
                 listOfStates.add(Theta(A_i));
@@ -320,9 +321,9 @@ public final class Symbolic {
 
     Set<List<String>> interpE(EBinary binary, Obj A){
         if (binary.getOperator()==BinaryOperator.AND){
-            return intersect(interpE(binary.getLeft(),A), interpE(binary.getLeft(),A));
+            return intersect(interpE(binary.getLeft(),A), interpE(binary.getRight(),A));
         } else if (binary.getOperator()==BinaryOperator.OR){
-            return union(interpE(binary.getLeft(),A), interpE(binary.getLeft(),A));
+            return union(interpE(binary.getLeft(),A), interpE(binary.getRight(),A));
         }
         throw new IllegalArgumentException("operator must be AND or OR");
     }
