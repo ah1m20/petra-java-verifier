@@ -45,7 +45,7 @@ public final class Func<T> {
     public Func<T> compose(Func<T> f){
         Set<Mapsto<T,T>> comp = set();
         for (Mapsto<T,T> left : f.def()){
-            for (Mapsto<T,T> right : f.def()){
+            for (Mapsto<T,T> right : this.def()){
                 if (left.getToo().equals(right.getFrom())){
                     comp.add(mapsto(left.getFrom(),right.getToo()));
                 }

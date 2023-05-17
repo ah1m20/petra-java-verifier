@@ -18,14 +18,14 @@ import java.util.List;
 
 public class ObjParserTest {
     public static void main(String[] args) throws IOException, URISyntaxException {
-        URL resource = ObjParserTest.class.getResource("/Room2.java");
+        URL resource = ObjParserTest.class.getResource("/flatlightingsystem/Room2.java");
         ObjParser objParser = new ObjParser(Paths.get(resource.toURI()).toFile().getAbsolutePath(),true);
         Obj obj = objParser.parse("Room2");
         System.out.println(new Gson().toJson(obj));
 
         List<Obj> objs = new ArrayList<>();
-        for (String name : Arrays.asList("Flat","Room","Light")){
-            URL url = ObjParserTest.class.getResource("/"+name+".java");
+        for (String name : Arrays.asList("Flat","Room","Light")){ // Arrays.asList("Flat","Room","Light") // "Light","Power","Control"
+            URL url = ObjParserTest.class.getResource("/flatlightingsystem/"+name+".java"); // "/lightsystem/"+name+".java"
             ObjParser parser = new ObjParser(Paths.get(url.toURI()).toFile().getAbsolutePath(),true);
             Obj o = parser.parse(name);
             objs.add(o);

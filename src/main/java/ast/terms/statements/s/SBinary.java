@@ -1,6 +1,6 @@
 package ast.terms.statements.s;
 
-public final class SBinary implements S {
+public final class SBinary implements S, Binary {
     private final S left;
     private final S right;
 
