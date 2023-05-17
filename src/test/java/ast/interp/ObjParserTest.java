@@ -12,9 +12,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
+import static ast.interp.util.Program.buildProgram;
 
 public class ObjParserTest {
     public static void main(String[] args) throws IOException, URISyntaxException {
@@ -23,16 +22,9 @@ public class ObjParserTest {
         Obj obj = objParser.parse("Room2");
         System.out.println(new Gson().toJson(obj));
 
-        List<Obj> objs = new ArrayList<>();
-        for (String name : Arrays.asList("Flat","Room","Light")){ // Arrays.asList("Flat","Room","Light") // "Light","Power","Control"
-            URL url = ObjParserTest.class.getResource("/flatlightingsystem/"+name+".java"); // "/lightsystem/"+name+".java"
-            ObjParser parser = new ObjParser(Paths.get(url.toURI()).toFile().getAbsolutePath(),true);
-            Obj o = parser.parse(name);
-            objs.add(o);
-        }
-        Prog prog = new Prog("toggle","Flat",objs);
+        Prog prog = buildProgram("/flatlightingsystem/","toggle","Flat","Flat","Room","Light");
         Symbolic symbolic = new Symbolic(prog);
-        for (Obj o : objs){
+        for (Obj o : prog.getObjs()){
             if (o instanceof Obj){
                 System.out.println(o.getA()+": "+symbolic.interpObj(o));
                 System.out.println("\t\\Omega = "+symbolic.Omega(o));

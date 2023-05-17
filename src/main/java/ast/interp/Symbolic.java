@@ -36,6 +36,19 @@ public final class Symbolic {
         }
     }
 
+    Optional<Func<String>> interpProg(Prog prog){
+        Obj Aepsilon = lookupObj(prog.getAepsilon());
+        Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
+        if (!Aepsilon.isPrimitive() &&
+            interpObj(Aepsilon).isPresent() &&
+                m_epsilon.isPresent() &&
+                m_epsilon.get().dom().equals(Theta(Aepsilon))){
+            return m_epsilon;
+        } else {
+            return Optional.empty();
+        }
+    }
+
     Optional<IObj> interpObj(Obj A){
         if (A.isPrimitive()){
             return interpPrimitiveObj(A);

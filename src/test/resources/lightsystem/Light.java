@@ -5,15 +5,12 @@ public class Light {
 	public boolean on() { return power.on() && control.on(); }
 	public boolean off() { return power.off() || control.off(); }
 
-	public void turnOn() {
+	public void toggle() {
 		if (off()){
 			power.turnOn();
 			control.turnOn();
 			assert(on());
 		}
-	}
-
-	public void turnOff() {
 		if (on()){
 			power.turnOff();
 			control.turnOff();
