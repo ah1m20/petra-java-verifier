@@ -12,8 +12,8 @@ public class Light {
 			assert(on());
 		}
 		if (on()){
-			power.turnOff();
-			control.turnOff();
+			par(()->power.turnOff(),
+				()->control.turnOff());
 			assert(off());
 		}
 	}

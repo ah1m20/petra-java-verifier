@@ -14,7 +14,6 @@ import ast.terms.expressions.d.P;
 import ast.terms.expressions.d.True;
 import ast.terms.expressions.e.*;
 import ast.terms.statements.c.C;
-import ast.terms.statements.s.Binary;
 import ast.terms.statements.s.S;
 
 import ast.interp.util.Set;
@@ -250,19 +249,21 @@ public final class Symbolic {
         throw new IllegalArgumentException("s must be Skip, Am, RBinary or SBinary.");
     }
 
-    Optional<Func<List<String>>> interp(SBinary binary, Obj A){
-        Optional<Func<List<String>>> right = interpS(binary.getRight(), A);
-        Optional<Func<List<String>>> left = interpS(binary.getLeft(), A);
-        if (right.isPresent() && left.isPresent() &&
-                subseteq(right.get().range(), left.get().dom()) ){
-            return Optional.of(left.get().compose(right.get()));
+    Optional<Func<List<String>>> interpS(SBinary binary, Obj A){
+        Optional<Func<List<String>>> ir = interpS(binary.getLeft(), A);
+        Optional<Func<List<String>>> irPrim = interpS(binary.getRight(), A);
+
+        Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
+        Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
+        Set<List<String>> V = ir.get().restrict(P).range();
+
+        if (ir.isPresent() && irPrim.isPresent()
+               && subseteq(ir.get().restrict(P).range(), irPrim.get().dom()) ){
+            Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
+            return Optional.of(new Func<>(P,Q,f.def()));
         } else {
             return Optional.empty();
         }
-    }
-
-    Optional<Func<List<String>>> interpS(SBinary binary, Obj A){
-        return interpRS(binary,A);
     }
 
     Func<List<String>> interpSkip(Skip skip, Obj A){
@@ -300,14 +301,10 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpR(RBinary binary, Obj A){
-        return interpRS(binary,A);
-    }
-
-    Optional<Func<List<String>>> interpRS(Binary binary, Obj A){
-        S r = binary.getLeft();
-        S rPrim = binary.getRight();
-        Optional<Func<List<String>>> ir = interpS(r, A);
-        Optional<Func<List<String>>> irPrim = interpS(rPrim, A);
+        R r = binary.getLeft();
+        R rPrim = binary.getRight();
+        Optional<Func<List<String>>> ir = interpR(r, A);
+        Optional<Func<List<String>>> irPrim = interpR(rPrim, A);
         if (ir.isPresent() && irPrim.isPresent() &&
                 intersect(fields(r), fields(rPrim)).isEmpty() ){
             Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
@@ -388,15 +385,15 @@ public final class Symbolic {
         throw new IllegalArgumentException("d must be instanceof P or DBinary.");
     }
 
-    Set<String> fields(S s){
-        if (s instanceof Am){
-            Am Am = ((Am) s);
+    Set<String> fields(R r){
+        if (r instanceof Am){
+            Am Am = ((Am) r);
             String a = Am.getA();
             return set(a);
-        } else if (s instanceof Binary){
-            Binary binary = ((Binary) s);
-            S right = binary.getRight();
-            S left = binary.getLeft();
+        } else if (r instanceof RBinary){
+            RBinary binary = ((RBinary) r);
+            R right = binary.getRight();
+            R left = binary.getLeft();
             return union(fields(right),fields(left));
         }
         throw new IllegalArgumentException("s must be instanceof Am or Binary.");

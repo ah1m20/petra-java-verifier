@@ -1,9 +1,8 @@
 package ast.terms.statements.s.r;
 
-import ast.terms.statements.s.Binary;
 import ast.terms.statements.s.S;
 
-public final class RBinary implements S, R, Binary {
+public final class RBinary implements S, R {
     private final R left;
     private final R right;
 

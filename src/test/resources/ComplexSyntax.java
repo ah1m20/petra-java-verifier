@@ -1,4 +1,4 @@
-public class Room2 {
+public class ComplexSyntax {
 	private final Light a = new Light();
 	private final Light b = new Light();
 	private final Light b1 = new Light();

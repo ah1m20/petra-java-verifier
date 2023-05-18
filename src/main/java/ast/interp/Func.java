@@ -61,7 +61,7 @@ public final class Func<T> {
     }
 
     public Set<T> image(Set<T> in){
-        return set(in, x->apply(x));
+        return this.restrict(in).range();
     }
 
     @Override
