@@ -1,9 +1,6 @@
 package ast.parsers;
 
-import ast.terms.Beta;
-import ast.terms.Delta;
-import ast.terms.Obj;
-import ast.terms.Phi;
+import ast.terms.*;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
@@ -59,14 +56,7 @@ public final class ObjParser {
     }
 
     private boolean isPrimitiveObject(ClassOrInterfaceDeclaration declaration){
-        for (FieldDeclaration f : declaration.getFields()){
-            for (VariableDeclarator v : f.getVariables()){
-                if (v.getType().isPrimitiveType()){
-                    return true;
-                }
-            }
-        }
-        return false;
+        return declaration.isAnnotationPresent(Base.class);
     }
 
     private Obj parseNonPrimitive(ClassOrInterfaceDeclaration declaration){
@@ -99,11 +89,6 @@ public final class ObjParser {
 
     private Obj parsePrimitive(ClassOrInterfaceDeclaration declaration){
         Obj obj = new Obj(declaration.getNameAsString(),true);
-        for (FieldDeclaration f : declaration.getFields()){
-            if (!f.isPrivate() || !f.isVolatile() || f.getVariables().size()!=1){
-                throw new IllegalArgumentException("expected a single private final field.");
-            }
-        }
         for (MethodDeclaration m : declaration.getMethods()){
             if (!m.isPublic()){
                 throw new IllegalArgumentException("expected public method.");

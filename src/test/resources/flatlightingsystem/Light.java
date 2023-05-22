@@ -1,4 +1,6 @@
-public class Light {
+import ast.terms.Base;
+
+@Base public class Light {
 	private volatile boolean power = false;
 	private volatile boolean control = false;
 

@@ -399,4 +399,26 @@ public final class Symbolic {
         throw new IllegalArgumentException("s must be instanceof Am or Binary.");
     }
 
+    public void printOutput() {
+        for (Obj o : objectTable.values()){
+            if (o instanceof Obj){
+                System.out.println(o.getA()+": "+interpObj(o));
+                System.out.println("\t\\Omega = "+Omega(o));
+                System.out.println("\t\\Theta = "+Theta(o));
+                for (Phi p : o.getOverlinePhi()){
+                    if (!o.isPrimitive()){
+                        System.out.println("\t"+p.getP()+" = "+interpE(lookupE(p.getP(),o),o));
+                    } else {
+                        System.out.println("\t"+p.getP());
+                    }
+                }
+                for (Delta d : o.getOverlineDelta()){
+                    System.out.println("\t"+d.getM()+":");
+                    for (C c : d.getOverlineC()){
+                        System.out.println("\t\tcase: "+interpC(c,o));
+                    }
+                }
+            }
+        }
+    }
 }

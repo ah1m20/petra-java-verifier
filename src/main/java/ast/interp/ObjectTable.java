@@ -2,6 +2,7 @@ package ast.interp;
 
 import ast.terms.Obj;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,5 +15,9 @@ public class ObjectTable {
 
     public Obj lookup(String objectId){
         return table.get(objectId);
+    }
+
+    public Collection<Obj> values() {
+        return table.values();
     }
 }
