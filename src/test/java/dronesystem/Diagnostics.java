@@ -1,3 +1,7 @@
+package dronesystem;
+
+import static ast.interp.util.Program.par;
+
 public class Diagnostics {
 	private final Barometer barometer = new Barometer();
 	private final Wifi wifi = new Wifi();

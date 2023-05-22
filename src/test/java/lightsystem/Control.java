@@ -1,4 +1,9 @@
-public class Power {
+package lightsystem;
+
+import ast.terms.Base;
+
+@Base
+public class Control {
 	private volatile boolean active = false;
 	public boolean on() { return active; }
 	public boolean off() { return !active; }

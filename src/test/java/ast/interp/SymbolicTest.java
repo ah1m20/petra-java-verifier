@@ -13,21 +13,21 @@ public class SymbolicTest {
 
     @Test
     public void testLightSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("/lightsystem/","toggle","Light","Light","Power","Control");
+        Prog prog = buildProgram("src/test/java/lightsystem/","toggle","Light","Light","Power","Control");
         Symbolic symbolic = new Symbolic(prog);
         assertTrue(symbolic.interpProg(prog).isPresent());
     }
 
     @Test
     public void testFlatLightingSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("/flatlightingsystem/","toggle","Flat","Flat","Room","Light");
+        Prog prog = buildProgram("src/test/java/flatlightingsystem/","toggle","Flat","Flat","Room","Light");
         Symbolic symbolic = new Symbolic(prog);
         assertTrue(symbolic.interpProg(prog).isPresent());
     }
 
     @Test
     public void testDroneSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("/dronesystem/","action","Controller","Controller","Diagnostics","Navigation","RoutePlan","Battery","Temperature","Wifi","Barometer");
+        Prog prog = buildProgram("src/test/java/dronesystem/","action","Controller","Controller","Diagnostics","Navigation","RoutePlan","Battery","Temperature","Wifi","Barometer");
         Symbolic symbolic = new Symbolic(prog);
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());

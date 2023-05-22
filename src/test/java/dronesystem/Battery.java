@@ -1,4 +1,9 @@
-@Base public class Battery {
+package dronesystem;
+
+import ast.terms.Base;
+
+@Base
+public class Battery {
 	private final DroneConnection connection = new DroneConnection();
 	private volatile float life = 0;
 	private volatile boolean stale = true;

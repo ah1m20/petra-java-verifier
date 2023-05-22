@@ -1,3 +1,5 @@
+package dronesystem;
+
 public class Waypoint {
 	private final int x;
 	private final int y;

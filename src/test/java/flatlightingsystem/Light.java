@@ -1,3 +1,5 @@
+package flatlightingsystem;
+
 import ast.terms.Base;
 
 @Base public class Light {

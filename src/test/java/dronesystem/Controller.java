@@ -1,4 +1,4 @@
-import javax.tools.Diagnostic;
+package dronesystem;
 
 public class Controller {
 
@@ -35,7 +35,7 @@ public class Controller {
 		}
 		if (landImediately()){
 			navigation.land();
-			assert(inAir() ^ onLand());
+			assert(onLandAndNotOkToTravel() ^ onLandAndOkToTravel());
 		}
 	}
 

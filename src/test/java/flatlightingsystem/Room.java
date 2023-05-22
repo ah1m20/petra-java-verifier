@@ -1,3 +1,7 @@
+package flatlightingsystem;
+
+import static ast.interp.util.Program.par;
+
 public class Room {
 	private final Light centre = new Light();
 	private final Light side = new Light();

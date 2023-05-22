@@ -1,4 +1,9 @@
-@Base public class Wifi {
+package dronesystem;
+
+import ast.terms.Base;
+
+@Base
+public class Wifi {
 	private final DroneConnection connection = new DroneConnection();
 	private volatile float snr = 0;
 	private volatile boolean stale = true;

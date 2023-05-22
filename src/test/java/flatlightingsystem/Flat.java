@@ -1,3 +1,7 @@
+package flatlightingsystem;
+
+import static ast.interp.util.Program.par;
+
 public class Flat {
 	private final Room front = new Room();
 	private final Room kitchen = new Room();
