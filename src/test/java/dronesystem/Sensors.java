@@ -2,7 +2,7 @@ package dronesystem;
 
 import static ast.interp.util.Program.par;
 
-public class Diagnostics {
+public class Sensors {
 	private final Barometer barometer = new Barometer();
 	private final Wifi wifi = new Wifi();
 	private final Temperature temperature = new Temperature();
@@ -14,7 +14,7 @@ public class Diagnostics {
 	public boolean landImediately(){return barometer.inAir() && temperature.high();}
 	public boolean carryOn(){return barometer.inAir() && !wifi.lowSNR() && !battery.returnHomeLevel() && !temperature.high();}
 
-	public void update(){
+	public void takeReadings(){
 		if (staleData()){
 			par(
 				()->barometer.update(),
@@ -26,7 +26,7 @@ public class Diagnostics {
 		}
 	}
 
-	public void reset(){
+	public void clearReadings(){
 		if (onLand() ^ returnHome() ^ landImediately() ^ carryOn()){
 			barometer.reset();
 			wifi.reset();

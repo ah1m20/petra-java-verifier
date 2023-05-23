@@ -3,39 +3,43 @@ package dronesystem;
 public class Controller {
 
 	private final Navigation navigation = new Navigation();
-	private final Diagnostics diagnostics = new Diagnostics();
+	private final Sensors sensors = new Sensors();
 
-	public boolean staleSensorData(){return diagnostics.staleData();}
-	public boolean onLandAndNotOkToTravel(){return !diagnostics.carryOn();}
-	public boolean onLandAndOkToTravel(){return diagnostics.carryOn();}
-	public boolean okToTravel(){return diagnostics.carryOn();}
-	public boolean returnHome(){return diagnostics.returnHome();}
-	public boolean landImediately(){return diagnostics.landImediately();}
+	public boolean staleSensorData(){return sensors.staleData();}
+	public boolean onLandAndNotOkToTravel(){return !sensors.carryOn();}
+	public boolean onLandAndOkToTravel(){return sensors.carryOn();}
+	public boolean okToTravel(){return sensors.carryOn();}
+	public boolean returnHome(){return sensors.returnHome();}
+	public boolean landImediately(){return sensors.landImediately();}
 
 	public void action(){
 		if (staleSensorData()){
-			diagnostics.update();
+			sensors.takeReadings();
 			assert(onLandAndNotOkToTravel() ^ onLandAndOkToTravel() ^ okToTravel() ^ returnHome() ^ landImediately());
 		}
 		if (onLandAndNotOkToTravel()){
-			diagnostics.update();
-			assert(onLandAndNotOkToTravel() ^ onLandAndOkToTravel());
+			sensors.clearReadings();
+			assert(staleSensorData());
 		}
 		if (onLandAndOkToTravel()){
 			navigation.takeOff();
-			assert(okToTravel() ^ returnHome() ^ landImediately());
+			sensors.clearReadings();
+			assert(staleSensorData());
 		}
 		if (okToTravel()){
 			navigation.travelToNextWaypoint();
+			sensors.clearReadings();
 			assert(staleSensorData());
 		}
 		if (returnHome()){
 			navigation.returnHome();
-			assert(okToTravel() ^ landImediately());
+			sensors.clearReadings();
+			assert(staleSensorData());
 		}
 		if (landImediately()){
 			navigation.land();
-			assert(onLandAndNotOkToTravel() ^ onLandAndOkToTravel());
+			sensors.clearReadings();
+			assert(staleSensorData());
 		}
 	}
 
