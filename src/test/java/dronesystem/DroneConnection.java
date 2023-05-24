@@ -1,15 +1,35 @@
 package dronesystem;
 
 public class DroneConnection {
-    public float getAltitude() {
+    public int getX() {
         return 0;
     }
 
-    public float getPower() {
+    public int getY() {
         return 0;
     }
 
-    public float getTemp() {
+    public int getZ() {
+        return 0;
+    }
+
+    public int getVelocityX() {
+        return 0;
+    }
+
+    public int getVelocityY() {
+        return 0;
+    }
+    public int getVelocityZ() {
+        return 0;
+    }
+
+
+    public int getPower() {
+        return 0;
+    }
+
+    public int getTemp() {
         return 0;
     }
 

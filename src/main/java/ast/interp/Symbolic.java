@@ -218,7 +218,7 @@ public final class Symbolic {
 
 
     public Optional<Func<String>> interpC(C c, Obj A){
-        if (A.isPrimitive()){
+        if (A.isPrimitive() || c.getS() instanceof Skip){
             return interpPrimitiveC(c,A);
         } else {
             return interpNonPrimitiveC(c,A);
@@ -460,10 +460,14 @@ public final class Symbolic {
                         System.out.println("\t"+p.getP());
                     }
                 }
+                pairwiseDisjointE(list(o.getOverlinePhi(),phi->phi.getE()),o);
                 for (Delta d : o.getOverlineDelta()){
                     System.out.println("\t"+d.getM()+":");
                     for (C c : d.getOverlineC()){
                         System.out.println("\t\tcase: "+interpC(c,o));
+                    }
+                    if (forall(d.getOverlineC(),c->interpC(c,o).isPresent())){
+                        pairwiseDisjoint(d.getOverlineC(),o);
                     }
                 }
             }

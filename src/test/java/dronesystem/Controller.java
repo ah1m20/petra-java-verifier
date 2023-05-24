@@ -2,44 +2,37 @@ package dronesystem;
 
 public class Controller {
 
-	private final Navigation navigation = new Navigation();
+	private final RoutePlan routePlan = new RoutePlan();
 	private final Sensors sensors = new Sensors();
-
-	public boolean staleSensorData(){return sensors.staleData();}
-	public boolean onLandAndNotOkToTravel(){return !sensors.carryOn();}
-	public boolean onLandAndOkToTravel(){return sensors.carryOn();}
-	public boolean okToTravel(){return sensors.carryOn();}
-	public boolean returnHome(){return sensors.returnHome();}
-	public boolean landImediately(){return sensors.landImediately();}
+	public boolean onLandAndOkToTravel(){return routePlan.waypointNotInsertedReady() && sensors.onLandAndOkToTravel();}
+	public boolean inAirAndOkToTravel(){return routePlan.waypointNotInsertedReady() && sensors.inAirAndOkToTravel();}
+	public boolean instructedToTravel(){return routePlan.waypointConsumed();}
+	public boolean returnHome(){return routePlan.waypointInsertedReady() && sensors.returnHome();}
+	public boolean landImediately(){return routePlan.waypointInsertedReady() && sensors.landImediately();}
 
 	public void action(){
-		if (staleSensorData()){
-			sensors.takeReadings();
-			assert(onLandAndNotOkToTravel() ^ onLandAndOkToTravel() ^ okToTravel() ^ returnHome() ^ landImediately());
-		}
-		if (onLandAndNotOkToTravel()){
-			sensors.clearReadings();
-			assert(staleSensorData());
+		if (instructedToTravel()){
+			;
+			assert(onLandAndOkToTravel() ^ inAirAndOkToTravel());
 		}
 		if (onLandAndOkToTravel()){
-			navigation.takeOff();
-			sensors.clearReadings();
-			assert(staleSensorData());
+			routePlan.insertTakeoff();
+			routePlan.travelToNextWaypoint();
+			assert(instructedToTravel());
 		}
-		if (okToTravel()){
-			navigation.travelToNextWaypoint();
-			sensors.clearReadings();
-			assert(staleSensorData());
+		if (inAirAndOkToTravel()){
+			routePlan.travelToNextWaypoint();
+			assert(instructedToTravel());
 		}
 		if (returnHome()){
-			navigation.returnHome();
-			sensors.clearReadings();
-			assert(staleSensorData());
+			routePlan.insertReturnHome();
+			routePlan.travelToNextWaypoint();
+			assert(instructedToTravel());
 		}
 		if (landImediately()){
-			navigation.land();
-			sensors.clearReadings();
-			assert(staleSensorData());
+			routePlan.insertLanding();
+			routePlan.travelToNextWaypoint();
+			assert(instructedToTravel());
 		}
 	}
 
