@@ -24,4 +24,9 @@ public final class Prog {
     public List<Obj> getObjs() {
         return objs;
     }
+
+    @Override
+    public String toString() {
+        return "<"+ m + ',' + Aepsilon + ',' + objs + ">";
+    }
 }

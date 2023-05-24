@@ -48,4 +48,9 @@ public final class Obj {
     public boolean isPrimitive() {
         return isPrimitive;
     }
+
+    @Override
+    public String toString() {
+        return this.getA();
+    }
 }
