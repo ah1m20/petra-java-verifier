@@ -331,7 +331,7 @@ public final class Symbolic {
                     funcs.add(id(Theta(A_i)));
                 }
             }
-            return Optional.of(functionProduct(funcs));
+            return Optional.of(relationProduct(funcs));
         } else {
             logBottom(am,A);
             return Optional.empty();

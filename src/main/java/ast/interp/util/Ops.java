@@ -14,13 +14,18 @@ import static ast.interp.util.Collections.set;
 public final class Ops {
 
     public static void main(String[] args){
-        Set<String> a = new Set<>();
-        a.add("x");
-        a.add("y");
-        Set<String> b = new Set<>();
-        b.add("a");
-        b.add("b");
-        System.out.println(product(a,b));
+        Func<String> x = new Func<>(set("a"),set("b","c"),set(mapsto("a","b"),mapsto("a","c")));
+        Func<String> y = new Func<>(set("d","e"),set("d","e"),set(mapsto("d","d"),mapsto("e","e")));
+        //Func<String> z = new Func<>(set("f","g"),set("f","g"),set(mapsto("f","f"),mapsto("g","g")));
+
+        Func<String> w = new Func<>(set("a","b"),set("c","d"),set(mapsto("a","c"),mapsto("b","d")));
+        Func<String> z = new Func<>(set("x","y"),set("w","z"),set(mapsto("x","w"),mapsto("y","z")));
+
+        //System.out.println(relationProduct(list(w,z)));
+
+        System.out.println(functionProduct(list(x,y)));
+
+        System.out.println(relationProduct(list(x,y)));
     }
 
     public static <T> boolean subseteq(Set<T> a, Set<T> b){
@@ -97,6 +102,24 @@ public final class Ops {
                 out.add(funcs.get(i).apply(in.get(i)));
             }
             productDef.add(mapsto(in,out));
+        }
+        return new Func<>(productDom, productRange, productDef);
+    }
+    public static <T> Func<List<T>> relationProduct(List<Func<T>> funcs){
+        List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
+        List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
+        Set<List<T>> productDom = product(doms);
+        Set<List<T>> productRange = product(ranges);
+        Set<Mapsto<List<T>,List<T>>> productDef = new Set<>();
+        Set<List<Mapsto<T,T>>> input = product(list(funcs, f->f.def()));
+        for (List<Mapsto<T, T>> in : input){
+            List<T> x = new ArrayList<>();
+            List<T> y = new ArrayList<>();
+            for (int i=0;i<in.size();i++){
+                x.add(in.get(i).getFrom());
+                y.add(in.get(i).getToo());
+            }
+            productDef.add(mapsto(x,y));
         }
         return new Func<>(productDom, productRange, productDef);
     }
