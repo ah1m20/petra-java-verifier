@@ -2,37 +2,43 @@ package dronesystem;
 
 public class Controller {
 
+	private final Position position = new Position();
+	private final Flight flight = new Flight();
+
 	private final RoutePlan routePlan = new RoutePlan();
-	private final Sensors sensors = new Sensors();
-	public boolean onLandAndOkToTravel(){return routePlan.waypointNotInsertedReady() && sensors.onLandAndOkToTravel();}
-	public boolean inAirAndOkToTravel(){return routePlan.waypointNotInsertedReady() && sensors.inAirAndOkToTravel();}
-	public boolean instructedToTravel(){return routePlan.waypointConsumed();}
-	public boolean returnHome(){return routePlan.waypointInsertedReady() && sensors.returnHome();}
-	public boolean landImediately(){return routePlan.waypointInsertedReady() && sensors.landImediately();}
+
+	public boolean grounded(){return !flight.canTravel() && position.onLand();}
+	public boolean takenOff(){return position.inAir();}
+	public boolean flight(){return flight.canTravel() || flight.mustHold();}
+	public boolean returnHome(){return flight.mustReturnHome();}
+
+	public boolean arrivedAtHome(){return position.atHome();}
+	public boolean mustLand(){return flight.mustLand();}
+
+	public boolean landed(){return position.onLand();}
 
 	public void action(){
-		if (instructedToTravel()){
-			;
-			assert(onLandAndOkToTravel() ^ inAirAndOkToTravel());
-		}
-		if (onLandAndOkToTravel()){
+		if (grounded()){
 			routePlan.insertTakeoff();
-			routePlan.travelToNextWaypoint();
-			assert(instructedToTravel());
+			assert(takenOff());
 		}
-		if (inAirAndOkToTravel()){
-			routePlan.travelToNextWaypoint();
-			assert(instructedToTravel());
+		if (takenOff()){
+			routePlan.insertRoute();
+			assert(flight());
+		}
+		if (flight()){
+			;
+			assert(returnHome() ^ mustLand() ^ flight());
 		}
 		if (returnHome()){
 			routePlan.insertReturnHome();
-			routePlan.travelToNextWaypoint();
-			assert(instructedToTravel());
+			position.waitUntilHome();
+			assert(arrivedAtHome());
 		}
-		if (landImediately()){
+		if (mustLand()){
 			routePlan.insertLanding();
-			routePlan.travelToNextWaypoint();
-			assert(instructedToTravel());
+			position.waitUntilLanded();
+			assert(landed());
 		}
 	}
 

@@ -10,57 +10,54 @@ import java.util.List;
 
 	private final Waypoint home = new Waypoint(0,0,0);
 
-	private final List<Waypoint> route = new ArrayList(Arrays.asList(
-			new Waypoint(10,0,0),
-			new Waypoint(10,10,0),
-			new Waypoint(10,10,10),
-			home));
+	private final List<Waypoint> route = new ArrayList();
 
 	private volatile int waypointIndex = 0;
 	private volatile int lastWaypointIndex = 0;
 
-	private int waypoints = route.size();
-
-	public boolean waypointInsertedReady(){return (route.size() - waypoints)==1 && waypointIndex < route.size()-1;}
-
-	public boolean waypointNotInsertedReady(){return (route.size() - waypoints)==0 && waypointIndex < route.size()-1;}
-
-	public boolean waypointConsumed(){return (waypointIndex - lastWaypointIndex)==1;}
+	public boolean nextWaypointsLoaded(){return (waypointIndex - lastWaypointIndex)>1;}
+	public boolean nextWaypointsNotLoaded(){return (waypointIndex - lastWaypointIndex)==0;}
 
 	public void travelToNextWaypoint(){
-		if (waypointInsertedReady() ^ waypointNotInsertedReady()){
+		if (nextWaypointsLoaded()){
 			connection.goToXYZ(route.get(waypointIndex).getX(),route.get(waypointIndex).getY(),route.get(waypointIndex).getZ());
 			lastWaypointIndex = waypointIndex;
 			waypointIndex++;
-			assert(waypointConsumed());
+			assert(nextWaypointsNotLoaded());
 		}
 	}
 
 	public void insertLanding(){
-		if (waypointNotInsertedReady()){
+		if (nextWaypointsNotLoaded()){
 			int x = connection.getX();
 			int y = connection.getY();
-			waypoints = route.size();
 			route.add(waypointIndex,new Waypoint(x,y,0));
-			assert(waypointInsertedReady());
+			assert(nextWaypointsLoaded());
 		}
 	}
 
 	public void insertTakeoff(){
-		if (waypointNotInsertedReady()){
+		if (nextWaypointsNotLoaded()){
 			int x = connection.getX();
 			int y = connection.getY();
-			waypoints = route.size();
 			route.add(waypointIndex,new Waypoint(x,y,100));
-			assert(waypointInsertedReady());
+			assert(nextWaypointsLoaded());
 		}
 	}
 
 	public void insertReturnHome(){
-		if (waypointNotInsertedReady()){;
-			waypoints = route.size();
+		if (nextWaypointsNotLoaded()){;
 			route.add(waypointIndex,home);
-			assert(waypointInsertedReady());
+			assert(nextWaypointsLoaded());
+		}
+	}
+
+	public void insertRoute(){
+		if (nextWaypointsNotLoaded()){
+			route.addAll(Arrays.asList(new Waypoint(10,0,0),
+					new Waypoint(10,10,0),
+					new Waypoint(10,10,10),home));
+			assert(nextWaypointsLoaded());
 		}
 	}
 
