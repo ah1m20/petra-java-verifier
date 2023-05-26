@@ -9,6 +9,4 @@ public class Flight {
 
 	public boolean mustReturnHome(){return sensors.returnHome();}
 
-	public boolean mustHold(){return !(sensors.landImediately() || sensors.returnHome());}
-
 }

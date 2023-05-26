@@ -14,22 +14,18 @@ public class Controller {
 
 	private final RoutePlan routePlan = new RoutePlan();
 
-	public boolean grounded(){return !flight.canTravel() && position.onLand();}
-	public boolean takenOff(){return position.inAir();}
-	public boolean flight(){return flight.canTravel() || flight.mustHold();}
-	public boolean returnHome(){return flight.mustReturnHome();}
+	public boolean grounded(){return !flight.canTravel() && position.onLand() && routePlan.nextWaypointsNotLoaded();}
+	public boolean flight(){return flight.canTravel() && position.inAir() && routePlan.nextWaypointsLoaded();}
+	public boolean returnHome(){return flight.mustReturnHome() && !position.atHome() && routePlan.nextWaypointsLoaded();}
 
-	public boolean arrivedAtHome(){return position.atHome();}
-	public boolean mustLand(){return flight.mustLand();}
+	public boolean arrivedAtHome(){return position.atHome() && routePlan.nextWaypointsNotLoaded();}
+	public boolean mustLand(){return flight.mustLand() && !(position.atHome() || position.onLand());}
 
-	public boolean landed(){return position.onLand();}
+	public boolean landed(){return flight.canTravel() && position.onLand() && routePlan.nextWaypointsNotLoaded();}
 
 	public void action(){
 		if (grounded()){
 			routePlan.insertTakeoff();
-			assert(takenOff());
-		}
-		if (takenOff()){
 			routePlan.insertRoute();
 			assert(flight());
 		}
@@ -39,11 +35,13 @@ public class Controller {
 		}
 		if (returnHome()){
 			routePlan.insertReturnHome();
+			routePlan.travelToNextWaypoint();
 			position.waitUntilHome();
 			assert(arrivedAtHome());
 		}
 		if (mustLand()){
 			routePlan.insertLanding();
+			routePlan.travelToNextWaypoint();
 			position.waitUntilLanded();
 			assert(landed());
 		}
