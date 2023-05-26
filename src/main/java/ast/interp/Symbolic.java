@@ -147,11 +147,12 @@ public final class Symbolic {
         LOG.info("["+t+"]^{"+A.getA()+"} = \\emptyset");
     }
 
-    public static <T> void logOverlap(E i, Set<List<String>> a, E j, Set<List<String>> b, Obj A){
+    public static <T> void logOverlapE(int i, Set<List<String>> a, int j, Set<List<String>> b, Obj A){
+        LOG.info("predicates "+i+" overlaps with "+j+" on states: "+intersect(a,b)+" in "+A.getA());
         LOG.info("["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
     }
 
-    public static <T> void logOverlap(C i, Set<String> a, C j, Set<String> b, Obj A){
+    public static <T> void logOverlapC(C i, Set<String> a, C j, Set<String> b, Obj A){
         LOG.info("["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
     }
 
@@ -176,7 +177,7 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpOverlineC(List<C> ovelineC, Obj A){
-        if (forall(ovelineC,c->logBottom(c,interpC(c,A).isPresent(),A)) && pairwiseDisjoint(ovelineC,A)){
+        if (forall(ovelineC,c->logBottom(c,interpC(c,A).isPresent(),A)) && pairwiseDisjointC(ovelineC,A)){
             return Optional.of(functionUnion(list(ovelineC, c-> interpC(c,A).get())));
         } else {
             logBottom(ovelineC,A);
@@ -185,29 +186,33 @@ public final class Symbolic {
     }
 
     boolean pairwiseDisjointE(List<E> e_j, Obj A) {
+        int x = 0;
         for (E i : e_j){
+            int y = 0;
             for (E j : e_j){
                 if (i!=j){
                     Set<List<String>> a = interpE(i,A);
                     Set<List<String>> b = interpE(j,A);
                     if (intersect(a,b).size()!=0){
-                        logOverlap(i,a,j,b,A);
+                        logOverlapE(x,a,y,b,A);
                         return false;
                     }
                 }
+                y++;
             }
+            x++;
         }
         return true;
     }
 
-    boolean pairwiseDisjoint(List<C> ovelineC, Obj A) {
+    boolean pairwiseDisjointC(List<C> ovelineC, Obj A) {
         for (C i : ovelineC){
             for (C j : ovelineC){
                 if (i!=j){
                     Optional<Func<String>> a = interpC(i,A);
                     Optional<Func<String>> b = interpC(j,A);
                     if (intersect(a.get().dom(),b.get().dom()).size()!=0){
-                        logOverlap(i,a.get().dom(),j,b.get().dom(),A);
+                        logOverlapC(i,a.get().dom(),j,b.get().dom(),A);
                         return false;
                     }
                 }
@@ -331,7 +336,7 @@ public final class Symbolic {
                     funcs.add(id(Theta(A_i)));
                 }
             }
-            return Optional.of(functionProduct(funcs));
+            return Optional.of(relationProduct(funcs));
         } else {
             logBottom(am,A);
             return Optional.empty();
@@ -467,7 +472,7 @@ public final class Symbolic {
                         System.out.println("\t\tcase: "+interpC(c,o));
                     }
                     if (forall(d.getOverlineC(),c->interpC(c,o).isPresent())){
-                        pairwiseDisjoint(d.getOverlineC(),o);
+                        pairwiseDisjointC(d.getOverlineC(),o);
                     }
                 }
             }

@@ -101,6 +101,25 @@ public final class Ops {
         return new Func<>(productDom, productRange, productDef);
     }
 
+    public static <T> Func<List<T>> relationProduct(List<Func<T>> funcs){
+        List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
+        List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
+        Set<List<T>> productDom = product(doms);
+        Set<List<T>> productRange = product(ranges);
+        Set<Mapsto<List<T>,List<T>>> productDef = new Set<>();
+        Set<List<Mapsto<T,T>>> input = product(list(funcs, f->f.def()));
+        for (List<Mapsto<T, T>> in : input){
+            List<T> x = new ArrayList<>();
+            List<T> y = new ArrayList<>();
+            for (int i=0;i<in.size();i++){
+                x.add(in.get(i).getFrom());
+                y.add(in.get(i).getToo());
+            }
+            productDef.add(mapsto(x,y));
+        }
+        return new Func<>(productDom, productRange, productDef);
+    }
+
     public static <T> Func<T> id(Set<T> set){
         Set<Mapsto<T,T>> def = set(set, e->mapsto(e,e));
         return new Func<>(set,set,def);

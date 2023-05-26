@@ -1,8 +1,8 @@
 package dronesystem;
 import ast.terms.Base;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 @Base public class RoutePlan {
@@ -10,7 +10,7 @@ import java.util.List;
 
 	private final Waypoint home = new Waypoint(0,0,0);
 
-	private final List<Waypoint> route = new ArrayList();
+	private final List<Waypoint> route = new LinkedList<>();
 
 	private volatile int lastWaypoints = 0;
 

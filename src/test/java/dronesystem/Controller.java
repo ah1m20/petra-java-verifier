@@ -8,29 +8,23 @@ package dronesystem;
  */
 
 public class Controller {
-
-	private final Position position = new Position();
 	private final Flight flight = new Flight();
 
 	private final RoutePlan routePlan = new RoutePlan();
 
-	public boolean grounded(){return position.onLand() && routePlan.noWaypointsInserted();}
-	public boolean flight(){return position.inAir() && routePlan.waypointsInserted();}
-	public boolean returnHome(){return flight.mustReturnHome() && !position.atHome() && routePlan.noWaypointsInserted();}
-	public boolean arrivedAtHome(){return position.atHome() && routePlan.noWaypointsInserted();}
-	public boolean mustLand(){return flight.mustLand() && !(position.atHome() || position.onLand()) && routePlan.waypointsInserted();}
+	public boolean flight(){return flight.inAirAndOkToTravel() && routePlan.waypointsInserted();}
+	public boolean returnHome(){return flight.returnHome() && routePlan.noWaypointsInserted();}
+	public boolean atHome(){return flight.atHome() && routePlan.noWaypointsInserted();}
+	public boolean mustLand(){return flight.landImediately() && routePlan.waypointsInserted();}
 
-	public boolean landed(){return position.onLand() && routePlan.noWaypointsInserted();}
+	public boolean landed(){return flight.onLandAndOkToTravel() && routePlan.noWaypointsInserted();}
 
 	public void action(){
-		if (arrivedAtHome()){
-			;
-			assert(arrivedAtHome());
-		}
-		if (grounded()){
+		if (atHome()){
+			flight.init();
 			routePlan.insertTakeoff();
 			routePlan.insertRoute();
-			position.waitUntilInAir();
+			flight.waitUntilInAir();
 			assert(flight());
 		}
 		if (flight()){
@@ -40,14 +34,19 @@ public class Controller {
 		if (returnHome()){
 			routePlan.insertReturnHome();
 			routePlan.travel();
-			position.waitUntilHome();
-			assert(arrivedAtHome());
+			flight.waitUntilHome();
+			assert(atHome());
 		}
 		if (mustLand()){
 			routePlan.insertLanding();
 			routePlan.travel();
-			position.waitUntilLanded();
+			flight.waitUntilOnLand();
 			assert(landed());
+		}
+		if (landed()){
+			routePlan.insertTakeoff();
+			flight.waitUntilInAir();
+			assert(flight());
 		}
 	}
 
