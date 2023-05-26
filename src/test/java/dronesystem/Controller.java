@@ -14,34 +14,38 @@ public class Controller {
 
 	private final RoutePlan routePlan = new RoutePlan();
 
-	public boolean grounded(){return !flight.canTravel() && position.onLand() && routePlan.nextWaypointsNotLoaded();}
-	public boolean flight(){return flight.canTravel() && position.inAir() && routePlan.nextWaypointsLoaded();}
-	public boolean returnHome(){return flight.mustReturnHome() && !position.atHome() && routePlan.nextWaypointsLoaded();}
+	public boolean grounded(){return position.onLand() && routePlan.noWaypointsInserted();}
+	public boolean flight(){return position.inAir() && routePlan.waypointsInserted();}
+	public boolean returnHome(){return flight.mustReturnHome() && !position.atHome() && routePlan.noWaypointsInserted();}
+	public boolean arrivedAtHome(){return position.atHome() && routePlan.noWaypointsInserted();}
+	public boolean mustLand(){return flight.mustLand() && !(position.atHome() || position.onLand()) && routePlan.waypointsInserted();}
 
-	public boolean arrivedAtHome(){return position.atHome() && routePlan.nextWaypointsNotLoaded();}
-	public boolean mustLand(){return flight.mustLand() && !(position.atHome() || position.onLand());}
-
-	public boolean landed(){return flight.canTravel() && position.onLand() && routePlan.nextWaypointsNotLoaded();}
+	public boolean landed(){return position.onLand() && routePlan.noWaypointsInserted();}
 
 	public void action(){
+		if (arrivedAtHome()){
+			;
+			assert(arrivedAtHome());
+		}
 		if (grounded()){
 			routePlan.insertTakeoff();
 			routePlan.insertRoute();
+			position.waitUntilInAir();
 			assert(flight());
 		}
 		if (flight()){
-			;
+			routePlan.travel();
 			assert(returnHome() ^ mustLand() ^ flight());
 		}
 		if (returnHome()){
 			routePlan.insertReturnHome();
-			routePlan.travelToNextWaypoint();
+			routePlan.travel();
 			position.waitUntilHome();
 			assert(arrivedAtHome());
 		}
 		if (mustLand()){
 			routePlan.insertLanding();
-			routePlan.travelToNextWaypoint();
+			routePlan.travel();
 			position.waitUntilLanded();
 			assert(landed());
 		}

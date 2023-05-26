@@ -28,4 +28,13 @@ public class Position {
 			assert (onLand());
 		}
 	}
+
+	public void waitUntilInAir(){
+		if (onLand()){
+			while(!inAir()){
+				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
+			}
+			assert (inAir());
+		}
+	}
 }
