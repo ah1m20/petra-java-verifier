@@ -272,7 +272,11 @@ public final class Symbolic {
     }
 
     boolean condition1(C c, Obj A) {
-        return interpS(c.getS(),A).isPresent();
+        boolean result = interpS(c.getS(),A).isPresent();
+        if (!result){
+            logBottom(c,A);
+        }
+        return result;
     }
     // TODO
     boolean condition2(C c, Obj A) {
@@ -283,7 +287,11 @@ public final class Symbolic {
         Set<E> e_q = set(Q, q-> lookupE(q,A));
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
-        return subseteq(interpS.image(in), out);
+        boolean result = subseteq(interpS.image(in), out);
+        if (!result){
+            logBottom(c,A);
+        }
+        return result;
     }
 
     Optional<Func<List<String>>> interpS(S s, Obj A){
@@ -303,12 +311,15 @@ public final class Symbolic {
         Optional<Func<List<String>>> ir = interpS(binary.getLeft(), A);
         Optional<Func<List<String>>> irPrim = interpS(binary.getRight(), A);
 
+        if (!(ir.isPresent() && irPrim.isPresent())){
+            logBottom(binary,A);
+            return Optional.empty();
+        }
         Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
         Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
         Set<List<String>> V = ir.get().restrict(P).range();
 
-        if (ir.isPresent() && irPrim.isPresent()
-               && subseteq(ir.get().restrict(P).range(), irPrim.get().dom()) ){
+        if ( subseteq(ir.get().restrict(P).range(), irPrim.get().dom()) ){
             Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
             return Optional.of(new Func<>(P,Q,f.def()));
         } else {

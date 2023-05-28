@@ -13,6 +13,7 @@ public class Position {
 
 	public void waitUntilHome(){
 		if (inAir()){
+			System.out.println("waitUntilHome");
 			while(!atHome()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
 			}
@@ -22,6 +23,7 @@ public class Position {
 
 	public void waitUntilLanded(){
 		if (inAir()){
+			System.out.println("waitUntilLanded");
 			while(!onLand()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
 			}
@@ -31,6 +33,7 @@ public class Position {
 
 	public void waitUntilInAir(){
 		if (onLand()){
+			System.out.println("onLand");
 			while(!inAir()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
 			}

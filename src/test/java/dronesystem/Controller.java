@@ -12,39 +12,36 @@ public class Controller {
 
 	private final RoutePlan routePlan = new RoutePlan();
 
-	public boolean flight(){return flight.inAirAndOkToTravel() && routePlan.waypointsInserted();}
-	public boolean returnHome(){return flight.returnHome() && routePlan.noWaypointsInserted();}
-	public boolean atHome(){return flight.atHome() && routePlan.noWaypointsInserted();}
-	public boolean mustLand(){return flight.landImediately() && routePlan.waypointsInserted();}
+	public boolean flight(){return flight.inAirAndOkToTravel() && (routePlan.home() || routePlan.takeOff() || routePlan.c() || routePlan.d() || routePlan.ground());}
+	public boolean returnHome(){return flight.returnHome() && routePlan.home();}
+	public boolean atHome(){return flight.atHome() && (routePlan.home() || routePlan.takeOff() || routePlan.c() || routePlan.d() || routePlan.ground());}
+	public boolean mustLand(){return flight.landImediately() && routePlan.ground();}
 
-	public boolean landed(){return flight.onLandAndOkToTravel() && routePlan.noWaypointsInserted();}
+	public boolean landed(){return flight.onLandAndOkToTravel() && (routePlan.home() || routePlan.takeOff() || routePlan.c() || routePlan.d() || routePlan.ground());}
 
 	public void action(){
 		if (atHome()){
 			flight.init();
-			routePlan.insertTakeoff();
-			routePlan.insertRoute();
+			routePlan.takeoff();
 			flight.waitUntilInAir();
-			assert(flight());
+			assert(flight() ^ returnHome() ^ mustLand());
 		}
 		if (flight()){
 			routePlan.travel();
 			assert(returnHome() ^ mustLand() ^ flight());
 		}
 		if (returnHome()){
-			routePlan.insertReturnHome();
-			routePlan.travel();
+			routePlan.returnToHome();
 			flight.waitUntilHome();
 			assert(atHome());
 		}
 		if (mustLand()){
-			routePlan.insertLanding();
-			routePlan.travel();
+			routePlan.land();
 			flight.waitUntilOnLand();
 			assert(landed());
 		}
 		if (landed()){
-			routePlan.insertTakeoff();
+			routePlan.land();
 			flight.waitUntilInAir();
 			assert(flight());
 		}

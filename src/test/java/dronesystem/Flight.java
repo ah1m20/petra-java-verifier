@@ -13,16 +13,17 @@ public class Flight {
 
 	public boolean onLandAndOkToTravel(){return control.on() && position.onLand() && !wifi.lowSNR() && !battery.returnHomeLevel() && !temperature.high();}
 
-	public boolean inAirAndOkToTravel(){return control.on() && !position.onLand() && !wifi.lowSNR() && !battery.returnHomeLevel() && !temperature.high();}
+	public boolean inAirAndOkToTravel(){return control.on() && position.inAir() && !wifi.lowSNR() && !battery.returnHomeLevel() && !temperature.high();}
 
-	public boolean returnHome(){return control.on() && !position.onLand() && ((wifi.lowSNR() && !temperature.high()) || (battery.returnHomeLevel() && !temperature.high()));}
+	public boolean returnHome(){return control.on() && position.inAir() && ((wifi.lowSNR() && !temperature.high()) || (battery.returnHomeLevel() && !temperature.high()));}
 
 	public boolean atHome(){return control.off() && position.atHome();}
 
-	public boolean landImediately(){return control.on() && !position.onLand() && temperature.high();}
+	public boolean landImediately(){return control.on() && position.inAir() && temperature.high();}
 
 	public void init() {
 		if (atHome()){
+			control.turnOn();
 			position.waitUntilInAir();
 			assert (onLandAndNotOkToTravel() ^ onLandAndOkToTravel() ^ inAirAndOkToTravel() ^ returnHome() ^ landImediately());
 		}

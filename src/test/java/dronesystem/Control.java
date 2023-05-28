@@ -10,6 +10,7 @@ public class Control {
 
 	public void turnOn() {
 		if (on() ^ off()){
+			System.out.println("turnOn");
 			active = true;
 			assert(on());
 		}
@@ -17,6 +18,7 @@ public class Control {
 
 	public void turnOff() {
 		if (on() ^ off()){
+			System.out.println("turnOff");
 			active = false;
 			assert(off());
 		}
