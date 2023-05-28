@@ -1,7 +1,9 @@
 package ast.interp;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
+import ast.interp.util.DepthTracker;
 import ast.interp.util.Logger;
 import ast.terms.Obj;
 import ast.terms.Prog;
@@ -31,6 +33,7 @@ public final class Symbolic {
 
     final static Logger LOG = new Logger();
     final ObjectTable objectTable = new ObjectTable();
+    private DepthTracker tracker = new DepthTracker();
 
     Symbolic(Prog prog){
         for (Obj obj : prog.getObjs()){
@@ -39,15 +42,20 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpProg(Prog prog){
+        markEntry();
+        log(prog);
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (!Aepsilon.isPrimitive() &&
             interpObj(Aepsilon).isPresent() &&
                 m_epsilon.isPresent() &&
                 m_epsilon.get().dom().equals(Theta(Aepsilon))){
+            logNonBottom(prog);
+            markExit();
             return m_epsilon;
         } else {
             logBottom(prog);
+            markExit();
             return Optional.empty();
         }
     }
@@ -104,6 +112,8 @@ public final class Symbolic {
     }
 
     Optional<IObj> interpNonPrimitiveObj(Obj A){
+        markEntry();
+        log(A);
         List<Obj> A_i = list(A.getOverlineBeta(), beta -> lookupObj(beta.getObjectId()));
         List<E> e_j = list(A.getOverlinePhi(), phi->phi.getE());
         List<String> overline_m_k = list(A.getOverlineDelta(), delta->delta.getM());
@@ -112,14 +122,17 @@ public final class Symbolic {
                 pairwiseDisjointE(e_j, A) &&
                 forall(overline_m_k, x->logBottom(x,interpOverlineC(lookupM(x,A), A).isPresent(),A))){
             Set<List<String>> Omega = Omega(A);
+            logNonBottom(A);
+            markExit();
             return Optional.of(new IObj(Omega, interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             logBottom(A);
+            markExit();
             return Optional.empty();
         }
     }
 
-    public static <T> boolean logBottom(T value, boolean holds, Obj A){
+    public <T> boolean logBottom(T value, boolean holds, Obj A){
         if (!holds){
             logBottom(value,A);
             return false;
@@ -127,7 +140,7 @@ public final class Symbolic {
         return true;
     }
 
-    public static <T> boolean logEmptySet(T value, boolean holds, Obj A){
+    public <T> boolean logEmptySet(T value, boolean holds, Obj A){
         if (!holds){
             logEmptySet(value,A);
             return false;
@@ -135,24 +148,62 @@ public final class Symbolic {
         return true;
     }
 
-    public static <T> void logBottom(T t){
-        LOG.info("["+t+"] = \\bot");
+    public <T> void logNonBottom(T t){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+t+"] != \\bot");
     }
 
-    public static <T> void logBottom(T t, Obj A){
-        LOG.info("["+t+"]^{"+A.getA()+"} = \\bot");
+    public <T> void logBottom(T t){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+t+"] = \\bot");
     }
 
-    public static <T> void logEmptySet(T t, Obj A){
-        LOG.info("["+t+"]^{"+A.getA()+"} = \\emptyset");
+
+
+    public <T> void logNonBottom(T t, Obj A){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+t+"]^{"+A.getA()+"} != \\bot");
     }
 
-    public static <T> void logOverlap(E i, Set<List<String>> a, E j, Set<List<String>> b, Obj A){
-        LOG.info("["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
+    public <T> void log(T t){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+t+"]");
     }
 
-    public static <T> void logOverlap(C i, Set<String> a, C j, Set<String> b, Obj A){
-        LOG.info("["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
+    public <T> void log(T t, Obj A){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+t+"]^{"+A.getA()+"}");
+    }
+
+    public <T> void logBottom(T t, Obj A){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+t+"]^{"+A.getA()+"} = \\bot");
+    }
+
+    public <T> void logEmptySet(T t, Obj A){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+t+"]^{"+A.getA()+"} = \\emptyset");
+    }
+
+    public <T> void logOverlap(E i, Set<List<String>> a, E j, Set<List<String>> b, Obj A){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
+        LOG.info(tabs+"overlapping states: "+intersect(a,b));
+    }
+
+    public <T> void logOverlap(C i, Set<String> a, C j, Set<String> b, Obj A){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
+        LOG.info(tabs+"["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
+        LOG.info(tabs+"overlapping states: "+intersect(a,b));
     }
 
     Optional<IObj> interpPrimitiveObj(Obj A){
@@ -170,16 +221,24 @@ public final class Symbolic {
     }
 
     Map<String, Optional<Func<String>>> interpDeltas(List<Delta> overlineDelta, Obj A){
+        markEntry();
+        log(overlineDelta,A);
         Map<String, Optional<Func<String>>> record = new HashMap<>();
         forEach(overlineDelta, delta->record.put(delta.getM(),interpOverlineC(delta.getOverlineC(),A)));
+        markExit();
         return record;
     }
 
     Optional<Func<String>> interpOverlineC(List<C> ovelineC, Obj A){
+        markEntry();
+        log(ovelineC,A);
         if (forall(ovelineC,c->logBottom(c,interpC(c,A).isPresent(),A)) && pairwiseDisjoint(ovelineC,A)){
+            logNonBottom(ovelineC,A);
+            markExit();
             return Optional.of(functionUnion(list(ovelineC, c-> interpC(c,A).get())));
         } else {
             logBottom(ovelineC,A);
+            markExit();
             return Optional.empty();
         }
     }
@@ -226,11 +285,16 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpNonPrimitiveC(C c, Obj A){
+        markEntry();
+        log(c,A);
         if (condition1(c,A) &&
                 condition2(c,A)){
+            logNonBottom(c,A);
+            markExit();
             return Optional.of(f(c,A));
         } else {
             logBottom(c,A);
+            markExit();
             return Optional.empty();
         }
     }
@@ -295,19 +359,27 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpS(SBinary binary, Obj A){
+        markEntry();
+        log(binary,A);
         Optional<Func<List<String>>> ir = interpS(binary.getLeft(), A);
         Optional<Func<List<String>>> irPrim = interpS(binary.getRight(), A);
 
+        if (!(ir.isPresent() && irPrim.isPresent())){
+            logBottom(binary,A);
+            return Optional.empty();
+        }
         Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
         Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
         Set<List<String>> V = ir.get().restrict(P).range();
 
-        if (ir.isPresent() && irPrim.isPresent()
-               && subseteq(ir.get().restrict(P).range(), irPrim.get().dom()) ){
+        if ( subseteq(ir.get().restrict(P).range(), irPrim.get().dom()) ){
             Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
+            logNonBottom(binary,A);
+            markExit();
             return Optional.of(new Func<>(P,Q,f.def()));
         } else {
             logBottom(binary,A);
+            markExit();
             return Optional.empty();
         }
     }
@@ -317,6 +389,8 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpAm(Am am, Obj A){
+        markEntry();
+        log(am,A);
         Obj A_ = lookupObj(am.getA(),A);
         Optional<Func<String>> interp = interpOverlineC(lookupM(am.getM(),A_),A_);
         if (interp.isPresent()){
@@ -331,11 +405,26 @@ public final class Symbolic {
                     funcs.add(id(Theta(A_i)));
                 }
             }
+<<<<<<< Updated upstream
             return Optional.of(functionProduct(funcs));
+=======
+            logNonBottom(am,A);
+            markExit();
+            return Optional.of(relationProduct(funcs));
+>>>>>>> Stashed changes
         } else {
             logBottom(am,A);
+            markExit();
             return Optional.empty();
         }
+    }
+
+    private void markEntry() {
+        this.tracker.markEntry();
+    }
+
+    private void markExit() {
+        this.tracker.markExit();
     }
 
     Optional<Func<List<String>>> interpR(R r, Obj A){
@@ -348,6 +437,8 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpR(RBinary binary, Obj A){
+        markEntry();
+        log(binary,A);
         R r = binary.getLeft();
         R rPrim = binary.getRight();
         Optional<Func<List<String>>> ir = interpR(r, A);
@@ -358,9 +449,12 @@ public final class Symbolic {
             Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
             Set<List<String>> V = ir.get().restrict(P).range();
             Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
+            logNonBottom(binary,A);
+            markExit();
             return Optional.of(new Func<>(P,Q,f.def()));
         } else {
             logBottom(binary,A);
+            markExit();
             return Optional.empty();
         }
     }

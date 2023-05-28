@@ -23,5 +23,10 @@ public final class Delta {
         return overlineC;
     }
 
+    @Override
+    public String toString(){
+        return m;
+    }
+
     
 }

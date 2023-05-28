@@ -21,5 +21,9 @@ public final class Am implements S, R, RTerminal {
         return m;
     }
 
-    
+
+    @Override
+    public String toString() {
+        return a + "." + m;
+    }
 }

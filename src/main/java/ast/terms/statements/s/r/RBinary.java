@@ -18,4 +18,10 @@ public final class RBinary implements S, R {
     public R getRight() {
         return right;
     }
+
+    @Override
+    public String toString() {
+        return left +
+                " // " + right;
+    }
 }

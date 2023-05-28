@@ -27,5 +27,11 @@ public final class C {
         return post;
     }
 
-    
+
+    @Override
+    public String toString() {
+        return "[" + pre +
+                "] " + s +
+                " [" + post +"]";
+    }
 }

@@ -16,4 +16,10 @@ public final class SBinary implements S {
     public S getRight() {
         return right;
     }
+
+    @Override
+    public String toString() {
+        return left +
+                " ; " + right;
+    }
 }

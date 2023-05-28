@@ -14,5 +14,9 @@ public final class P implements D, Terminal {
         return p;
     }
 
-    
+
+    @Override
+    public String toString() {
+        return p;
+    }
 }

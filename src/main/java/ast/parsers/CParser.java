@@ -3,6 +3,7 @@ package ast.parsers;
 import ast.terms.expressions.PrePost;
 import ast.terms.statements.c.C;
 import ast.terms.statements.s.S;
+import ast.terms.statements.s.r.Skip;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.Statement;
 import java.util.List;
@@ -25,7 +26,7 @@ public final class CParser {
             int size = statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().size();
             if (size > 1 && statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).isAssertStmt()) {
                 PrePost pre = dParser.parse(statement.asIfStmt().getCondition());
-                S s = !isPrimitive?sParser.parseS(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):null;
+                S s = !isPrimitive?sParser.parseS(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):new Skip();
                 PrePost post = dParser.parse(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).asAssertStmt().getCheck().asEnclosedExpr().getInner());
                 return new C(pre, s, post);
             }
