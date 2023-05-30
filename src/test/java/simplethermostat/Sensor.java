@@ -10,7 +10,7 @@ public class Sensor {
     }
 
     public void setTarget(int target) {
-        this.target = target;
+        target = target;
     }
 
     public boolean aboveOrEqualToTarget() { return getTemp() > target; }

@@ -29,7 +29,15 @@ public class SymbolicTest {
 
     @Test
     public void testDroneSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/dronesystem/","action","Controller","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Flight","Control","FlyHome","Land","AutoPilot","RemoteControl");
+        Prog prog = buildProgram("src/test/java/dronesystem/","action","Controller","Controller","Battery","Temperature","Wifi","Position","Control","FlyHome","Land","AutoPilot","RemoteControl");
+        Symbolic symbolic = new Symbolic(prog);
+        symbolic.printOutput();
+        assertTrue(symbolic.interpProg(prog).isPresent());
+    }
+
+    @Test
+    public void testDroneRouteSystem() throws URISyntaxException, IOException {
+        Prog prog = buildProgram("src/test/java/droneroutesystem/","action","Controller","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Flight","Control","FlyHome","Land","AutoPilot");
         Symbolic symbolic = new Symbolic(prog);
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
@@ -38,6 +46,14 @@ public class SymbolicTest {
     @Test
     public void testSimplethermostat() throws URISyntaxException, IOException {
         Prog prog = buildProgram("src/test/java/simplethermostat/","action","Thermostat","Thermostat","Temperature","Control","Logging");
+        Symbolic symbolic = new Symbolic(prog);
+        symbolic.printOutput();
+        assertTrue(symbolic.interpProg(prog).isPresent());
+    }
+
+    @Test
+    public void testEnergyManagementSystem() throws URISyntaxException, IOException {
+        Prog prog = buildProgram("src/test/java/energymanagement/","run","EnergyManagement","EnergyManagement","Library","ZeplerBuilding","Floor1","AirConditioners","Appliances","Heaters","Plumbing","ComputerRoom","ComputerNetwork","ComputerRoom","Logger");
         Symbolic symbolic = new Symbolic(prog);
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());

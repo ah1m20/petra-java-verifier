@@ -1,4 +1,4 @@
-package dronesystem;
+package droneroutesystem;
 
 public class Flight {
 
@@ -24,14 +24,14 @@ public class Flight {
 	public void init() {
 		if (atHome()){
 			control.turnOn();
-			position.waitUntilInAir();
+			position.waitUntilTakenOff();
 			assert (onLandAndNotOkToTravel() ^ onLandAndOkToTravel() ^ inAirAndOkToTravel() ^ returnHome() ^ landImediately());
 		}
 	}
 
 	public void waitUntilInAir() {
 		if (onLandAndOkToTravel() ^ onLandAndNotOkToTravel()){
-			position.waitUntilInAir();
+			position.waitUntilTakenOff();
 			assert (inAirAndOkToTravel() ^ returnHome() ^ landImediately());
 		}
 	}
