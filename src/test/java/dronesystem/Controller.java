@@ -8,43 +8,39 @@ package dronesystem;
  */
 
 public class Controller {
-	private final Flight flight = new Flight();
 
-	private final RoutePlan routePlan = new RoutePlan();
+	private final RemoteControl remoteControl = new RemoteControl();
+	private final AutoPilot autoPilot = new AutoPilot();
 
-	public boolean flight(){return flight.inAirAndOkToTravel() && (routePlan.home() || routePlan.takeOff() || routePlan.c() || routePlan.d() || routePlan.ground());}
-	public boolean returnHome(){return flight.returnHome() && routePlan.home();}
-	public boolean atHome(){return flight.atHome() && (routePlan.home() || routePlan.takeOff() || routePlan.c() || routePlan.d() || routePlan.ground());}
-	public boolean mustLand(){return flight.landImediately() && routePlan.ground();}
+	private final Control control = new Control();
 
-	public boolean landed(){return flight.onLandAndOkToTravel() && (routePlan.home() || routePlan.takeOff() || routePlan.c() || routePlan.d() || routePlan.ground());}
+	public boolean rc(){return control.on() && !(autoPilot.land() && !autoPilot.flyHome()) && !(autoPilot.flyHome() && !autoPilot.land());}
+	public boolean flyHome(){return control.on() && autoPilot.flyHome() && !autoPilot.land();}
+
+	public boolean land(){return control.on() && autoPilot.land() && !autoPilot.flyHome();}
+
+	public boolean grounded(){return control.off();}
 
 	public void action(){
-		if (atHome()){
-			flight.init();
-			routePlan.takeoff();
-			flight.waitUntilInAir();
-			assert(flight() ^ returnHome() ^ mustLand());
+		if (grounded()){
+			control.exit();
+			assert(grounded());
 		}
-		if (flight()){
-			routePlan.travel();
-			assert(returnHome() ^ mustLand() ^ flight());
+		if (flyHome()){
+			control.logFlyHome();
+			control.turnOff();
+			assert(grounded());
 		}
-		if (returnHome()){
-			routePlan.returnToHome();
-			flight.waitUntilHome();
-			assert(atHome());
+		if (land()){
+			control.logLand();
+			autoPilot.update();
+			assert(flyHome() ^ land() ^ rc());
 		}
-		if (mustLand()){
-			routePlan.land();
-			flight.waitUntilOnLand();
-			assert(landed());
-		}
-		if (landed()){
-			routePlan.land();
-			flight.waitUntilInAir();
-			assert(flight());
+		if (rc()){
+			control.logRC();
+			remoteControl.processCommand();
+			autoPilot.update();
+			assert(flyHome() ^ land() ^ rc());
 		}
 	}
-
 }

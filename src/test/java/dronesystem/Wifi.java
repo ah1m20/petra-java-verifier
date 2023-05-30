@@ -4,8 +4,15 @@ import ast.terms.Base;
 
 @Base
 public class Wifi {
-	private final DroneConnection connection = new DroneConnection();
-	public boolean lowSNR() {return connection.getSNR() < 0.2;}
-	public boolean normalSNR() {return connection.getSNR() >= 0.2 && connection.getSNR() <= 0.6;}
-	public boolean highSNR() {return connection.getSNR() > 0.6;}
+	private final DroneConnection connection = DroneConnection.getDroneConnection();
+	public boolean lowSNR() {return connection.lowSNR();}
+	public boolean normalSNR() {return connection.normalSNR();}
+	public boolean highSNR() {return connection.highSNR();}
+
+	public void read(){
+		if (lowSNR() ^ normalSNR() ^ highSNR()){
+			connection.readSNR();
+			assert(lowSNR() ^ normalSNR() ^ highSNR());
+		}
+	}
 }

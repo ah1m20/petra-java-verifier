@@ -1,9 +1,16 @@
 package dronesystem;
 import ast.terms.Base;
 @Base public class Temperature {
-	private final DroneConnection connection = new DroneConnection();
-	public boolean low() { return connection.getTemp() < 30; }
-	public boolean normal() { return connection.getTemp() >= 30 && connection.getTemp() <= 70; }
-	public boolean high() { return connection.getTemp() > 70; }
+	private final DroneConnection connection = DroneConnection.getDroneConnection();
+	public boolean low() { return connection.low(); }
+	public boolean normal() { return connection.normal(); }
+	public boolean high() { return connection.high(); }
+
+	public void read(){
+		if (low() ^ normal() ^ high()){
+			connection.readTemp();
+			assert(low() ^ normal() ^ high());
+		}
+	}
 
 }

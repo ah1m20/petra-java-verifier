@@ -4,8 +4,15 @@ import ast.terms.Base;
 
 @Base
 public class Battery {
-	private final DroneConnection connection = new DroneConnection();
-	public boolean returnHomeLevel() { return connection.getPower() < 50; }
-	public boolean okLevel() { return connection.getPower() >= 50; }
+	private final DroneConnection connection = DroneConnection.getDroneConnection();
+	public boolean returnHomeLevel() { return connection.returnHomeLevel(); }
+	public boolean okLevel() { return connection.okLevel(); }
+
+	public void read(){
+		if (returnHomeLevel() ^ okLevel()){
+			connection.readBattery();
+			assert(returnHomeLevel() ^ okLevel());
+		}
+	}
 
 }

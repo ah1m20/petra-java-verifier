@@ -4,7 +4,7 @@ import ast.terms.Base;
 
 @Base
 public class Position {
-	private final DroneConnection connection = new DroneConnection();
+	private final DroneConnection connection = DroneConnection.getDroneConnection();
 	public boolean onLand(){ return connection.getX() != 0 && connection.getY() != 0 && connection.getZ() == 0; }
 
 	public boolean inAir(){ return connection.getZ() > 0; }
