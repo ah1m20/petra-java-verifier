@@ -10,7 +10,7 @@ import ast.terms.Base;
 	public boolean off() { return !power || !control; }
 
 	public void turnOn() {
-		if (off()){
+		if (on() ^ off()){
 			power = true;
 			control = true;
 			assert(on());
@@ -18,7 +18,7 @@ import ast.terms.Base;
 	}
 
 	public void turnOff() {
-		if (on()){
+		if (on() ^ off()){
 			power = false;
 			control = false;
 			assert(off());

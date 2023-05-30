@@ -14,10 +14,10 @@ public class Controller {
 
 	private final Control control = new Control();
 
-	public boolean rc(){return control.on() && !(autoPilot.land() && !autoPilot.flyHome()) && !(autoPilot.flyHome() && !autoPilot.land());}
-	public boolean flyHome(){return control.on() && autoPilot.flyHome() && !autoPilot.land();}
+	public boolean rc(){return control.on() && autoPilot.none();}
+	public boolean flyHome(){return control.on() && autoPilot.flyHome();}
 
-	public boolean land(){return control.on() && autoPilot.land() && !autoPilot.flyHome();}
+	public boolean land(){return control.on() && autoPilot.land();}
 
 	public boolean grounded(){return control.off();}
 

@@ -39,6 +39,10 @@ public final class Collections {
         return set.stream().map(mapper).collect(Collectors.toCollection(()->set()));
     }
 
+    public static <T,R> Set<R> set(List<T> list, Function<T,R> mapper){
+        return list.stream().map(mapper).collect(Collectors.toCollection(()->set()));
+    }
+
     public static <T,R> List<R> list(List<T> list, Function<T,R> mapper){
         return list.stream().map(mapper).collect(Collectors.toList());
     }

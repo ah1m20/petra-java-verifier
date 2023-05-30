@@ -44,7 +44,8 @@ public final class Symbolic {
         if (!Aepsilon.isPrimitive() &&
             interpObj(Aepsilon).isPresent() &&
                 m_epsilon.isPresent() &&
-                m_epsilon.get().dom().equals(Theta(Aepsilon))){
+                m_epsilon.get().dom().equals(Theta(Aepsilon)) &&
+                union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))) {
             return m_epsilon;
         } else {
             logBottom(prog);
@@ -110,7 +111,8 @@ public final class Symbolic {
         if (forall(A_i, x->logBottom(x,interpObj(x).isPresent(),A)) &&
                 forall(e_j, x->logEmptySet(x,!interpE(x, A).isEmpty(),A)) &&
                 pairwiseDisjointE(e_j, A) &&
-                forall(overline_m_k, x->logBottom(x,interpOverlineC(lookupM(x,A), A).isPresent(),A))){
+                forall(overline_m_k, x->logBottom(x,interpOverlineC(lookupM(x,A), A).isPresent(),A)) &&
+                union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))).equals(Omega(A))){
             Set<List<String>> Omega = Omega(A);
             return Optional.of(new IObj(Omega, interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {

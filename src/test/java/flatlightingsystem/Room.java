@@ -6,19 +6,29 @@ public class Room {
 	private final Light centre = new Light();
 	private final Light side = new Light();
 
-	public boolean on() { return centre.on() && side.on(); }
-	public boolean off() { return centre.off() && side.off(); }
+	public boolean bothOn() { return centre.on() && side.on(); }
+	public boolean bothOff() { return centre.off() && side.off(); }
+
+	public boolean other() { return !(centre.on() && side.on()) && !(centre.off() && side.off()); }
 
 	public void toggle() {
-		if (off()){
+		if (bothOff()){
 			centre.turnOn();
 			side.turnOn();
-			assert(on());
+			assert(bothOn());
 		}
-		if (on()){
+		if (bothOn()){
 			par(()-> centre.turnOff(),
 				()-> side.turnOff());
-			assert(off());
+			assert(bothOff());
+		}
+	}
+
+	public void turnOff() {
+		if (other()){
+			centre.turnOff();
+			side.turnOff();
+			assert(bothOff());
 		}
 	}
 }

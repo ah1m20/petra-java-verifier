@@ -91,7 +91,7 @@ public class DroneConnection {
     }
 
     public int getTemp() {
-        return 0;
+        return (int)(Math.random()*100);
     }
 
     public void goToXYZ(int x, int y, int z) {
