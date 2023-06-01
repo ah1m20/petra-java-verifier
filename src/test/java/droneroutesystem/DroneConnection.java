@@ -1,6 +1,6 @@
 package droneroutesystem;
 
-public class DroneConnection {
+public class DroneConnection implements Runnable {
 
     private DroneConnection(){}
 
@@ -30,19 +30,19 @@ public class DroneConnection {
 
     public boolean returnHomeLevel(){return battery < 50;}
 
-    public void readRc() {
+    private void readRc() {
         this.rc = Math.random();
     }
 
-    public void readTemp() {
+    private void readTemp() {
         this.temp = (int)(Math.random()*100);
     }
 
-    public void readBattery() {
+    private void readBattery() {
         this.battery =  (int)(Math.random()*100);
     }
 
-    public void readSNR() {
+    private void readSNR() {
         this.snr = Math.random();
     }
 
@@ -115,5 +115,13 @@ public class DroneConnection {
 
     public boolean highSNR() {
         return this.snr > 0.6;
+    }
+
+    @Override
+    public void run() {
+        readSNR();
+        readTemp();
+        readBattery();
+        readRc();
     }
 }

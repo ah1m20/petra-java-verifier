@@ -10,11 +10,4 @@ public final class Land {
     public boolean notLand(){
         return !temperature.high();
     }
-
-    public void read(){
-        if (land() ^ notLand()){
-            temperature.read();
-            assert(land() ^ notLand());
-        }
-    }
 }

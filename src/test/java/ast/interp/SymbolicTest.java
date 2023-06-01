@@ -37,7 +37,7 @@ public class SymbolicTest {
 
     @Test
     public void testDroneRouteSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/droneroutesystem/","action","Controller","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Flight","Control","FlyHome","Land","AutoPilot");
+        Prog prog = buildProgram("src/test/java/droneroutesystem/","run","Controller","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Control","FlyHome","Land","AutoPilot");
         Symbolic symbolic = new Symbolic(prog);
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());

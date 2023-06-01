@@ -13,12 +13,4 @@ public class FlyHome {
     public boolean notFlyHome(){
         return !(wifi.lowSNR() || battery.returnHomeLevel());
     }
-
-    public void read(){
-        if (flyHome() ^ notFlyHome()){
-            wifi.read();
-            battery.read();
-            assert(flyHome() ^ notFlyHome());
-        }
-    }
 }

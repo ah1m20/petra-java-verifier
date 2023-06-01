@@ -14,12 +14,4 @@ public class AutoPilot {
     public boolean land(){return land.land();}
 
     public boolean flyHome(){return land.notLand() && flyHome.flyHome();}
-
-    public void update() {
-        if (none() ^ land() ^ flyHome()){
-            land.read();
-            flyHome.read();
-            assert(none() ^ land() ^ flyHome());
-        }
-    }
 }

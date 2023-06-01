@@ -1,11 +1,9 @@
 package droneroutesystem;
 
+import static ast.interp.util.Program.mainLoop;
+
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
-        Controller controller = new Controller();
-        while(true){
-            controller.action();
-            Thread.sleep(100);
-        }
+    public static void main(String[] args) {
+        mainLoop(0,new Controller(), DroneConnection.getDroneConnection());
     }
 }
