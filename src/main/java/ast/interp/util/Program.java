@@ -26,4 +26,20 @@ public final class Program {
     public static void par(Runnable... runnables){
 
     }
+
+    public static void mainLoop(long iterationPauseInMilliseconds, Runnable entryPoint, Runnable... runnables){
+        while(true){
+            for (Runnable r : runnables){
+                r.run();
+            }
+            entryPoint.run();
+            if (iterationPauseInMilliseconds>0){
+                try {
+                    Thread.sleep(iterationPauseInMilliseconds);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 }

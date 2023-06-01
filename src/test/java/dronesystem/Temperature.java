@@ -5,12 +5,4 @@ import ast.terms.Base;
 	public boolean low() { return connection.low(); }
 	public boolean normal() { return connection.normal(); }
 	public boolean high() { return connection.high(); }
-
-	public void read(){
-		if (low() ^ normal() ^ high()){
-			connection.readTemp();
-			assert(low() ^ normal() ^ high());
-		}
-	}
-
 }

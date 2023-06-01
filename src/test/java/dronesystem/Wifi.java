@@ -8,11 +8,4 @@ public class Wifi {
 	public boolean lowSNR() {return connection.lowSNR();}
 	public boolean normalSNR() {return connection.normalSNR();}
 	public boolean highSNR() {return connection.highSNR();}
-
-	public void read(){
-		if (lowSNR() ^ normalSNR() ^ highSNR()){
-			connection.readSNR();
-			assert(lowSNR() ^ normalSNR() ^ highSNR());
-		}
-	}
 }

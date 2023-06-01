@@ -7,7 +7,7 @@ package dronesystem;
  * As Petra is new language / paradigm for formal verification it is difficult to map directly from ideas to verified models, without strong process for doing so.
  */
 
-public class Controller {
+public class Controller implements Runnable {
 
 	private final RemoteControl remoteControl = new RemoteControl();
 	private final AutoPilot autoPilot = new AutoPilot();
@@ -21,7 +21,7 @@ public class Controller {
 
 	public boolean grounded(){return control.off();}
 
-	public void action(){
+	public void run(){
 		if (grounded()){
 			control.exit();
 			assert(grounded());
@@ -33,13 +33,11 @@ public class Controller {
 		}
 		if (land()){
 			control.logLand();
-			autoPilot.update();
 			assert(flyHome() ^ land() ^ rc());
 		}
 		if (rc()){
 			control.logRC();
 			remoteControl.processCommand();
-			autoPilot.update();
 			assert(flyHome() ^ land() ^ rc());
 		}
 	}

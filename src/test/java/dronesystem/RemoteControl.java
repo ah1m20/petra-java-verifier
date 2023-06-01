@@ -16,22 +16,18 @@ import ast.terms.Base;
 	public void processCommand(){
 		if (forward()){
 			System.out.println("forward");
-			droneConnection.readRc();
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 		if (back()){
 			System.out.println("back");
-			droneConnection.readRc();
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 		if (left()){
 			System.out.println("left");
-			droneConnection.readRc();
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 		if (right()){
 			System.out.println("right");
-			droneConnection.readRc();
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 	}
