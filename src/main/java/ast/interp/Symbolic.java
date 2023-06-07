@@ -104,14 +104,12 @@ public final class Symbolic {
     }
 
     Optional<IObj> interpNonPrimitiveObj(Obj A){
-        List<Obj> A_i = list(A.getOverlineBeta(), beta -> lookupObj(beta.getObjectId()));
-        List<E> e_j = list(A.getOverlinePhi(), phi->phi.getE());
-        List<String> overline_m_k = list(A.getOverlineDelta(), delta->delta.getM());
-        if (forall(A_i, x->logBottom(x,interpObj(x).isPresent(),A)) &&
-                forall(e_j, x->logEmptySet(x,!interpE(x, A).isEmpty(),A)) &&
-                pairwiseDisjointE(e_j, A) &&
-                forall(overline_m_k, x->logBottom(x,interpOverlineC(lookupM(x,A), A).isPresent(),A))){
+        if (forall(A.getOverlineBeta(), beta->logBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A)) &&
+                forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
+                pairwiseDisjointE(A.getOverlinePhi(), A) &&
+                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A))){
             Set<List<String>> Omega = Omega(A);
+            logObjectPrivateStateSpace(Omega,A);
             return Optional.of(new IObj(Omega, interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             logBottom(A);
@@ -119,17 +117,19 @@ public final class Symbolic {
         }
     }
 
-    public static <T> boolean logBottom(T value, boolean holds, Obj A){
-        if (!holds){
-            logBottom(value,A);
+    public boolean isNotEmpty(String p, E e, Obj A){
+        Set<List<String>> set = interpE(e, A);
+        logPrivateStateSpace(p,set,A);
+        if (set.isEmpty()){
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
-    public static <T> boolean logEmptySet(T value, boolean holds, Obj A){
-        if (!holds){
-            logEmptySet(value,A);
+    public static <T> boolean logBottom(T value, boolean holds, Obj A) {
+        if (!holds) {
+            logBottom(value, A);
             return false;
         }
         return true;
@@ -143,16 +143,20 @@ public final class Symbolic {
         LOG.info("["+t+"]^{"+A.getA()+"} = \\bot");
     }
 
-    public static <T> void logEmptySet(T t, Obj A){
-        LOG.info("["+t+"]^{"+A.getA()+"} = \\emptyset");
+    public static void logObjectPrivateStateSpace(Set<List<String>> set, Obj A){
+        LOG.info("[Omega^{"+A.getA()+"}]^{"+A.getA()+"} = "+(!set.isEmpty()?set:"\\emptyset"));
     }
 
-    public static <T> void logOverlap(E i, Set<List<String>> a, E j, Set<List<String>> b, Obj A){
-        LOG.info("["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
+    public static void logPrivateStateSpace(String label, Set<List<String>> set, Obj A){
+        LOG.info("["+label+"]^{"+A.getA()+"} = "+(!set.isEmpty()?set:"\\emptyset"));
     }
 
-    public static <T> void logOverlap(C i, Set<String> a, C j, Set<String> b, Obj A){
-        LOG.info("["+i+"]^{"+A.getA()+"} = "+a+" overlaps with "+"["+j+"]^{"+A.getA()+"} = "+b);
+    public static void logCasesDomainOverlap(int i, Set<String> a, int j, Set<String> b, Obj A){
+        LOG.info("[c_"+i+"]^{"+A.getA()+"} = "+a+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
+    }
+
+    public static void logPredicatesOverlap(String p_i, Set<List<String>> a, String p_j, Set<List<String>> b, Obj A){
+        LOG.info("["+p_i+"]^{"+A.getA()+"} = "+a+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
     }
 
     Optional<IObj> interpPrimitiveObj(Obj A){
@@ -176,7 +180,7 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpOverlineC(List<C> ovelineC, Obj A){
-        if (forall(ovelineC,c->logBottom(c,interpC(c,A).isPresent(),A)) && pairwiseDisjoint(ovelineC,A)){
+        if (forall(ovelineC,c->logBottom(c,interpC(c,A).isPresent(),A)) && pairwiseDisjointDomC(ovelineC,A)){
             return Optional.of(functionUnion(list(ovelineC, c-> interpC(c,A).get())));
         } else {
             logBottom(ovelineC,A);
@@ -184,14 +188,16 @@ public final class Symbolic {
         }
     }
 
-    boolean pairwiseDisjointE(List<E> e_j, Obj A) {
-        for (E i : e_j){
-            for (E j : e_j){
+    boolean pairwiseDisjointE(List<Phi> phis, Obj A) {
+        for (Phi i : phis){
+            for (Phi j : phis){
                 if (i!=j){
-                    Set<List<String>> a = interpE(i,A);
-                    Set<List<String>> b = interpE(j,A);
+                    Set<List<String>> a = interpE(i.getE(),A);
+                    Set<List<String>> b = interpE(j.getE(),A);
+                    logPrivateStateSpace(i.getP(),a,A);
+                    logPrivateStateSpace(j.getP(),b,A);
                     if (intersect(a,b).size()!=0){
-                        logOverlap(i,a,j,b,A);
+                        logPredicatesOverlap(i.getP(),a,j.getP(),b,A);
                         return false;
                     }
                 }
@@ -200,14 +206,14 @@ public final class Symbolic {
         return true;
     }
 
-    boolean pairwiseDisjoint(List<C> ovelineC, Obj A) {
-        for (C i : ovelineC){
-            for (C j : ovelineC){
+    boolean pairwiseDisjointDomC(List<C> ovelineC, Obj A) {
+        for (int i=0;i<ovelineC.size();i++){
+            for (int j=0;j<ovelineC.size();j++){
                 if (i!=j){
-                    Optional<Func<String>> a = interpC(i,A);
-                    Optional<Func<String>> b = interpC(j,A);
+                    Optional<Func<String>> a = interpC(ovelineC.get(i),A);
+                    Optional<Func<String>> b = interpC(ovelineC.get(j),A);
                     if (intersect(a.get().dom(),b.get().dom()).size()!=0){
-                        logOverlap(i,a.get().dom(),j,b.get().dom(),A);
+                        logCasesDomainOverlap(i,a.get().dom(),j,b.get().dom(),A);
                         return false;
                     }
                 }
