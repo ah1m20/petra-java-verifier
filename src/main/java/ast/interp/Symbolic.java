@@ -108,10 +108,9 @@ public final class Symbolic {
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
                 forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A))){
-            Set<List<String>> Omega = Omega(A);
-            logObjectPrivateStateSpace(Omega,A);
-            return Optional.of(new IObj(Omega, interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
+            return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
+            logObjectPrivateStateSpace(Omega(A),A);
             logBottom(A);
             return Optional.empty();
         }
@@ -119,8 +118,8 @@ public final class Symbolic {
 
     public boolean isNotEmpty(String p, E e, Obj A){
         Set<List<String>> set = interpE(e, A);
-        logPrivateStateSpace(p,set,A);
         if (set.isEmpty()){
+            logPrivateStateSpace(p,set,A);
             return false;
         } else {
             return true;
@@ -194,9 +193,9 @@ public final class Symbolic {
                 if (i!=j){
                     Set<List<String>> a = interpE(i.getE(),A);
                     Set<List<String>> b = interpE(j.getE(),A);
-                    logPrivateStateSpace(i.getP(),a,A);
-                    logPrivateStateSpace(j.getP(),b,A);
                     if (intersect(a,b).size()!=0){
+                        logPrivateStateSpace(i.getP(),a,A);
+                        logPrivateStateSpace(j.getP(),b,A);
                         logPredicatesOverlap(i.getP(),a,j.getP(),b,A);
                         return false;
                     }
