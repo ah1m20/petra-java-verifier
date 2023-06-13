@@ -58,4 +58,11 @@ public class SymbolicTest {
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
     }
+
+    @Test public void testMeanRev() throws URISyntaxException, IOException {
+        Prog prog = buildProgram("src/test/java/meanreversion/","run","MeanRev","MeanRev","PositionManager","RevOrTrend","Trading");
+        Symbolic symbolic = new Symbolic(prog);
+        symbolic.printOutput();
+        assertTrue(symbolic.interpProg(prog).isPresent());
+    }
 }
