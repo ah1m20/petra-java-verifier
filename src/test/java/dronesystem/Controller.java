@@ -9,34 +9,35 @@ package dronesystem;
 
 public class Controller implements Runnable {
 
+	private final Controls controls = new Controls();
 	private final RemoteControl remoteControl = new RemoteControl();
 	private final AutoPilot autoPilot = new AutoPilot();
+	public boolean rc(){return autoPilot.none() && controls.inAir();}
+	public boolean flyHome(){return autoPilot.flyHome() && controls.inAir();}
 
-	private final Control control = new Control();
-
-	public boolean rc(){return control.on() && autoPilot.none();}
-	public boolean flyHome(){return control.on() && autoPilot.flyHome();}
-
-	public boolean land(){return control.on() && autoPilot.land();}
-
-	public boolean grounded(){return control.off();}
+	public boolean land(){return autoPilot.land() && controls.inAir();}
+	public boolean landed(){return controls.onLand();}
+	public boolean atHomeAndGrounded(){return controls.atHomeGrounded();}
+	public boolean atHomeAndNotGrounded(){return controls.atHomeNotGrounded();}
 
 	public void run(){
-		if (grounded()){
-			control.exit();
-			assert(grounded());
+		if (atHomeAndGrounded()){
+			;
+			assert(atHomeAndGrounded());
 		}
 		if (flyHome()){
-			control.logFlyHome();
-			control.turnOff();
-			assert(grounded());
+			controls.travelToHomeAndWaitTillHome();
+			assert(atHomeAndGrounded());
 		}
 		if (land()){
-			control.logLand();
+			controls.landAndWaitTillLanded();
+			assert(landed());
+		}
+		if (atHomeAndNotGrounded() ^ landed()){
+			controls.takeOffAndWaitTillInAir();
 			assert(flyHome() ^ land() ^ rc());
 		}
 		if (rc()){
-			control.logRC();
 			remoteControl.processCommand();
 			assert(flyHome() ^ land() ^ rc());
 		}

@@ -17,17 +17,22 @@ public class Set<T> extends LinkedHashSet<T> {
 
     @Override
     public String toString(){
+        return toString(true);
+    }
+
+    public String toString(boolean latex){
+        String escape = latex?"\\":"";
         Iterator<T> iterator = this.iterator();
         if (!iterator.hasNext()){
-            return "\\{\\}";
+            return escape+"{"+escape+"}";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("\\{");
+        sb.append(escape+"{");
         sb.append(elementToString(iterator.next()));
         while (iterator.hasNext()){
             sb.append(","+elementToString(iterator.next()));
         }
-        sb.append("\\}");
+        sb.append(escape+"}");
         return sb.toString();
     }
 

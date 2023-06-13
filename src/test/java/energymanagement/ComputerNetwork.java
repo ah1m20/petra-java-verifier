@@ -12,38 +12,37 @@ public class ComputerNetwork {
     private double totalEnergy;
     private final double highPercentageFactor = 0.5;
 
-    public boolean isNotZero(){return i!=0;}
-    public boolean isZero(){return i==0;}
-    public boolean isComputerLength(){return i==computers.length;}
+    public boolean noReading(){ return i==0; }
+    public boolean highUsage(){ return i==computers.length && totalEnergy > computers.length*computerMaxPower*highPercentageFactor; }
+    public boolean lowUsage(){ return i==computers.length && !highUsage();}
 
-    public boolean isLtComputerLength(){return i<computers.length;}
     public void readFromMeters(){
-        if (isZero()){ // P(x) => I(x), establishes invariant
-            while(isLtComputerLength()){ // P(x) => LC(x), loop starts
+        if (noReading()){ // P(x) => I(x), establishes invariant
+            while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
                 // step(x)
                 computers[i++] = Math.random()*computerMaxPower;
                 assert i>=0 && i< computers.length; // step(x)=x' => I(x'), loop maintains invariant
             }
-            assert(isComputerLength()); // Q(x) => I(x), loop terminates and maintains invariant
+            assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant
         }
     }
 
 
     public void resetCounter(){
-        if (isNotZero()){
+        if (lowUsage() ^ highUsage()){
             i = 0;
-            assert(isZero());
+            assert(noReading());
         }
     }
 
     public void sumEnergy(){
-        if (isZero()){ // P(x) => I(x), establishes invariant
-            while(isLtComputerLength()){ // P(x) => LC(x), loop starts
+        if (noReading()){ // P(x) => I(x), establishes invariant
+            while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
                 // step(x)
                 totalEnergy += computers[i++];
                 assert i>=0 && i< computers.length; // step(x)=x' => I(x'), loop maintains invariant
             }
-            assert(isComputerLength()); // Q(x) => I(x), loop terminates and maintains invariant
+            assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant
         }
     }
 
@@ -54,9 +53,5 @@ public class ComputerNetwork {
             assert(lowUsage() ^ highUsage());
         }
     }
-
-    public boolean noReading(){ return i==0; }
-    public boolean highUsage(){ return i==computers.length && totalEnergy > computers.length*computerMaxPower*highPercentageFactor; }
-    public boolean lowUsage(){ return i==computers.length && !highUsage();}
 
 }

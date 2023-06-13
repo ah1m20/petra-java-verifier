@@ -19,5 +19,8 @@ public class Beta {
         return objectId;
     }
 
-    
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()+"@"+this.hashCode();
+    }
 }

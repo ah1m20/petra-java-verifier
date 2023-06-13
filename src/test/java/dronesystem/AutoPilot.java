@@ -3,7 +3,7 @@ package dronesystem;
 public class AutoPilot {
     private final Land land = new Land();
     private final FlyHome flyHome = new FlyHome();
-    public boolean none(){return land.notLand() && flyHome.notFlyHome();}
+    public boolean none(){return !land.land() && !(land.notLand() && flyHome.flyHome());}
 
     /* Adding && flyHome.notFlyHome() to the predicate below causes a gap in the coverage and
      * hence if not caught can cause both reachability/liveness issues, hence why the additional complete coverage

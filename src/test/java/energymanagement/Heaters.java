@@ -12,40 +12,38 @@ public class Heaters {
     private double totalEnergy;
     private final double highPercentageFactor = 0.5;
 
-    public boolean isNotZero(){return i!=0;}
-    public boolean isZero(){return i==0;}
-    public boolean isHeaterLength(){return i==heaters.length;}
-
-    public boolean isLtHeaterLength(){return i<heaters.length;}
+    public boolean noReading(){ return i==0; }
+    public boolean highUsage(){ return i== heaters.length && totalEnergy > heaters.length* heaterMaxPower *highPercentageFactor; }
+    public boolean lowUsage(){ return i== heaters.length && !highUsage();}
 
     public void readFromMeters(){
-        if (isZero()){ // P(x) => I(x), establishes invariant
-            while(isLtHeaterLength()){ // P(x) => LC(x), loop starts
+        if (noReading()){ // P(x) => I(x), establishes invariant
+            while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
                 // step(x)
                 heaters[i++] = Math.random()* heaterMaxPower;
                 assert i>=0 && i< heaters.length; // step(x)=x' => I(x'), loop maintains invariant
             }
-            assert(isHeaterLength()); // Q(x) => I(x), loop terminates and maintains invariant
+            assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant
         }
     }
 
 
     public void resetCounter(){
-        if (isNotZero()){
+        if (lowUsage() ^ highUsage()){
             i = 0;
-            assert(isZero());
+            assert(noReading());
         }
     }
 
 
     public void sumEnergy(){
-        if (isZero()){ // P(x) => I(x), establishes invariant
-            while(isLtHeaterLength()){ // P(x) => LC(x), loop starts
+        if (noReading()){ // P(x) => I(x), establishes invariant
+            while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
                 // step(x)
                 totalEnergy += heaters[i++];
                 assert i>=0 && i< heaters.length; // step(x)=x' => I(x'), loop maintains invariant
             }
-            assert(isHeaterLength()); // Q(x) => I(x), loop terminates and maintains invariant
+            assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant
         }
     }
 
@@ -57,8 +55,6 @@ public class Heaters {
         }
     }
 
-    public boolean noReading(){ return i==0; }
-    public boolean highUsage(){ return i== heaters.length && totalEnergy > heaters.length* heaterMaxPower *highPercentageFactor; }
-    public boolean lowUsage(){ return i== heaters.length && !highUsage();}
+
 
 }

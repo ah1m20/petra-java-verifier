@@ -10,6 +10,6 @@ public class Main {
     public static void main(String[] args) throws IOException, URISyntaxException {
         Prog prog = buildProgram("/flatlightingsystem/","toggle","Flat","Flat","Room","Light");
         Symbolic symbolic = new Symbolic(prog);
-        symbolic.printOutput();
+        //symbolic.printOutput();
     }
 }

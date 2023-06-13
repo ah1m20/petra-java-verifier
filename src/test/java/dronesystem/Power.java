@@ -3,7 +3,7 @@ package dronesystem;
 import ast.terms.Base;
 
 @Base
-public class Control {
+public class Power {
 	private volatile boolean active = true;
 	public boolean on() { return active; }
 	public boolean off() { return !active; }
@@ -25,30 +25,10 @@ public class Control {
 	}
 
 	public void exit() {
-		if (off()){
+		if (on()){
+			active = false;
 			System.exit(0);
 			assert(off());
-		}
-	}
-
-	public void logFlyHome() {
-		if (on()){
-			System.out.println("flyHome.");
-			assert(on());
-		}
-	}
-
-	public void logLand() {
-		if (on()){
-			System.out.println("land.");
-			assert(on());
-		}
-	}
-
-	public void logRC() {
-		if (on()){
-			System.out.println("rc.");
-			assert(on());
 		}
 	}
 }
