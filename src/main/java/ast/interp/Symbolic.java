@@ -304,19 +304,24 @@ public final class Symbolic {
             String objectId = A.getOverlineBeta().get(i).getObjectId();
             String fieldId = A.getOverlineBeta().get(i).getFieldId();
             Obj A_i = lookupObj(objectId);
+            Am match = null;
             for (Am am : qr.getCmds()) {
-                Obj A_ = lookupObj(am.getA(),A);
                 if (am.getA().equals(fieldId)) {
-                    Optional<Func<String>> interp = interpOverlineC(lookupM(am.getM(), A_), A_);
-                    if (interp.isPresent()){
-                        funcs.add(interp.get());
-                    } else {
-                        logBottom(am, A);
-                        return Optional.empty();
-                    }
-                } else {
-                    funcs.add(id(Theta(A_i)));
+                    match = am;
+                    break;
                 }
+            }
+            if (match!=null){
+                Obj A_ = lookupObj(match.getA(),A);
+                Optional<Func<String>> interp = interpOverlineC(lookupM(match.getM(), A_), A_);
+                if (interp.isPresent()){
+                    funcs.add(interp.get());
+                } else {
+                    logBottom(match, A);
+                    return Optional.empty();
+                }
+            } else {
+                funcs.add(id(Theta(A_i)));
             }
         }
         return Optional.of(functionProduct(funcs));
