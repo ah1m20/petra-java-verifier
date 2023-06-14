@@ -13,8 +13,8 @@ public class Flat {
 		}
 		if (downstairs()){
 			par(()-> front.toggle(),
-			    ()-> kitchen.toggle());
-			bedroom.toggle();
+			    ()-> kitchen.toggle(),
+				()-> bedroom.toggle());
 			assert(upstairs());
 		}
 		if (upstairs()){
@@ -22,8 +22,8 @@ public class Flat {
 			assert(none());
 		}
 		if (none()){
-			bedroom.toggle();
-			par(()-> front.toggle(),
+			par(()-> bedroom.toggle(),
+				()-> front.toggle(),
 				()-> kitchen.toggle());
 			assert(all());
 		}
