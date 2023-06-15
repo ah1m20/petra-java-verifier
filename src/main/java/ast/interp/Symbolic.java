@@ -342,11 +342,24 @@ public final class Symbolic {
         }
         return true;
     }
+
+    boolean pairwiseEqualFields(QR qr){
+        for (Am am1 : qr.getCmds()) {
+            for (Am am2 : qr.getCmds()) {
+                if (am1!=am2 && !field(am1).equals(field(am2))){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     Optional<Func<List<String>>> interpSeqPar(QR qr, Obj A) {
         if (pairwiseDisjointFields(qr)){
             return interpSeperatedSeqPar(qr,A);
-        } else {
+        } else if (pairwiseEqualFields(qr)){
             return interpNonSeperatedSeq(qr,A);
+        } else {
+            return Optional.empty();
         }
     }
 
@@ -355,7 +368,11 @@ public final class Symbolic {
         Func<List<String>> f = interpAm(iterator.next(),A).get();
         while(iterator.hasNext()){
             Optional<Func<List<String>>> next = interpAm(iterator.next(),A);
-            f = next.get().compose(f);
+            if (subseteq(f.range(),next.get().dom())){
+                f = next.get().compose(f);
+            } else {
+                return Optional.empty();
+            }
         }
         return Optional.of(f);
     }
