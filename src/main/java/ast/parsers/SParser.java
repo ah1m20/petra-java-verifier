@@ -9,7 +9,7 @@ import java.util.List;
 public final class SParser {
 
     public S parse(List<Statement> statements){
-        if (statements.size()==0 || (statements.size()==1 && statements.get(0).asExpressionStmt().isEmptyStmt())) {
+        if (statements.size()==0 || (statements.size()==1 && statements.get(0).isEmptyStmt())) {
             return new Skip();
         } else if (statements.size()==1 && statements.get(0).asExpressionStmt().getExpression().isMethodCallExpr() &&
                 statements.get(0).asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("par") &&

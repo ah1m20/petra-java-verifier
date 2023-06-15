@@ -332,14 +332,35 @@ public final class Symbolic {
         return id(Omega(A));
     }
 
-    Optional<Func<List<String>>> interpSeqPar(QR qr, Obj A) {
+    boolean pairwiseDisjointFields(QR qr){
         for (Am am1 : qr.getCmds()) {
             for (Am am2 : qr.getCmds()) {
                 if (am1!=am2 && field(am1).equals(field(am2))){
-                    return Optional.empty();
+                    return false;
                 }
             }
         }
+        return true;
+    }
+    Optional<Func<List<String>>> interpSeqPar(QR qr, Obj A) {
+        if (pairwiseDisjointFields(qr)){
+            return interpSeperatedSeqPar(qr,A);
+        } else {
+            return interpNonSeperatedSeq(qr,A);
+        }
+    }
+
+    Optional<Func<List<String>>> interpNonSeperatedSeq(QR qr, Obj A) {
+        Iterator<Am> iterator = qr.getCmds().iterator();
+        Func<List<String>> f = interpAm(iterator.next(),A).get();
+        while(iterator.hasNext()){
+            Optional<Func<List<String>>> next = interpAm(iterator.next(),A);
+            f = next.get().compose(f);
+        }
+        return Optional.of(f);
+    }
+
+    Optional<Func<List<String>>> interpSeperatedSeqPar(QR qr, Obj A) {
         List<Func<String>> funcs = new ArrayList<>();
         for (int i = 0; i < A.getOverlineBeta().size(); i++) {
             String objectId = A.getOverlineBeta().get(i).getObjectId();
@@ -366,6 +387,28 @@ public final class Symbolic {
             }
         }
         return Optional.of(functionProduct(funcs));
+    }
+
+    Optional<Func<List<String>>> interpAm(Am am, Obj A){
+        Obj A_ = lookupObj(am.getA(),A);
+        Optional<Func<String>> interp = interpOverlineC(lookupM(am.getM(),A_),A_);
+        if (interp.isPresent()){
+            List<Func<String>> funcs = new ArrayList<>();
+            for (int i=0;i<A.getOverlineBeta().size();i++){
+                String objectId = A.getOverlineBeta().get(i).getObjectId();
+                String fieldId = A.getOverlineBeta().get(i).getFieldId();
+                Obj A_i = lookupObj(objectId);
+                if (am.getA().equals(fieldId)){
+                    funcs.add(interp.get());
+                } else {
+                    funcs.add(id(Theta(A_i)));
+                }
+            }
+            return Optional.of(functionProduct(funcs));
+        } else {
+            logBottom(am,A);
+            return Optional.empty();
+        }
     }
 
     Set<List<String>> interpAp(Ap ap, Obj A){
