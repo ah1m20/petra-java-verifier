@@ -16,14 +16,9 @@ import ast.terms.expressions.d.P;
 import ast.terms.expressions.d.True;
 import ast.terms.expressions.e.*;
 import ast.terms.statements.c.C;
-import ast.terms.statements.s.S;
+import ast.terms.statements.s.*;
 
 import ast.interp.util.Set;
-import ast.terms.statements.s.SBinary;
-import ast.terms.statements.s.r.Am;
-import ast.terms.statements.s.r.R;
-import ast.terms.statements.s.r.RBinary;
-import ast.terms.statements.s.r.Skip;
 
 import static ast.interp.util.Collections.*;
 import static ast.interp.util.Ops.*;
@@ -325,88 +320,52 @@ public final class Symbolic {
     Optional<Func<List<String>>> interpS(S s, Obj A){
         if (s instanceof Skip){
             return Optional.of(interpSkip((Skip)s, A));
-        } else if (s instanceof Am){
-            return interpAm((Am)s, A);
-        } else if (s instanceof RBinary){
-            return interpR((RBinary)s, A);
-        } else if (s instanceof SBinary){
-            return interpS((SBinary)s,A);
+        } else if (s instanceof Seq){
+            return interpSeqPar((Seq)s, A);
+        } else if (s instanceof Par){
+            return interpSeqPar((Par)s, A);
         }
-        throw new IllegalArgumentException("s must be Skip, Am, RBinary or SBinary.");
-    }
-
-    Optional<Func<List<String>>> interpS(SBinary binary, Obj A){
-        Optional<Func<List<String>>> ir = interpS(binary.getLeft(), A);
-        Optional<Func<List<String>>> irPrim = interpS(binary.getRight(), A);
-
-        if (!(ir.isPresent() && irPrim.isPresent())){
-            logBottom(binary,A);
-            return Optional.empty();
-        }
-        Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
-        Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
-        Set<List<String>> V = ir.get().restrict(P).range();
-
-        if ( subseteq(ir.get().restrict(P).range(), irPrim.get().dom()) ){
-            Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
-            return Optional.of(new Func<>(P,Q,f.def()));
-        } else {
-            logBottom(binary,A);
-            return Optional.empty();
-        }
+        throw new IllegalArgumentException("s must be Skip, Seq or Par.");
     }
 
     Func<List<String>> interpSkip(Skip skip, Obj A){
         return id(Omega(A));
     }
 
-    Optional<Func<List<String>>> interpAm(Am am, Obj A){
-        Obj A_ = lookupObj(am.getA(),A);
-        Optional<Func<String>> interp = interpOverlineC(lookupM(am.getM(),A_),A_);
-        if (interp.isPresent()){
-            List<Func<String>> funcs = new ArrayList<>();
-            for (int i=0;i<A.getOverlineBeta().size();i++){
-                String objectId = A.getOverlineBeta().get(i).getObjectId();
-                String fieldId = A.getOverlineBeta().get(i).getFieldId();
-                Obj A_i = lookupObj(objectId);
-                if (am.getA().equals(fieldId)){
-                    funcs.add(interp.get());
-                } else {
-                    funcs.add(id(Theta(A_i)));
+    Optional<Func<List<String>>> interpSeqPar(QR qr, Obj A) {
+        for (Am am1 : qr.getCmds()) {
+            for (Am am2 : qr.getCmds()) {
+                if (am1!=am2 && field(am1).equals(field(am2))){
+                    return Optional.empty();
                 }
             }
-            return Optional.of(functionProduct(funcs));
-        } else {
-            logBottom(am,A);
-            return Optional.empty();
         }
-    }
-
-    Optional<Func<List<String>>> interpR(R r, Obj A){
-        if (r instanceof Am){
-            return interpAm((Am)r, A);
-        } else if (r instanceof RBinary){
-            return interpR((RBinary)r, A);
+        List<Func<String>> funcs = new ArrayList<>();
+        for (int i = 0; i < A.getOverlineBeta().size(); i++) {
+            String objectId = A.getOverlineBeta().get(i).getObjectId();
+            String fieldId = A.getOverlineBeta().get(i).getFieldId();
+            Obj A_i = lookupObj(objectId);
+            Am match = null;
+            for (Am am : qr.getCmds()) {
+                if (am.getA().equals(fieldId)) {
+                    match = am;
+                    break;
+                }
+            }
+            if (match!=null){
+                Obj A_ = lookupObj(match.getA(),A);
+                Optional<Func<String>> interp = interpOverlineC(lookupM(match.getM(), A_), A_);
+                if (interp.isPresent()){
+                    funcs.add(interp.get());
+                } else {
+                    logBottom(match, A);
+                    return Optional.empty();
+                }
+            } else {
+                funcs.add(id(Theta(A_i)));
+            }
         }
-        throw new IllegalArgumentException("operator must be Am or RBinary");
-    }
-
-    Optional<Func<List<String>>> interpR(RBinary binary, Obj A){
-        R r = binary.getLeft();
-        R rPrim = binary.getRight();
-        Optional<Func<List<String>>> ir = interpR(r, A);
-        Optional<Func<List<String>>> irPrim = interpR(rPrim, A);
-        if (ir.isPresent() && irPrim.isPresent() &&
-                intersect(fields(r), fields(rPrim)).isEmpty() ){
-            Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
-            Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
-            Set<List<String>> V = ir.get().restrict(P).range();
-            Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
-            return Optional.of(new Func<>(P,Q,f.def()));
-        } else {
-            logBottom(binary,A);
-            return Optional.empty();
-        }
+        return Optional.of(functionProduct(funcs));
     }
 
     Set<List<String>> interpAp(Ap ap, Obj A){
@@ -477,42 +436,9 @@ public final class Symbolic {
         throw new IllegalArgumentException("d must be instanceof P or DBinary.");
     }
 
-    Set<String> fields(R r){
-        if (r instanceof Am){
-            Am Am = ((Am) r);
-            String a = Am.getA();
-            return set(a);
-        } else if (r instanceof RBinary){
-            RBinary binary = ((RBinary) r);
-            R right = binary.getRight();
-            R left = binary.getLeft();
-            return union(fields(right),fields(left));
-        }
-        throw new IllegalArgumentException("s must be instanceof Am or Binary.");
+    Set<String> field(Am am){
+        String a = am.getA();
+        return set(a);
     }
 
-    public void printOutput() {
-        for (Obj o : objectTable.values()){
-            if (o instanceof Obj){
-                System.out.println(o.getA()+": "+interpObj(o));
-                System.out.println("\t\\Omega = "+Omega(o));
-                System.out.println("\t\\Theta = "+Theta(o));
-                for (Phi p : o.getOverlinePhi()){
-                    if (!o.isPrimitive()){
-                        System.out.println("\t"+p.getP()+" = "+interpE(lookupE(p.getP(),o),o));
-                    } else {
-                        System.out.println("\t"+p.getP());
-                    }
-                }
-                //pairwiseDisjointE(o.getOverlinePhi(),o);
-                for (Delta d : o.getOverlineDelta()){
-                    System.out.println("\t"+d.getM()+":");
-                    for (C c : d.getOverlineC()){
-                        System.out.println("\t\tcase: "+interpC(c,o));
-                    }
-                    //pairwiseDisjointDomC(d.getOverlineC(),o);
-                }
-            }
-        }
-    }
 }

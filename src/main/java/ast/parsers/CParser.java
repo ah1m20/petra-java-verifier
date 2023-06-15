@@ -10,7 +10,7 @@ import static ast.interp.util.Collections.list;
 
 public final class CParser {
     private final DParser dParser = new DParser();
-    private final SParserRecursive sParser = new SParserRecursive();
+    private final SParser sParser = new SParser();
     public List<C> parse(MethodDeclaration declaration, boolean isPrimitive){
         if (declaration.getBody().isPresent()){
             return list(declaration.getBody().get().getStatements(),statement->parse(statement,isPrimitive));
@@ -25,7 +25,7 @@ public final class CParser {
             int size = statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().size();
             if (size > 1 && statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).isAssertStmt()) {
                 PrePost pre = dParser.parse(statement.asIfStmt().getCondition());
-                S s = !isPrimitive?sParser.parseS(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):null;
+                S s = !isPrimitive?sParser.parse(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):null;
                 PrePost post = dParser.parse(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).asAssertStmt().getCheck().asEnclosedExpr().getInner());
                 return new C(pre, s, post);
             }

@@ -27,7 +27,6 @@ public class Controller implements Runnable {
 			assert(grounded());
 		}
 		if (flyHome()){
-			control.logFlyHome();
 			control.turnOff();
 			routePlan.returnToHome();
 			assert(grounded());

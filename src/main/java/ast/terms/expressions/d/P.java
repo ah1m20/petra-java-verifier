@@ -1,9 +1,7 @@
 package ast.terms.expressions.d;
 
-import ast.terms.Terminal;
 
-
-public final class P implements D, Terminal {
+public final class P implements D {
     private final String p;
 
     public P(String p) {

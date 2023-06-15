@@ -3,19 +3,19 @@ package ast.terms.statements.s;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Seq implements S, QR{
-    private final List<Am> q = new ArrayList<>();
+public final class Par implements S, QR{
+    private final List<Am> r = new ArrayList<>();
 
     public void add(Am am) {
-        q.add(am);
+        r.add(am);
     }
 
-    public List<Am> getQ() {
-        return q;
+    public List<Am> getR() {
+        return r;
     }
 
     @Override
     public List<Am> getCmds() {
-        return q;
+        return r;
     }
 }
