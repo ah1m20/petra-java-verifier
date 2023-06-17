@@ -17,7 +17,7 @@ public class Control {
 	}
 
 	public void turnOff() {
-		if (on() ^ off()){
+		if (on()){
 			System.out.println("turnOff");
 			active = false;
 			assert(off());

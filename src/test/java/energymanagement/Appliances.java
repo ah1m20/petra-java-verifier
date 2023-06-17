@@ -15,31 +15,11 @@ import ast.terms.Base;
     public boolean highUsage(){ return i==appliances.length && totalEnergy > appliances.length* applianceMaxPower *highPercentageFactor; }
     public boolean lowUsage(){ return i==appliances.length && !highUsage();}
 
-    public void readFromMeters(){
-        if (noReading()){ // P(x) => I(x), establishes invariant
-            while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
-                // step(x)
-                appliances[i++] = Math.random()* applianceMaxPower;
-                assert i>=0 && i< appliances.length; // step(x)=x' => I(x'), loop maintains invariant
-            }
-            assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant
-        }
-    }
-
-
-    public void resetCounter(){
-        if (lowUsage() ^ highUsage()){
-            i = 0;
-            assert(noReading());
-        }
-    }
-
-
     public void sumEnergy(){
         if (noReading()){ // P(x) => I(x), establishes invariant
             while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
                 // step(x)
-                totalEnergy += appliances[i++];
+                totalEnergy += Math.random()* applianceMaxPower;
                 assert i>=0 && i< appliances.length; // step(x)=x' => I(x'), loop maintains invariant
             }
             assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant

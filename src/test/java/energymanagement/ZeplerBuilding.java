@@ -11,7 +11,7 @@ public class ZeplerBuilding {
 
 
      public void readData(){
-        if (noReading() ^ highUsage() ^ lowUsage()){
+        if (noReading()){
             computerRoom.readData();
             assert(highUsage() ^ lowUsage());
         }

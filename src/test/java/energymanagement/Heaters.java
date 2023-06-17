@@ -16,31 +16,12 @@ public class Heaters {
     public boolean highUsage(){ return i== heaters.length && totalEnergy > heaters.length* heaterMaxPower *highPercentageFactor; }
     public boolean lowUsage(){ return i== heaters.length && !highUsage();}
 
-    public void readFromMeters(){
-        if (noReading()){ // P(x) => I(x), establishes invariant
-            while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
-                // step(x)
-                heaters[i++] = Math.random()* heaterMaxPower;
-                assert i>=0 && i< heaters.length; // step(x)=x' => I(x'), loop maintains invariant
-            }
-            assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant
-        }
-    }
-
-
-    public void resetCounter(){
-        if (lowUsage() ^ highUsage()){
-            i = 0;
-            assert(noReading());
-        }
-    }
-
 
     public void sumEnergy(){
         if (noReading()){ // P(x) => I(x), establishes invariant
             while(!(lowUsage() ^ highUsage())){ // P(x) => LC(x), loop starts
                 // step(x)
-                totalEnergy += heaters[i++];
+                totalEnergy += Math.random()* heaterMaxPower;
                 assert i>=0 && i< heaters.length; // step(x)=x' => I(x'), loop maintains invariant
             }
             assert(lowUsage() ^ highUsage()); // Q(x) => I(x), loop terminates and maintains invariant

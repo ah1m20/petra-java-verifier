@@ -1,5 +1,7 @@
 package energymanagement;
 
+import static ast.interp.util.Program.par;
+
 public class Library {
     private final Floor1 floor1 = new Floor1();
 
@@ -11,8 +13,10 @@ public class Library {
 
     public void readData(){
         if (noReading()){
-            floor1.readData();
-            assert(highUsage() ^ lowUsage());
+           floor1.readData1();
+           floor1.readData2();
+           floor1.readData3();
+           assert(highUsage() ^ lowUsage());
         }
     }
 }

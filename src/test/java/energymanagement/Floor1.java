@@ -15,25 +15,32 @@ public class Floor1 {
         return heaters.lowUsage() && airConditioners.lowUsage() && appliances.lowUsage() && plumbing.lowUsage();
     }
     public boolean highUsage(){
-        return !(heaters.lowUsage() && airConditioners.lowUsage() && appliances.lowUsage() && plumbing.lowUsage()) && !(heaters.noReading() && airConditioners.noReading() && appliances.noReading());
+        return heaters.highUsage() && airConditioners.highUsage() && appliances.highUsage() && plumbing.highUsage();
     }
 
 
-    public void readData(){
+    public void readData1(){
         if (noReading()){
-            heaters.readFromMeters();
-            heaters.resetCounter();
             heaters.sumEnergy();
             heaters.logTotalEnergy();
-            airConditioners.readFromMeters();
-            airConditioners.resetCounter();
+            assert(lowUsage() ^ highUsage());
+        }
+    }
+
+    public void readData2(){
+        if (lowUsage() ^ highUsage()){
             airConditioners.sumEnergy();
             airConditioners.logTotalEnergy();
-            appliances.readFromMeters();
-            appliances.resetCounter();
+            assert(lowUsage() ^ highUsage());
+        }
+    }
+
+    public void readData3(){
+        if (lowUsage() ^ highUsage()){
             appliances.sumEnergy();
             appliances.logTotalEnergy();
             assert(lowUsage() ^ highUsage());
         }
     }
+
 }

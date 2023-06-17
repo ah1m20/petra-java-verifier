@@ -16,6 +16,7 @@ import ast.terms.expressions.d.P;
 import ast.terms.expressions.d.True;
 import ast.terms.expressions.e.*;
 import ast.terms.statements.c.C;
+import ast.terms.statements.s.Binary;
 import ast.terms.statements.s.S;
 
 import ast.interp.util.Set;
@@ -325,17 +326,15 @@ public final class Symbolic {
     Optional<Func<List<String>>> interpS(S s, Obj A){
         if (s instanceof Skip){
             return Optional.of(interpSkip((Skip)s, A));
-        } else if (s instanceof Am){
-            return interpAm((Am)s, A);
-        } else if (s instanceof RBinary){
-            return interpR((RBinary)s, A);
+        } else if (s instanceof R){
+            return interpR((R)s,A);
         } else if (s instanceof SBinary){
-            return interpS((SBinary)s,A);
+            return interpS((SBinary)s, A);
         }
         throw new IllegalArgumentException("s must be Skip, Am, RBinary or SBinary.");
     }
 
-    Optional<Func<List<String>>> interpS(SBinary binary, Obj A){
+    Optional<Func<List<String>>> interpNonSeperated(SBinary binary, Obj A) {
         Optional<Func<List<String>>> ir = interpS(binary.getLeft(), A);
         Optional<Func<List<String>>> irPrim = interpS(binary.getRight(), A);
 
@@ -343,17 +342,24 @@ public final class Symbolic {
             logBottom(binary,A);
             return Optional.empty();
         }
-        Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
-        Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
-        Set<List<String>> V = ir.get().restrict(P).range();
 
-        if ( subseteq(ir.get().restrict(P).range(), irPrim.get().dom()) ){
-            Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
-            return Optional.of(new Func<>(P,Q,f.def()));
+        if ( subseteq(ir.get().range(), irPrim.get().dom()) ){
+            Func<List<String>> f = irPrim.get().compose(ir.get());
+            return Optional.of(f);
         } else {
             logBottom(binary,A);
             return Optional.empty();
         }
+
+    }
+
+    Optional<Func<List<String>>> interpS(SBinary binary, Obj A){
+        if (!intersect(fields(binary.getLeft()), fields(binary.getRight())).isEmpty()){
+            return interpNonSeperated(binary,A);
+        } else if (intersect(fields(binary.getLeft()), fields(binary.getRight())).isEmpty()){
+            return interpSeperated(binary,A);
+        }
+        throw new IllegalArgumentException("");
     }
 
     Func<List<String>> interpSkip(Skip skip, Obj A){
@@ -386,18 +392,18 @@ public final class Symbolic {
         if (r instanceof Am){
             return interpAm((Am)r, A);
         } else if (r instanceof RBinary){
-            return interpR((RBinary)r, A);
+            return interpSeperated((RBinary)r, A);
         }
         throw new IllegalArgumentException("operator must be Am or RBinary");
     }
 
-    Optional<Func<List<String>>> interpR(RBinary binary, Obj A){
-        R r = binary.getLeft();
-        R rPrim = binary.getRight();
-        Optional<Func<List<String>>> ir = interpR(r, A);
-        Optional<Func<List<String>>> irPrim = interpR(rPrim, A);
+    Optional<Func<List<String>>> interpSeperated(Binary binary, Obj A){
+        S s = binary.getLeft();
+        S sPrim = binary.getRight();
+        Optional<Func<List<String>>> ir = interpS(s, A);
+        Optional<Func<List<String>>> irPrim = interpS(sPrim, A);
         if (ir.isPresent() && irPrim.isPresent() &&
-                intersect(fields(r), fields(rPrim)).isEmpty() ){
+                intersect(fields(s), fields(sPrim)).isEmpty() ){
             Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
             Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
             Set<List<String>> V = ir.get().restrict(P).range();
@@ -477,15 +483,15 @@ public final class Symbolic {
         throw new IllegalArgumentException("d must be instanceof P or DBinary.");
     }
 
-    Set<String> fields(R r){
-        if (r instanceof Am){
-            Am Am = ((Am) r);
+    Set<String> fields(S s){
+        if (s instanceof Am){
+            Am Am = ((Am) s);
             String a = Am.getA();
             return set(a);
-        } else if (r instanceof RBinary){
-            RBinary binary = ((RBinary) r);
-            R right = binary.getRight();
-            R left = binary.getLeft();
+        } else if (s instanceof Binary){
+            Binary binary = ((Binary) s);
+            S right = binary.getRight();
+            S left = binary.getLeft();
             return union(fields(right),fields(left));
         }
         throw new IllegalArgumentException("s must be instanceof Am or Binary.");
