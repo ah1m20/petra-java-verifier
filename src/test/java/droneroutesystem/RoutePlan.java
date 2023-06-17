@@ -5,7 +5,7 @@ public class RoutePlan {
 
 	private final Position position = new Position();
 
-	public boolean home(){return position.home();}
+	public boolean atHome(){return position.atHome();}
 	public boolean takeOff(){return position.takeOff();}
 	public boolean a(){return position.a();}
 
@@ -18,8 +18,6 @@ public class RoutePlan {
 	public boolean onLand(){return position.onLand();}
 
 	public boolean inAir(){return position.inAir();}
-
-	public boolean atHome(){return position.atHome();}
 
 	public boolean other(){return position.other();}
 
@@ -53,7 +51,7 @@ public class RoutePlan {
 		if (takeOff() ^ a() ^ b() ^ c() ^ other()){
 			position.travelToHome();
 			position.waitUntilHome();
-			assert(home());
+			assert(atHome());
 		}
 	}
 
