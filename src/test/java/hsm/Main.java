@@ -1,13 +1,12 @@
-package energymanagement;
-
+package hsm;
 
 import droneroutesystem.Controller;
 import droneroutesystem.DroneConnection;
 
 import static ast.interp.util.Program.mainLoop;
 
-public class EnergyManagementMain {
+public class Main {
     public static void main(String[] args) {
-        mainLoop(500,new EnergyManagement(), Sensors.getInstance());
+        mainLoop(0,new MachineRoot(), ExternalUncontrolledValues.getInstance());
     }
 }

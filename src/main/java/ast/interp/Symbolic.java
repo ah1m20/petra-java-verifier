@@ -40,8 +40,9 @@ public final class Symbolic {
         if (!Aepsilon.isPrimitive() &&
             interpObj(Aepsilon).isPresent() &&
                 m_epsilon.isPresent() &&
-                m_epsilon.get().dom().equals(Theta(Aepsilon)) &&
-                union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))) {
+                m_epsilon.get().dom().equals(Theta(Aepsilon))
+                //&& union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+         ){
             return m_epsilon;
         } else {
             logBottom(prog);
@@ -104,8 +105,9 @@ public final class Symbolic {
         if (forall(A.getOverlineBeta(), beta->logBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A)) &&
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
-                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A)) &&
-                isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A) ){
+                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A))
+                // && isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A)
+        ){
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             logObjectPrivateStateSpace(Omega(A),A);

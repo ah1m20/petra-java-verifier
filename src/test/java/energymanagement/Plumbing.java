@@ -4,10 +4,9 @@ import ast.terms.Base;
 
 @Base public class Plumbing {
 
-    private double totalEnergy;
-    private final double maxEnergyConsumption = 200;
+    private final Sensors sensors = Sensors.getInstance();
 
-    public boolean highUsage(){ return maxEnergyConsumption*Math.random() > 100; }
-    public boolean lowUsage(){ return !highUsage();}
+    public boolean highUsage(){ return sensors.highPlumbingEnergy(); }
+    public boolean lowUsage(){ return sensors.highPlumbingEnergy(); }
 
 }

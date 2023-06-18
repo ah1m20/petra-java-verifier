@@ -29,10 +29,8 @@ public class Position {
 
 	public boolean atHome(){ return connection.getX() == 0 && connection.getY() == 0 && connection.getZ() == 0; }
 
-	public boolean other(){ return connection.getX() == 0 && connection.getY() == 0 && connection.getZ() == 0; }
-
 	public void waitUntilHome(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
 			System.out.println("waitUntilHome");
 			while(!atHome()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
@@ -42,7 +40,7 @@ public class Position {
 	}
 
 	public void waitUntilLanded(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
 			System.out.println("waitUntilLanded");
 			while(!onLand()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
@@ -62,7 +60,7 @@ public class Position {
 	}
 
 	public void waitUntilA(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
 			System.out.println("waitUntilA");
 			while(!a()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
@@ -72,7 +70,7 @@ public class Position {
 	}
 
 	public void waitUntilB(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
 			System.out.println("waitUntilB");
 			while(!b()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
@@ -82,7 +80,7 @@ public class Position {
 	}
 
 	public void waitUntilC(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
 			System.out.println("waitUntilC");
 			while(!c()){
 				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
@@ -92,11 +90,11 @@ public class Position {
 	}
 
 	public void travelToHome() {
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
 			System.out.println("travelToHome");
 			heading = home;
 			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other());
+			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
 		}
 	}
 
@@ -105,7 +103,7 @@ public class Position {
 			System.out.println("travelFromGroundToTakeOff");
 			heading = takeOff;
 			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other());
+			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
 		}
 	}
 
@@ -114,7 +112,7 @@ public class Position {
 			System.out.println("travelFromGroundToA");
 			heading = a;
 			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other());
+			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
 		}
 	}
 
@@ -123,7 +121,7 @@ public class Position {
 			System.out.println("travelFromAToB");
 			heading = b;
 			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other());
+			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
 		}
 	}
 
@@ -132,16 +130,16 @@ public class Position {
 			System.out.println("travelFromBToC");
 			heading = c;
 			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other());
+			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
 		}
 	}
 
 	public void travelToLand() {
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
 			System.out.println("travelToLand");
 			heading = new Waypoint(connection.getX(),connection.getY(),0);
 			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c() ^ other());
+			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
 		}
 	}
 }

@@ -19,8 +19,6 @@ public class RoutePlan {
 
 	public boolean inAir(){return position.inAir();}
 
-	public boolean other(){return position.other();}
-
 	public void travel(){
 		if (ground()){
 			position.travelFromGroundToA();
@@ -40,7 +38,7 @@ public class RoutePlan {
 	}
 
 	public void land(){
-		if (takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (takeOff() ^ a() ^ b() ^ c()){
 			position.travelToLand();
 			position.waitUntilLanded();
 			assert(ground());
@@ -48,7 +46,7 @@ public class RoutePlan {
 	}
 
 	public void returnToHome(){
-		if (takeOff() ^ a() ^ b() ^ c() ^ other()){
+		if (takeOff() ^ a() ^ b() ^ c()){
 			position.travelToHome();
 			position.waitUntilHome();
 			assert(atHome());
