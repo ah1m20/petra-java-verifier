@@ -21,4 +21,12 @@ public class Room {
 			assert(bothOff());
 		}
 	}
+
+	public void turnOff() {
+		if (bothOn() ^ bothOff()){
+			centre.turnOff();
+			side.turnOff();
+			assert(bothOff());
+		}
+	}
 }

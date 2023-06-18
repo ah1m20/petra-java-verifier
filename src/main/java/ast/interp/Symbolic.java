@@ -41,7 +41,7 @@ public final class Symbolic {
             interpObj(Aepsilon).isPresent() &&
                 m_epsilon.isPresent() &&
                 m_epsilon.get().dom().equals(Theta(Aepsilon))
-                //&& union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+                && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
          ){
             return m_epsilon;
         } else {

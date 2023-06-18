@@ -11,7 +11,18 @@ public class Flat {
 	public boolean upstairs() { return !front.bothOn() && !kitchen.bothOn() && bedroom.bothOn(); }
 	public boolean none() { return !front.bothOn() && !kitchen.bothOn() && !bedroom.bothOn(); }
 
+	public boolean other() { return !(front.bothOn() && kitchen.bothOn() && bedroom.bothOn()) &&
+								!(front.bothOn() && kitchen.bothOn() && !bedroom.bothOn()) &&
+								!(!front.bothOn() && !kitchen.bothOn() && bedroom.bothOn()) &&
+								!(!front.bothOn() && !kitchen.bothOn() && !bedroom.bothOn()); }
+
 	public void toggle() {
+		if (other()){
+			par(()->bedroom.turnOff(),
+				()-> front.turnOff(),
+				()-> kitchen.turnOff());
+			assert(none());
+		}
 		if (all()){
 			bedroom.toggle();
 			assert(downstairs());
