@@ -1,12 +1,9 @@
 package hsm;
 
-import droneroutesystem.Controller;
-import droneroutesystem.DroneConnection;
-
-import static ast.interp.util.Program.mainLoop;
+import static ast.interp.util.Program.startReactive;
 
 public class Main {
     public static void main(String[] args) {
-        mainLoop(0,new MachineRoot(), ExternalUncontrolledValues.getInstance());
+        startReactive(0,new MachineRoot(), ExternalUncontrolledValues.getInstance());
     }
 }

@@ -27,8 +27,9 @@ public final class Symbolic {
 
     final static Logger LOG = new Logger();
     final ObjectTable objectTable = new ObjectTable();
-
+    final boolean isReactive;
     Symbolic(Prog prog){
+        this.isReactive = prog.isReactive();
         for (Obj obj : prog.getObjs()){
             objectTable.put(obj.getA(),obj);
         }
@@ -37,11 +38,13 @@ public final class Symbolic {
     Optional<Func<String>> interpProg(Prog prog){
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
-        if (!Aepsilon.isPrimitive() &&
+        if (
+                //forall(prog.getObjs(), o->interpObj(o).isPresent()) &&
+            !Aepsilon.isPrimitive() &&
             interpObj(Aepsilon).isPresent() &&
-                m_epsilon.isPresent() &&
-                m_epsilon.get().dom().equals(Theta(Aepsilon))
-                && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+            m_epsilon.isPresent() &&
+            m_epsilon.get().dom().equals(Theta(Aepsilon))
+            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
          ){
             return m_epsilon;
         } else {
@@ -105,8 +108,8 @@ public final class Symbolic {
         if (forall(A.getOverlineBeta(), beta->logBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A)) &&
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
-                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A))
-                // && isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A)
+                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A)) &&
+                (isReactive?isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {

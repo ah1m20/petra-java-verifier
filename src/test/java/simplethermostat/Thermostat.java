@@ -1,6 +1,6 @@
 package simplethermostat;
 
-public class Thermostat {
+public class Thermostat implements Runnable {
 
     private final Logging logging = new Logging();
     private final Temperature temperature = new Temperature();
@@ -18,7 +18,8 @@ public class Thermostat {
     public boolean OnAndOnOrAboveTarget(){
         return control.on() && temperature.aboveOrEqualToTarget();
     }
-    public void action(){
+
+    public void run(){
         if (OffAndBelowTarget()){
             logging.logOffAndBelowTarget();
             control.turnOn();
