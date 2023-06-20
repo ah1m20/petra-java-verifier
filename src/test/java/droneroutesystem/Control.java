@@ -1,54 +1,38 @@
 package droneroutesystem;
 
 import ast.terms.Base;
+import ast.terms.Initial;
 
 @Base
 public class Control {
-	private volatile boolean active = true;
-	public boolean on() { return active; }
-	public boolean off() { return !active; }
+	private final Sys sys = new Sys();
+	private final Bool active = new Bool(true);
+
+	@Initial
+	public boolean on() { return active.isTrue(); }
+
+	public boolean off() { return active.isFalse(); }
 
 	public void turnOn() {
 		if (on() ^ off()){
-			System.out.println("turnOn");
-			active = true;
+			active.setTrue();
+			sys.logTurnOn();
 			assert(on());
 		}
 	}
 
 	public void turnOff() {
 		if (on()){
-			System.out.println("turnOff");
-			active = false;
+			active.setFalse();
+			sys.logTurnOff();
 			assert(off());
 		}
 	}
 
 	public void exit() {
 		if (off()){
-			System.exit(0);
+			sys.exit();
 			assert(off());
-		}
-	}
-
-	public void logFlyHome() {
-		if (on()){
-			System.out.println("flyHome.");
-			assert(on());
-		}
-	}
-
-	public void logLand() {
-		if (on()){
-			System.out.println("land.");
-			assert(on());
-		}
-	}
-
-	public void logRC() {
-		if (on()){
-			System.out.println("rc.");
-			assert(on());
 		}
 	}
 }

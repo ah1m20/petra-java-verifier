@@ -3,24 +3,24 @@ package flatlightingsystem;
 import ast.terms.Base;
 
 @Base public class Light {
-	private volatile boolean power = false;
-	private volatile boolean control = false;
+	private final Bool power = new Bool();
+	private final Bool control = new Bool();
 
-	public boolean on() { return power && control; }
-	public boolean off() { return !power || !control; }
+	public boolean on() { return power.isTrue() && control.isFalse(); }
+	public boolean off() { return power.isFalse() || control.isFalse(); }
 
 	public void turnOn() {
 		if (on() ^ off()){
-			power = true;
-			control = true;
+			power.setTrue();
+			power.setTrue();
 			assert(on());
 		}
 	}
 
 	public void turnOff() {
 		if (on() ^ off()){
-			power = false;
-			control = false;
+			power.setFalse();
+			power.setFalse();
 			assert(off());
 		}
 	}

@@ -2,23 +2,28 @@ package droneroutesystem;
 
 public class DroneConnection implements Runnable {
 
+    private final Waypoint home = new Waypoint(0,0,0);
+    private final Waypoint takeOff = new Waypoint(0,0,100);
+    private final Waypoint a = new Waypoint(10,0,100);
+    private final Waypoint b = new Waypoint(10,10,100);
+    private final Waypoint c = new Waypoint(20,20,100);
+
     private DroneConnection(){}
 
     private static DroneConnection droneConnection = new DroneConnection();
-    static {
-        droneConnection.readRc();
-        droneConnection.readSNR();
-        droneConnection.readTemp();
-    }
 
     public static DroneConnection getDroneConnection() {
         return droneConnection;
     }
 
     private volatile double rc;
-    private volatile int temp;
-    private volatile double battery;
-    private volatile double snr;
+    private volatile int temp = 0;
+    private volatile double battery = 100;
+    private volatile double snr = 1;
+
+    private volatile int x;
+    private volatile int y;
+    private volatile int z;
 
     public boolean low() { return temp < 30; }
     public boolean normal() { return temp >= 30 && temp <= 70; }
@@ -63,15 +68,27 @@ public class DroneConnection implements Runnable {
     }
 
     public int getX() {
-        return 0;
+        return x;
     }
 
     public int getY() {
-        return 0;
+        return y;
     }
 
     public int getZ() {
-        return 0;
+        return z;
+    }
+
+    public boolean atA(){
+        return x==a.getX() &&  y==a.getY() &&  z==a.getZ();
+    }
+
+    public boolean atB(){
+        return x==b.getX() &&  y==b.getY() &&  z==b.getZ();
+    }
+
+    public boolean atC(){
+        return x==c.getX() &&  y==c.getY() &&  z==c.getZ();
     }
 
     public int getVelocityX() {
@@ -95,6 +112,14 @@ public class DroneConnection implements Runnable {
     }
 
     public void goToXYZ(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+
+    public void goTo(Waypoint waypoint){
+        goToXYZ(waypoint.getX(), waypoint.getY(), waypoint.getZ());
     }
 
     public void land() {
@@ -123,5 +148,30 @@ public class DroneConnection implements Runnable {
         readTemp();
         readBattery();
         readRc();
+    }
+
+    public void goToTakeoff() {
+        goTo(takeOff);
+    }
+
+    public void goToHome(){
+        goTo(home);
+    }
+
+    public void goToA() {
+        goTo(a);
+    }
+
+    public void goToB() {
+        goTo(b);
+    }
+
+    public void goToC() {
+        goTo(c);
+    }
+
+    public void goToLand() {
+        Waypoint waypoint = new Waypoint(getX(),getY(),0);
+        goToXYZ(waypoint.getX(), waypoint.getY(), waypoint.getZ());
     }
 }

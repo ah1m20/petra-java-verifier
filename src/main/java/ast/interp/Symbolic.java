@@ -288,6 +288,10 @@ public final class Symbolic {
     Optional<Func<String>> interpPrimitiveC(C c, Obj A){
         Set<String> pre = interpPrePost(c.getPre(),A);
         Set<String> post = interpPrePost(c.getPost(),A);
+        if (post.size()>1){
+            // base method not a function at its symbolic interpretation is constucted from the product pre x post
+            return Optional.empty();
+        }
         Set<Mapsto<String,String>> def = set();
         for (String p : pre){
             for (String q : post){
@@ -313,13 +317,17 @@ public final class Symbolic {
         Set<E> e_q = set(Q, q-> lookupE(q,A));
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
+        if (!(subseteq(in,interpS.dom()) )){
+            isNotSubseteq(in,interpS.dom(),A);
+            return false;
+        }
         Set<List<String>> image = interpS.image(in);
-        boolean result = subseteq(image, out);
-        if (!result){
+        if (!subseteq(image, out)){
             isNotSubseteq(image,out,A);
             logBottom(c,A);
+            return false;
         }
-        return result;
+        return true;
     }
 
     Optional<Func<List<String>>> interpS(S s, Obj A){
@@ -370,10 +378,14 @@ public final class Symbolic {
 
     Optional<Func<List<String>>> interpNonSeperatedSeq(QR qr, Obj A) {
         Iterator<Am> iterator = qr.getCmds().iterator();
-        Func<List<String>> f = interpAm(iterator.next(),A).get();
+        Optional<Func<List<String>>> optional = interpAm(iterator.next(),A);
+        if (!optional.isPresent()){
+            return Optional.empty();
+        }
+        Func<List<String>> f = optional.get();
         while(iterator.hasNext()){
             Optional<Func<List<String>>> next = interpAm(iterator.next(),A);
-            if (subseteq(f.range(),next.get().dom())){
+            if (next.isPresent() && subseteq(f.range(),next.get().dom())){
                 f = next.get().compose(f);
             } else {
                 return Optional.empty();
@@ -508,7 +520,7 @@ public final class Symbolic {
 
     public void printOutput() {
         for (Obj o : objectTable.values()){
-            if (o instanceof Obj){
+            if (o instanceof Obj && !o.isPrimitive()){
                 System.out.println(o.getA()+": "+interpObj(o));
                 System.out.println("\t\\Omega = "+Omega(o));
                 System.out.println("\t\\Theta = "+Theta(o));

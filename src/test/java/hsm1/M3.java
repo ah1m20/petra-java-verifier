@@ -1,9 +1,10 @@
-package lightsystem;
+package hsm1;
 
 import ast.terms.Base;
+import simplethermostat.Bool;
 
 @Base
-public class Control {
+public class M3 {
 	private final Bool bool = new Bool();
 	public boolean on() { return bool.isTrue(); }
 	public boolean off() { return bool.isFalse(); }

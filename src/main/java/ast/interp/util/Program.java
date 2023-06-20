@@ -45,10 +45,10 @@ public final class Program {
 
     public static void startReactive(long iterationPauseInMilliseconds, Runnable entryPoint, Runnable... runnables){
         while(true){
+            entryPoint.run();
             for (Runnable r : runnables){
                 r.run();
             }
-            entryPoint.run();
             if (iterationPauseInMilliseconds>0){
                 try {
                     Thread.sleep(iterationPauseInMilliseconds);

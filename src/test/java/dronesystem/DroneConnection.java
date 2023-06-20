@@ -5,20 +5,15 @@ public class DroneConnection implements Runnable {
     private DroneConnection(){}
 
     private static DroneConnection droneConnection = new DroneConnection();
-    static {
-        droneConnection.readRc();
-        droneConnection.readSNR();
-        droneConnection.readTemp();
-    }
 
     public static DroneConnection getDroneConnection() {
         return droneConnection;
     }
 
     private volatile double rc;
-    private volatile int temp;
-    private volatile double battery;
-    private volatile double snr;
+    private volatile int temp = 0;
+    private volatile double battery = 100;
+    private volatile double snr = 1;
 
     public boolean low() { return temp < 30; }
     public boolean normal() { return temp >= 30 && temp <= 70; }
@@ -62,22 +57,31 @@ public class DroneConnection implements Runnable {
         return this.rc >=0.75 && this.rc <1;
     }
 
+    private volatile int x;
+    private volatile int y;
+    private volatile int z;
+
+    private void readXYZ() {
+        this.x = (int) (Math.random()*1000);
+        this.y = (int) (Math.random()*1000);
+        this.z = (int) (Math.random()*1000);
+    }
+
     public int getX() {
-        return 0;
+        return x;
     }
 
     public int getY() {
-        return 0;
+        return y;
     }
 
     public int getZ() {
-        return 0;
+        return z;
     }
 
     public int getVelocityX() {
         return 0;
     }
-
     public int getVelocityY() {
         return 0;
     }
@@ -95,6 +99,9 @@ public class DroneConnection implements Runnable {
     }
 
     public void goToXYZ(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public void land() {
@@ -119,6 +126,7 @@ public class DroneConnection implements Runnable {
 
     @Override
     public void run() {
+        readXYZ();
         readRc();
         readTemp();
         readSNR();

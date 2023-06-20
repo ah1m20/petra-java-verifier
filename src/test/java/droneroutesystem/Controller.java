@@ -7,37 +7,39 @@ package droneroutesystem;
  * As Petra is new language / paradigm for formal verification it is difficult to map directly from ideas to verified models, without strong process for doing so.
  */
 
-public class Controller implements Runnable {
+import ast.terms.Initial;
 
+public class Controller implements Runnable {
+	private final SysWrapper sys = new SysWrapper();
 	private final RoutePlan routePlan = new RoutePlan();
 	private final AutoPilot autoPilot = new AutoPilot();
-
 	private final Control control = new Control();
 
-	public boolean routeActive(){return control.on() && autoPilot.none();}
+	@Initial public boolean routeActive(){return control.on() && autoPilot.none();}
 	public boolean flyHome(){return control.on() && autoPilot.flyHome();}
 
-	public boolean land(){return control.on() && autoPilot.land();}
+	public boolean land(){return control.on() && autoPilot.land() && !routePlan.ground();}
 
 	public boolean grounded(){return control.off();}
 
 	public void run(){
 		if (grounded()){
-			control.exit();
+			sys.exit();
 			assert(grounded());
 		}
 		if (flyHome()){
-			control.turnOff();
+			sys.logLand();
 			routePlan.returnToHome();
+			control.turnOff();
 			assert(grounded());
 		}
 		if (land()){
-			control.logLand();
+			sys.logLand();
 			routePlan.land();
 			assert(flyHome() ^ land() ^ routeActive());
 		}
 		if (routeActive()){
-			control.logRC();
+			sys.logRouteActive();
 			routePlan.travel();
 			assert(flyHome() ^ land() ^ routeActive());
 		}

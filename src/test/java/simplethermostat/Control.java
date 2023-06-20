@@ -4,22 +4,20 @@ import ast.terms.Base;
 
 @Base
 public class Control {
-	private volatile boolean active = true;
-	public boolean on() { return active; }
-	public boolean off() { return !active; }
+	private final Bool bool = new Bool();
+	public boolean on() { return bool.isTrue(); }
+	public boolean off() { return bool.isFalse(); }
 
 	public void turnOn() {
 		if (on() ^ off()){
-			System.out.println("turnOn");
-			active = true;
+			bool.setTrue();
 			assert(on());
 		}
 	}
 
 	public void turnOff() {
 		if (on() ^ off()){
-			System.out.println("turnOff");
-			active = false;
+			bool.setFalse();
 			assert(off());
 		}
 	}

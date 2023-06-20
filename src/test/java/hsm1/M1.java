@@ -1,4 +1,4 @@
-package hsm;
+package hsm1;
 
 /*
  *  The aim of this example is to use Petra to model a general hierarchical state machine
@@ -8,16 +8,25 @@ package hsm;
  *  if a verified system can get into a state in which the system gets stuck loops forever doing nothing (i.e. liveness failure),
  *  because we pushed the system into a state in which cannot be exited from as access to the control is guarded behind the entered state.
  */
-public class MachineRoot implements Runnable {
-    private final MachineA machineA = new MachineA();
+public class M1 implements Runnable {
+    private final M2 m2 = new M2();
+    private final M3 m3 = new M3();
 
-    public boolean a(){return machineA.a();}
-    public boolean b(){return machineA.a();}
-    public boolean c(){return machineA.a();}
+    public boolean a(){return m3.off();}
+    public boolean b(){return m3.on();}
+    public boolean c(){return m3.off() && m2.on();}
 
     public void run(){
-        if (a() ^ b() ^ c()){
-
+        if (a()){
+            m3.turnOn();
+            assert(b());
+        }
+        if (b()){
+            ;
+            assert(b());
+        }
+        if (c()){
+            ;
             assert(c());
         }
     }

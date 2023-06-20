@@ -89,6 +89,13 @@ public final class ObjParser {
 
     private Obj parsePrimitive(ClassOrInterfaceDeclaration declaration){
         Obj obj = new Obj(declaration.getNameAsString(),true);
+        for (FieldDeclaration f : declaration.getFields()){
+            if (!f.isPrivate() || !f.isFinal() || f.getVariables().size()!=1){
+                throw new IllegalArgumentException("expected a single private final field.");
+            }
+            VariableDeclarator v = f.getVariable(0);
+            obj.addBeta(new Beta(v.getNameAsString(),v.getTypeAsString()));
+        }
         for (MethodDeclaration m : declaration.getMethods()){
             if (!m.isPublic()){
                 throw new IllegalArgumentException("expected public method.");

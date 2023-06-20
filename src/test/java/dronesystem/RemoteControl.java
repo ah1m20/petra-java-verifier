@@ -15,19 +15,19 @@ import ast.terms.Base;
 
 	public void processCommand(){
 		if (forward()){
-			System.out.println("RC: forward");
+			System.out.println("forward");
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 		if (back()){
-			System.out.println("RC: back");
+			System.out.println("back");
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 		if (left()){
-			System.out.println("RC: left");
+			System.out.println("left");
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 		if (right()){
-			System.out.println("RC: right");
+			System.out.println("right");
 			assert(forward() ^ back() ^ left() ^ right());
 		}
 	}

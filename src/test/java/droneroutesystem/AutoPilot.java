@@ -1,8 +1,11 @@
 package droneroutesystem;
 
+import ast.terms.Initial;
+
 public class AutoPilot {
     private final Land land = new Land();
     private final FlyHome flyHome = new FlyHome();
+    @Initial
     public boolean none(){return land.notLand() && flyHome.notFlyHome();}
 
     /* Adding && flyHome.notFlyHome() to the predicate below causes a gap in the coverage and

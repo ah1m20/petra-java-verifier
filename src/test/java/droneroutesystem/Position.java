@@ -4,142 +4,76 @@ import ast.terms.Base;
 
 @Base
 public class Position {
+	private final Sys sys = new Sys();
 	private final DroneConnection connection = DroneConnection.getDroneConnection();
-	private final Waypoint home = new Waypoint(0,0,0);
-	private final Waypoint takeOff = new Waypoint(0,0,100);
-	private final Waypoint a = new Waypoint(10,0,100);
-	private final Waypoint b = new Waypoint(10,10,100);
-	private final Waypoint c = new Waypoint(20,20,100);
-	private boolean grounded = false;
-	private boolean ground = true;
-	private volatile Waypoint heading=takeOff;
 
-	public boolean takeOff(){return !grounded && !this.ground && this.heading==takeOff;}
-	public boolean a(){return !grounded && !this.ground && this.heading==a;}
+	public boolean a(){return connection.atA();}
 
-	public boolean b(){return !grounded && !this.ground && this.heading==b;}
+	public boolean b(){return connection.atB();}
 
-	public boolean c(){return !grounded && !this.ground && this.heading==c;}
-
-	public boolean ground(){return !grounded && this.ground;}
+	public boolean c(){return connection.atC();}
 
 	public boolean onLand(){ return connection.getX() != 0 && connection.getY() != 0 && connection.getZ() == 0; }
 
-	public boolean inAir(){ return connection.getZ() > 0; }
-
 	public boolean atHome(){ return connection.getX() == 0 && connection.getY() == 0 && connection.getZ() == 0; }
 
-	public void waitUntilHome(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
-			System.out.println("waitUntilHome");
+	public void travelToHome(){
+		if (onLand() ^ atHome() ^ a() ^ b() ^ c()){
+			sys.logTravelToHome();
+			connection.goToHome();
+			sys.logWaitUntilHome();
 			while(!atHome()){
-				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
+				sys.sleep();
 			}
 			assert (atHome());
 		}
 	}
 
-	public void waitUntilLanded(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
-			System.out.println("waitUntilLanded");
+	public void travelToLand(){
+		if (onLand() ^ atHome() ^ a() ^ b() ^ c()){
+			sys.logTravelToLand();
+			connection.goToLand();
+			sys.logWaitUntilLanded();
 			while(!onLand()){
-				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
+				sys.sleep();
 			}
-			assert (ground());
+			assert (onLand());
 		}
 	}
 
-	public void waitUntilTakenOff(){
-		if (onLand()){
-			System.out.println("waitUntilTakenOff");
-			while(!takeOff()){
-				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
-			}
-			assert (takeOff());
-		}
-	}
-
-	public void waitUntilA(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
-			System.out.println("waitUntilA");
+	public void travelFromGroundToA(){
+		if (onLand() ^ atHome() ^ a() ^ b() ^ c()){
+			sys.logTravelFromGroundToA();
+			connection.goToA();
+			sys.logWaitUntilA();
 			while(!a()){
-				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
+				sys.sleep();
 			}
 			assert (a());
 		}
 	}
 
-	public void waitUntilB(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
-			System.out.println("waitUntilB");
+	public void travelFromAToB(){
+		if (onLand() ^ atHome() ^ a() ^ b() ^ c()){
+			sys.logTravelFromAToB();
+			connection.goToB();
+			sys.logWaitUntilB();
 			while(!b()){
-				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
+				sys.sleep();
 			}
 			assert (b());
 		}
 	}
 
-	public void waitUntilC(){
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
-			System.out.println("waitUntilC");
+	public void travelFromBToC(){
+		if (onLand() ^ atHome() ^ a() ^ b() ^ c()){
+			sys.logTravelFromBToC();
+			connection.goToC();
+			sys.logWaitUntilC();
 			while(!c()){
-				try {Thread.sleep(100);} catch (InterruptedException e) {throw new RuntimeException(e);}
+				sys.sleep();
 			}
 			assert (c());
-		}
-	}
-
-	public void travelToHome() {
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
-			System.out.println("travelToHome");
-			heading = home;
-			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
-		}
-	}
-
-	public void travelFromGroundToTakeOff() {
-		if (ground()){
-			System.out.println("travelFromGroundToTakeOff");
-			heading = takeOff;
-			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
-		}
-	}
-
-	public void travelFromGroundToA() {
-		if (ground()){
-			System.out.println("travelFromGroundToA");
-			heading = a;
-			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
-		}
-	}
-
-	public void travelFromAToB() {
-		if (a()){
-			System.out.println("travelFromAToB");
-			heading = b;
-			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
-		}
-	}
-
-	public void travelFromBToC() {
-		if (b()){
-			System.out.println("travelFromBToC");
-			heading = c;
-			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
-		}
-	}
-
-	public void travelToLand() {
-		if (atHome() ^ takeOff() ^ a() ^ b() ^ c()){
-			System.out.println("travelToLand");
-			heading = new Waypoint(connection.getX(),connection.getY(),0);
-			connection.goToXYZ(heading.getX(), heading.getY(), heading.getZ());
-			assert(atHome() ^ takeOff() ^ a() ^ b() ^ c());
 		}
 	}
 }

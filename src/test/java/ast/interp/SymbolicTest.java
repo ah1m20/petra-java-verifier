@@ -37,7 +37,7 @@ public class SymbolicTest {
 
     @Test
     public void testDroneRouteSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/droneroutesystem/","run","Controller","Main","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Control","FlyHome","Land","AutoPilot");
+        Prog prog = buildProgram("src/test/java/droneroutesystem/","run","Controller","Main","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Control","FlyHome","Land","AutoPilot","SysWrapper");
         Symbolic symbolic = new Symbolic(prog);
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
@@ -67,7 +67,14 @@ public class SymbolicTest {
     }
 
     @Test public void hsm1() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/hsm1/","run","Machine","Main","Machine","Control","XYZWrapper");
+        Prog prog = buildProgram("src/test/java/hsm1/","run","M1","Main","M1","M2","M3");
+        Symbolic symbolic = new Symbolic(prog);
+        symbolic.printOutput();
+        assertTrue(symbolic.interpProg(prog).isPresent());
+    }
+
+    @Test public void hsm2() throws URISyntaxException, IOException {
+        Prog prog = buildProgram("src/test/java/hsm2/","run","M1","Main","M1","M2","M3","M4");
         Symbolic symbolic = new Symbolic(prog);
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());

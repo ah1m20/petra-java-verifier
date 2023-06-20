@@ -1,6 +1,7 @@
 package hsm1;
 
-import hsm.MachineA;
+import ast.terms.Base;
+import simplethermostat.Bool;
 
 /*
  *  The aim of this example is to use Petra to model a general hierarchical state machine
@@ -10,26 +11,22 @@ import hsm.MachineA;
  *  if a verified system can get into a state in which the system gets stuck loops forever doing nothing (i.e. liveness failure),
  *  because we pushed the system into a state in which cannot be exited from as access to the control is guarded behind the entered state.
  */
-public class Machine implements Runnable {
-    private final XYZWrapper wrapper = new XYZWrapper();
-    private final Control control = new Control();
+@Base public class M2 {
+    private final Bool bool = new Bool();
+    public boolean on() { return bool.isTrue(); }
+    public boolean off() { return bool.isFalse(); }
 
-    public boolean a(){return control.off();}
-    public boolean b(){return control.on();}
-    public boolean c(){return control.off() && wrapper.x();}
+    public void turnOn() {
+        if (on() ^ off()){
+            bool.setTrue();
+            assert(on());
+        }
+    }
 
-    public void run(){
-        if (a()){
-            control.turnOn();
-            assert(b());
-        }
-        if (b()){
-            ;
-            assert(b());
-        }
-        if (c()){
-            ;
-            assert(c());
+    public void turnOff() {
+        if (on() ^ off()){
+            bool.setFalse();
+            assert(off());
         }
     }
 }

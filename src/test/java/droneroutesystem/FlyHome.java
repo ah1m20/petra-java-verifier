@@ -1,5 +1,7 @@
 package droneroutesystem;
 
+import ast.terms.Initial;
+
 public class FlyHome {
 
     private final Wifi wifi  = new Wifi();
@@ -10,6 +12,7 @@ public class FlyHome {
         return wifi.lowSNR() || battery.returnHomeLevel();
     }
 
+    @Initial
     public boolean notFlyHome(){
         return !(wifi.lowSNR() || battery.returnHomeLevel());
     }

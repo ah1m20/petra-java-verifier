@@ -1,15 +1,16 @@
-package hsm;
+package hsm2;
 
-public final class ExternalUncontrolledValues implements Runnable {
-    private final static ExternalUncontrolledValues EXTERNAL_UNCONTROLLED_VALUES = new ExternalUncontrolledValues();
+public final class Data implements Runnable {
+    private final static Data data = new Data();
 
-    private ExternalUncontrolledValues() {
+    private Data() {
     }
 
-    public static ExternalUncontrolledValues getInstance() {
-        return EXTERNAL_UNCONTROLLED_VALUES;
+    public static Data getInstance() {
+        return data;
     }
 
+    private double u = 0;
     private double v = 0;
     private double w = 0;
     private double x = 0;
@@ -17,6 +18,7 @@ public final class ExternalUncontrolledValues implements Runnable {
     private double z = 0;
 
     public void run() {
+        u = Math.random() * 100;
         v = Math.random() * 1000;
         w = Math.random() * 1000;
         x = Math.random() * 1000;
@@ -34,6 +36,10 @@ public final class ExternalUncontrolledValues implements Runnable {
     public boolean lowY() {return y <= 750;}
     public boolean highZ() {return z > 750;}
     public boolean lowZ() {return z <= 750;}
+
+    public boolean a() {return u < 33;}
+    public boolean b() {return u >= 33 && u<= 66;}
+    public boolean c() {return u > 66;}
 
 
 
