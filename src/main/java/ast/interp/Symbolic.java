@@ -243,6 +243,9 @@ public final class Symbolic {
                 if (i!=j){
                     Optional<Func<String>> a = interpC(ovelineC.get(i),A);
                     Optional<Func<String>> b = interpC(ovelineC.get(j),A);
+                    if (!a.isPresent() || !b.isPresent()){
+                        return false;
+                    }
                     if (intersect(a.get().dom(),b.get().dom()).size()!=0){
                         logCasesDomainOverlap(i,a.get().dom(),j,b.get().dom(),A);
                         return false;

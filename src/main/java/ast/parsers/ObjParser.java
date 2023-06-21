@@ -12,6 +12,7 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Optional;
 
 public final class ObjParser {
     EParser eparser = new EParser();
@@ -33,7 +34,7 @@ public final class ObjParser {
         }
     }
 
-    public Obj parse(String className){
+    public Optional<Obj> parse(String className){
         JavaParser javaParser = new JavaParser();
         ParseResult<CompilationUnit> parseResult = javaParser.parse(src);
         if (parseResult.isSuccessful() &&
@@ -44,19 +45,25 @@ public final class ObjParser {
         throw new IllegalArgumentException();
     }
 
-    private Obj parse(ClassOrInterfaceDeclaration declaration){
+    private Optional<Obj> parse(ClassOrInterfaceDeclaration declaration){
         if (declaration.isInterface() || !declaration.isPublic()){
             throw new IllegalArgumentException("expected public class.");
         }
-        if (isPrimitiveObject(declaration)){
-            return parsePrimitive(declaration);
+        if (isExternalObject(declaration)){
+            return Optional.empty();
+        } else if (isPrimitiveObject(declaration)){
+            return Optional.of(parsePrimitive(declaration));
         } else {
-            return parseNonPrimitive(declaration);
+            return Optional.of(parseNonPrimitive(declaration));
         }
     }
 
     private boolean isPrimitiveObject(ClassOrInterfaceDeclaration declaration){
         return declaration.isAnnotationPresent(Base.class);
+    }
+
+    private boolean isExternalObject(ClassOrInterfaceDeclaration declaration){
+        return declaration.isAnnotationPresent(External.class);
     }
 
     private Obj parseNonPrimitive(ClassOrInterfaceDeclaration declaration){

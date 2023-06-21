@@ -9,12 +9,13 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public class ObjParserTest {
     @Test public void testComplexSyntax() throws URISyntaxException, IOException {
-        URL resource = ObjParserTest.class.getResource("/ComplexSyntax.java");
+        URL resource = ObjParserTest.class.getResource("/ComplexSyntax2.java");
         ObjParser objParser = new ObjParser(Paths.get(resource.toURI()).toFile().getAbsolutePath(), true);
-        Obj obj = objParser.parse("ComplexSyntax");
-        System.out.println(new Gson().toJson(obj));
+        Optional<Obj> optional = objParser.parse("ComplexSyntax2");
+        optional.ifPresent(obj->System.out.println(new Gson().toJson(obj)));
     }
 }
