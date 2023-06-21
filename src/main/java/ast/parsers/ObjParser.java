@@ -74,7 +74,7 @@ public final class ObjParser {
             }
             if (m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")){
                 // process phi
-                Phi phi = new Phi(m.getNameAsString(),eparser.parse(m));
+                Phi phi = new Phi(m.isAnnotationPresent(Initial.class),m.getNameAsString(),eparser.parse(m));
                 obj.addPhi(phi);
             } else if (m.getType().isVoidType()){
                 // process delta
@@ -102,7 +102,7 @@ public final class ObjParser {
             }
             if (m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")){
                 // process phi
-                Phi phi = new Phi(m.getNameAsString(),null);
+                Phi phi = new Phi(m.isAnnotationPresent(Initial.class),m.getNameAsString(),null);
                 obj.addPhi(phi);
             } else if (m.getType().isVoidType()){
                 // process delta

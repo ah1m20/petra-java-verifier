@@ -73,6 +73,10 @@ public final class Collections {
         return collection.stream().anyMatch(toHold);
     }
 
+    public static <T> boolean existsOne(Collection<T> collection, Predicate<T> toHold){
+        return collection.stream().filter(toHold).count()==1;
+    }
+
     public static <T,R> Set<R> builder(Function<T,R> mapper, Set<T> set){
         return builder(mapper,set,t->true);
     }

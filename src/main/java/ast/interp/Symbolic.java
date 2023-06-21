@@ -45,6 +45,7 @@ public final class Symbolic {
             m_epsilon.isPresent() &&
             m_epsilon.get().dom().equals(Theta(Aepsilon))
             && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+            && (isReactive?hasInitialState(Aepsilon):true)
          ){
             return m_epsilon;
         } else {
@@ -65,14 +66,19 @@ public final class Symbolic {
         return set(set(A.getOverlinePhi()), (e->e.getP()));
     }
 
-    E lookupE(String p, Obj A){
+    Phi lookupPhi(String p, Obj A){
         Optional<Phi> phi = find(A.getOverlinePhi(), x->x.getP().equals(p));
         if (phi.isPresent()){
-            return phi.get().getE();
+            return phi.get();
         } else {
             throw new IllegalStateException("cannot find predicate: "+p);
         }
     }
+
+    E lookupE(String p, Obj A){
+        return lookupPhi(p,A).getE();
+    }
+
     Obj lookupObj(String objectId){
         return objectTable.lookup(objectId);
     }
@@ -541,5 +547,52 @@ public final class Symbolic {
                 }
             }
         }
+    }
+
+    boolean hasInitialState(Obj A){
+        boolean result = existsOne(A.getOverlinePhi(),phi->isInitialState(phi,A));
+        if (!result){
+            LOG.info(A.getA()+" has no initial state.");
+        }
+        return result;
+    }
+
+    boolean isInitialState(Phi phi, Obj A){
+        return phi.isInitial() && isInitialState(phi.getE(),A);
+    }
+
+    boolean isInitialState(EUnary unary, Obj A){
+        if (unary.getOperator()== UnaryOperator.NOT){
+            return !isInitialState(unary.getInner(),A);
+        } else if (unary.getOperator()==UnaryOperator.PAREN){
+            return isInitialState(unary.getInner(),A);
+        }
+        throw new IllegalArgumentException("operator must be NOT or PAREN");
+    }
+
+    boolean isInitialState(EBinary binary, Obj A){
+        if (binary.getOperator()== BinaryOperator.AND){
+            return isInitialState(binary.getLeft(),A) && isInitialState(binary.getRight(),A);
+        } else if (binary.getOperator()==BinaryOperator.OR){
+            return isInitialState(binary.getLeft(),A) || isInitialState(binary.getRight(),A);
+        }
+        throw new IllegalArgumentException("operator must be AND or OR");
+    }
+
+    boolean isInitialState(E e, Obj A){
+        if (e instanceof Ap){
+            Obj obj = lookupObj(((Ap)e).getA(),A);
+            if (obj.isPrimitive()){
+                return lookupPhi(((Ap)e).getP(),obj).isInitial();
+            } else {
+                E eP = lookupE(((Ap)e).getP(),obj);
+                return isInitialState(eP,A);
+            }
+        } else if (e instanceof EUnary){
+            return isInitialState((EUnary)e,A);
+        } else if (e instanceof EBinary){
+            return isInitialState((EBinary)e,A);
+        }
+        throw new IllegalArgumentException("must be instanceof Ap, EUnary or EBinary");
     }
 }
