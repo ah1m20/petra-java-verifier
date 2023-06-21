@@ -14,8 +14,7 @@ public class RoomLighting {
 			centre.turnOn();
 			side.turnOn();
 			assert(on());
-		}
-		if (on()){
+		} else if (on()){
 			par(()-> centre.turnOff(),
 				()-> side.turnOff());
 			assert(off());

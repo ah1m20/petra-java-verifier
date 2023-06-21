@@ -14,8 +14,7 @@ public class Light implements Runnable {
 			power.turnOn();
 			control.turnOn();
 			assert(on());
-		}
-		if (on()){
+		} else if (on()){
 			par(()->power.turnOff(),
 				()->control.turnOff());
 			assert(off());

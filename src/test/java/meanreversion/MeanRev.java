@@ -78,20 +78,16 @@ public class MeanRev implements Runnable{
         if (doHold()){
             ;
             assert(doOpenBuy() ^ doOpenSell() ^ doCloseBuy() ^ doCloseSell() ^ doHold());
-        }
-        if (doOpenBuy()){
+        } else if (doOpenBuy()){
            positionManager.setOpenBuy();
            assert(buyOpenned());
-        }
-        if (doOpenSell()){
+        } else if (doOpenSell()){
             positionManager.setOpenSell();
             assert(sellOpenned());
-        }
-        if (doCloseBuy()){
+        } else if (doCloseBuy()){
             positionManager.setCloseBuy();
             assert(doHold());
-        }
-        if (doCloseSell()){
+        } else if (doCloseSell()){
             positionManager.setCloseSell();
             assert(doHold());
         }

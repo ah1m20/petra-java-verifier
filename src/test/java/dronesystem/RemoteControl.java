@@ -17,16 +17,13 @@ import ast.terms.Base;
 		if (forward()){
 			System.out.println("forward");
 			assert(forward() ^ back() ^ left() ^ right());
-		}
-		if (back()){
+		} else if (back()){
 			System.out.println("back");
 			assert(forward() ^ back() ^ left() ^ right());
-		}
-		if (left()){
+		} else if (left()){
 			System.out.println("left");
 			assert(forward() ^ back() ^ left() ^ right());
-		}
-		if (right()){
+		} else if (right()){
 			System.out.println("right");
 			assert(forward() ^ back() ^ left() ^ right());
 		}

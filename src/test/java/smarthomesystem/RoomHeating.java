@@ -13,8 +13,7 @@ public class RoomHeating {
 			one.turnOn();
 			one.turnOn();
 			assert(on());
-		}
-		if (on()){
+		} else if (on()){
 			par(()-> one.turnOff(),
 				()-> one.turnOff());
 			assert(off());

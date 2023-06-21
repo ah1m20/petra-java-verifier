@@ -26,19 +26,16 @@ public class Controller implements Runnable {
 		if (grounded()){
 			sys.exit();
 			assert(grounded());
-		}
-		if (flyHome()){
+		} else if (flyHome()){
 			sys.logLand();
 			routePlan.returnToHome();
 			control.turnOff();
 			assert(grounded());
-		}
-		if (land()){
+		} else if (land()){
 			sys.logLand();
 			routePlan.land();
 			assert(flyHome() ^ land() ^ routeActive());
-		}
-		if (routeActive()){
+		} else if (routeActive()){
 			sys.logRouteActive();
 			routePlan.travel();
 			assert(flyHome() ^ land() ^ routeActive());

@@ -14,18 +14,15 @@ public class FlatLighting {
 		if (all()){
 			bedroom.toggle();
 			assert(downstairs());
-		}
-		if (downstairs()){
+		} else if (downstairs()){
 			par(()-> front.toggle(),
 			    ()-> kitchen.toggle());
 			bedroom.toggle();
 			assert(upstairs());
-		}
-		if (upstairs()){
+		} else if (upstairs()){
 			bedroom.toggle();
 			assert(none());
-		}
-		if (none()){
+		} else if (none()){
 			bedroom.toggle();
 			par(()-> front.toggle(),
 				()-> kitchen.toggle());

@@ -11,8 +11,7 @@ public class EnergyManagement implements Runnable {
         if (high()){
             logger.logUsageToReportHigh();
             assert(high() ^ low());
-        }
-        if (low()){
+        } else if (low()){
             logger.logUsageToReportLow();
             assert(high() ^ low());
         }

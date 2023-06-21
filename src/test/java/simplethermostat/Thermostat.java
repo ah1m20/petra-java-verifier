@@ -24,16 +24,13 @@ public class Thermostat implements Runnable {
             logging.logOffAndBelowTarget();
             control.turnOn();
             assert(OnAndBelowTarget() ^ OnAndOnOrAboveTarget());
-        }
-        if (OffAndOnOrAboveTarget()){
+        } else if (OffAndOnOrAboveTarget()){
             logging.logOffAndOnOrAboveTarget();
             assert(OffAndBelowTarget() ^ OffAndOnOrAboveTarget());
-        }
-        if (OnAndBelowTarget()){
+        } else if (OnAndBelowTarget()){
             logging.logOnAndBelowTarget();
             assert(OnAndBelowTarget() ^ OnAndOnOrAboveTarget());
-        }
-        if (OnAndOnOrAboveTarget()){
+        } else if (OnAndOnOrAboveTarget()){
             logging.logOnAndOnOrAboveTarget();
             control.turnOff();
             assert(OffAndBelowTarget() ^ OffAndOnOrAboveTarget());

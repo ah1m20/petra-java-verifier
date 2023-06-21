@@ -20,12 +20,10 @@ public class M1 implements Runnable {
         if (a()){
             m3.turnOn();
             assert(b());
-        }
-        if (b()){
+        } else if (b()){
             ;
             assert(b());
-        }
-        if (c()){
+        } else if (c()){
             ;
             assert(c());
         }

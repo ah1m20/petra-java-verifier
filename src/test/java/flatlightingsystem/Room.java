@@ -14,8 +14,7 @@ public class Room {
 			centre.turnOn();
 			side.turnOn();
 			assert(bothOn());
-		}
-		if (bothOn()){
+		} else if (bothOn()){
 			par(()-> centre.turnOff(),
 				()-> side.turnOff());
 			assert(bothOff());

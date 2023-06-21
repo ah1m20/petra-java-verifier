@@ -27,20 +27,16 @@ public class Controller implements Runnable {
 		if (atHomeAndGrounded()){
 			;
 			assert(atHomeAndGrounded());
-		}
-		if (flyHome()){
+		} else if (flyHome()){
 			controls.travelToHomeAndWaitTillHome();
 			assert(atHomeAndGrounded());
-		}
-		if (land()){
+		} else if (land()){
 			controls.landAndWaitTillLanded();
 			assert(landed());
-		}
-		if (atHomeAndNotGrounded() ^ landed()){
+		} else if (atHomeAndNotGrounded() ^ landed()){
 			controls.takeOffAndWaitTillInAir();
 			assert(flyHome() ^ land() ^ rc());
-		}
-		if (rc()){
+		} else if (rc()){
 			remoteControl.processCommand();
 			assert(flyHome() ^ land() ^ rc());
 		}

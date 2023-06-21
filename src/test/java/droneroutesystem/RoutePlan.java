@@ -19,12 +19,10 @@ public class RoutePlan {
 		if (atHome() ^ ground()){
 			position.travelFromGroundToA();
 			assert(a());
-		}
-		if (a()){
+		} else if (a()){
 			position.travelFromAToB();
 			assert(b());
-		}
-		if (b()){
+		} else if (b()){
 			position.travelFromBToC();
 			assert(c());
 		}
