@@ -6,6 +6,8 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.Statement;
 import java.util.List;
 
+import static ast.interp.util.ParserUtils.invalidAm;
+
 public final class SParser {
 
     public S parse(List<Statement> statements){
@@ -43,6 +45,6 @@ public final class SParser {
                     methodCallExpr.getScope().get().isNameExpr()){
             return new Am(methodCallExpr.getScope().get().asNameExpr().getNameAsString(),methodCallExpr.getNameAsString());
         }
-        throw new IllegalArgumentException("");
+        return invalidAm(methodCallExpr,"invalid syntax, not the required format: a.m()");
     }
 }

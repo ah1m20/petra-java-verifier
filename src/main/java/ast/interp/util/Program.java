@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public final class Program {
 
@@ -25,8 +24,8 @@ public final class Program {
                 isReactive = mainParser.isMainReactive(file);
             } else {
                 ObjParser parser = new ObjParser(file.getAbsolutePath(),true);
-                Optional<Obj> optional = parser.parse(fileName);;
-                optional.ifPresent(o->objs.add(o));
+                Obj o = parser.parse(fileName);
+                objs.add(o);
             }
         }
         if (isReactive){

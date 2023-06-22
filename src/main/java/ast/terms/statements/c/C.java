@@ -1,10 +1,11 @@
 package ast.terms.statements.c;
 
+import ast.terms.Term;
 import ast.terms.expressions.PrePost;
 import ast.terms.statements.s.S;
 
 
-public final class C {
+public final class C extends Term {
     private final PrePost pre;
     private final S s;
     private final PrePost post;
@@ -13,6 +14,13 @@ public final class C {
         this.pre = pre;
         this.s = s;
         this.post = post;
+    }
+
+    public C(boolean valid, int lineError, String errorMessage) {
+        super(valid, lineError, errorMessage);
+        this.pre = null;
+        this.s = null;
+        this.post = null;
     }
 
     public PrePost getPre() {
@@ -27,5 +35,8 @@ public final class C {
         return post;
     }
 
-    
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()+"@"+hashCode();
+    }
 }

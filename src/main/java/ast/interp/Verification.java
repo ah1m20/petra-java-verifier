@@ -1,9 +1,7 @@
 package ast.interp;
 
-import ast.interp.junit.tasks.ProveKaseTask;
-import ast.interp.junit.tasks.ProveMethodTask;
-import ast.interp.junit.tasks.ProveSoundnessAndCompletenessTask;
-import ast.interp.junit.tasks.VerificationTask;
+import ast.interp.junit.tasks.*;
+import ast.interp.util.Logger;
 import ast.parsers.MainParser;
 import ast.parsers.ObjParser;
 import ast.terms.Delta;
@@ -21,11 +19,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import static ast.interp.Symbolic.forall;
+import static ast.interp.util.Collections.filter;
+import static ast.interp.util.Collections.list;
 import static org.junit.Assert.assertTrue;
 
 public class Verification {
 
-    private static List<VerificationTask> tasks = new ArrayList<>();
+    private static final Logger LOG = new Logger();
 
     private VerificationTask task;
     public Verification(VerificationTask task) {
@@ -52,8 +53,10 @@ public class Verification {
                                 isReactive.set(mainParser.isMainReactive(file));
                             } else {
                                 ObjParser parser = new ObjParser(file.getAbsolutePath(),true);
-                                Optional<Obj> optional = parser.parse(file.getName().replaceAll("\\.java",""));
-                                optional.ifPresent(o->objs.add(o));
+                                Obj obj = parser.parse(file.getName().replaceAll("\\.java",""));
+                                if (!obj.isExternal()){
+                                    objs.add(obj);
+                                }
                             }
                         } catch (Exception e){
                             e.printStackTrace();
@@ -72,20 +75,25 @@ public class Verification {
     @Parameterized.Parameters(name = "{0}")
     public static Collection verify(Class<?> root) {
         Prog prog = parseSrcFiles(root);
-        Symbolic symbolic = new Symbolic(prog);
-        for (Obj o : prog.getObjs()) {
-            if (o instanceof Obj) {
-                tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> symbolic.interpObj(o).isPresent()));
-                for (Delta d : o.getOverlineDelta()) {
-                    for (int i = 0; i < d.getOverlineC().size(); i++) {
-                        C c = d.getOverlineC().get(i);
-                        tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> symbolic.interpC(c, o).isPresent()));
+        if (forall(prog.getObjs(), o->o.isValid())){
+            Symbolic symbolic = new Symbolic(prog);
+            List<VerificationTask> tasks = new ArrayList<>();
+            for (Obj o : prog.getObjs()) {
+                if (o instanceof Obj) {
+                    tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> symbolic.interpObj(o).isPresent()));
+                    for (Delta d : o.getOverlineDelta()) {
+                        for (int i = 0; i < d.getOverlineC().size(); i++) {
+                            C c = d.getOverlineC().get(i);
+                            tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> symbolic.interpC(c, o).isPresent()));
+                        }
+                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> symbolic.pairwiseDisjointDomC(d.getOverlineC(), o)));
                     }
-                    tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> symbolic.pairwiseDisjointDomC(d.getOverlineC(), o)));
                 }
             }
+            return tasks;
+        } else {
+            return list(filter(prog.getObjs(), o->!o.isValid()), o->new SyntaxInvalid(o.getA(),o.getLineError(),o.getErrorMessage()));
         }
-        return tasks;
     }
 
     @Test

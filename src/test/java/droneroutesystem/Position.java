@@ -13,9 +13,9 @@ public class Position {
 
 	public boolean c(){return connection.atC();}
 
-	public boolean onLand(){ return connection.getX() != 0 && connection.getY() != 0 && connection.getZ() == 0; }
+	public boolean onLand(){ return connection.onLand(); }
 
-	public boolean atHome(){ return connection.getX() == 0 && connection.getY() == 0 && connection.getZ() == 0; }
+	public boolean atHome(){ return connection.onLand(); }
 
 	public void travelToHome(){
 		if (onLand() ^ atHome() ^ a() ^ b() ^ c()){

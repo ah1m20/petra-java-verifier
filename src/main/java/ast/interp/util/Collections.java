@@ -31,6 +31,10 @@ public final class Collections {
         return list.stream().filter(predicate).findAny();
     }
 
+    public static <T> List<T> filter(List<T> list, Predicate<T> predicate){
+        return list.stream().filter(predicate).collect(Collectors.toCollection(()->new ArrayList<>()));
+    }
+
     public static <T> Set<T> filter(Set<T> set, Predicate<T> predicate){
         return set.stream().filter(predicate).collect(Collectors.toCollection(()->set()));
     }

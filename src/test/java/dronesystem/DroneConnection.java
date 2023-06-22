@@ -104,6 +104,11 @@ public class DroneConnection implements Runnable {
         this.z = z;
     }
 
+    public void goForward() {}
+    public void goBackward() {}
+    public void goRight() {}
+    public void goLeft() {}
+
     public void land() {
     }
 

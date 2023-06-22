@@ -17,7 +17,7 @@ public class Set<T> extends LinkedHashSet<T> {
 
     @Override
     public String toString(){
-        return toString(true);
+        return toString(false);
     }
 
     public String toString(boolean latex){
@@ -49,7 +49,7 @@ public class Set<T> extends LinkedHashSet<T> {
             while (iterator.hasNext()){
                 sb.append(","+iterator.next());
             }
-            sb.append(")");
+            sb.append(")\n");
             return sb.toString();
         } else {
             return t.toString();

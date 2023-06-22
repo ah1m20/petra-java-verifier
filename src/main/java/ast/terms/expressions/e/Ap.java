@@ -1,7 +1,6 @@
 package ast.terms.expressions.e;
 
-
-public final class Ap implements E {
+public final class Ap extends E {
     private final String a;
     private final String p;
 

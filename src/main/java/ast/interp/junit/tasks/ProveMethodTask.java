@@ -12,7 +12,7 @@ public class ProveMethodTask extends BaseVerificationTask {
 
     @Override
     public String toString() {
-            return "Reachability:"+getObjectName()+":"+methodName;
+            return "Soundness:"+getObjectName()+":"+methodName;
         }
 
     public String getMethodName() {

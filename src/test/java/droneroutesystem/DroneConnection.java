@@ -1,5 +1,8 @@
 package droneroutesystem;
 
+import ast.terms.External;
+
+@External
 public class DroneConnection implements Runnable {
 
     private final Waypoint home = new Waypoint(0,0,0);
@@ -174,4 +177,12 @@ public class DroneConnection implements Runnable {
         Waypoint waypoint = new Waypoint(getX(),getY(),0);
         goToXYZ(waypoint.getX(), waypoint.getY(), waypoint.getZ());
     }
+
+    //	public boolean onLand(){ return connection.getZ() == 0; }
+//
+//	public boolean atHome(){ return connection.getX() == 0 && connection.getY() == 0 && connection.getZ() == 10; }
+
+    public boolean onLand(){ return getX() != 0 && getY() != 0 && getZ() == 0; }
+
+    public boolean atHome(){ return getX() == 0 && getY() == 0 && getZ() == 0; }
 }

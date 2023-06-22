@@ -1,6 +1,8 @@
 package droneroutesystem;
 
-public class Waypoint {
+import ast.terms.External;
+
+@External public class Waypoint {
 	private final int x;
 	private final int y;
 	private final int z;

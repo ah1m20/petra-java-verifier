@@ -1,20 +1,25 @@
 package ast.terms;
-import ast.interp.util.Set;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Obj {
+public final class Obj extends Term {
     private final String A;
     private final List<Beta> overlineBeta = new ArrayList<>();
     private final List<Phi> overlinePhi = new ArrayList<>();
     private final List<Delta> overlineDelta = new ArrayList<>();
 
-    private final boolean isPrimitive;
+    private final ObjType objType;
 
-    public Obj(String A, boolean isPrimitive) {
+    public Obj(String A, ObjType objType) {
         this.A = A;
-        this.isPrimitive = isPrimitive;
+        this.objType = objType;
+    }
+
+    public Obj(boolean valid, int lineError, String errorMessage, String a, ObjType objType) {
+        super(valid, lineError, errorMessage);
+        this.A = a;
+        this.objType = objType;
     }
 
     public void addBeta(Beta b){
@@ -46,7 +51,11 @@ public final class Obj {
     }
 
     public boolean isPrimitive() {
-        return isPrimitive;
+        return objType==ObjType.BASE;
+    }
+
+    public boolean isExternal() {
+        return objType==ObjType.EXTERNAL;
     }
 
     @Override

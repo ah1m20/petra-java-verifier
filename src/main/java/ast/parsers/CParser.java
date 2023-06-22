@@ -12,6 +12,7 @@ import com.github.javaparser.ast.stmt.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import static ast.interp.util.Collections.list;
+import static ast.interp.util.ParserUtils.invalidC;
 
 public final class CParser {
     private final DParser dParser = new DParser();
@@ -20,7 +21,7 @@ public final class CParser {
         if (declaration.getBody().isPresent() && declaration.getBody().get().getStatements().size()==1){
             return list(ifElseStatements(declaration.getBody().get().getStatements().get(0).asIfStmt()), statement->parse(statement,isPrimitive));
         } else {
-            throw new IllegalArgumentException("expected body of one if statement or an if-else chain.");
+            return list();
         }
     }
 
@@ -35,7 +36,7 @@ public final class CParser {
                 return new C(pre, s, post);
             }
         }
-        throw new IllegalArgumentException("not valid if statement.");
+        return invalidC(statement,"not valid if statement.");
     }
 
     private List<IfStmt> ifElseStatements(IfStmt ifStmt){

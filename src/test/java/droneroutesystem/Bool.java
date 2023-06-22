@@ -1,8 +1,10 @@
 package droneroutesystem;
 
+import ast.terms.External;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class Bool extends AtomicBoolean {
+@External public final class Bool extends AtomicBoolean {
     public Bool(boolean initial){
         this.set(initial);
     }

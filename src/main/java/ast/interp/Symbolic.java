@@ -13,7 +13,6 @@ import ast.terms.expressions.PrePost;
 import ast.terms.expressions.d.D;
 import ast.terms.expressions.d.DBinary;
 import ast.terms.expressions.d.P;
-import ast.terms.expressions.d.True;
 import ast.terms.expressions.e.*;
 import ast.terms.statements.c.C;
 import ast.terms.statements.s.*;
@@ -119,7 +118,7 @@ public final class Symbolic {
         ){
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
-            logObjectPrivateStateSpace(Omega(A),A);
+            //logObjectPrivateStateSpace(Omega(A),A);
             logBottom(A);
             return Optional.empty();
         }
@@ -136,7 +135,7 @@ public final class Symbolic {
     public static <T> boolean forall(Collection<T> collection, Predicate<T> toHold){
         boolean res =  ast.interp.util.Collections.forall(collection,toHold);
         if (!res){
-            LOG.info("is not forall.");
+            //LOG.info("is not forall.");
             return false;
         } else {
             return true;
@@ -155,7 +154,7 @@ public final class Symbolic {
     }
 
     public static <T> void isNotSubseteq(Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info("image "+a+" is not subset or equal to postcondition "+b);
+        LOG.info("image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
     }
 
     public static <T> boolean logBottom(T value, boolean holds, Obj A) {
@@ -490,7 +489,9 @@ public final class Symbolic {
     }
 
     Set<List<String>> interpE(E e, Obj A){
-        if (e instanceof Ap){
+        if (e instanceof True){
+            return Omega(A);
+        } else if (e instanceof Ap){
             return interpAp((Ap)e, A);
         } else if (e instanceof EUnary){
             return interpE((EUnary)e,A);
@@ -501,12 +502,7 @@ public final class Symbolic {
     }
 
     Set<String> interpPrePost(PrePost prePost, Obj A){
-        if (prePost instanceof True){
-            return Theta(A);
-        } else if (prePost instanceof D){
-            return interpD((D)prePost,A);
-        }
-        throw new IllegalArgumentException("prePost must be instanceof D or True.");
+        return interpD((D) prePost, A);
     }
 
     Set<String> interpD(D d, Obj A){
