@@ -78,6 +78,7 @@ public class Verification {
         if (forall(prog.getObjs(), o->o.isValid())){
             Symbolic symbolic = new Symbolic(prog);
             List<VerificationTask> tasks = new ArrayList<>();
+            tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> symbolic.interpProgQuick(prog).isPresent()));
             for (Obj o : prog.getObjs()) {
                 if (o instanceof Obj) {
                     tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> symbolic.interpObj(o).isPresent()));

@@ -12,17 +12,17 @@ import ast.terms.Initial;
 public class Controller implements Runnable {
 	private final SysWrapper sys = new SysWrapper();
 	private final RoutePlan routePlan = new RoutePlan();
-	private final AutoPilot autoPilot = new AutoPilot();
+	private final Diagnostics diagnostics = new Diagnostics();
 	private final Control control = new Control();
 
-	@Initial public boolean routeActive(){return control.on() && autoPilot.none();}
-	public boolean flyHome(){return control.on() && autoPilot.flyHome();}
+	@Initial public boolean routeActive(){return control.on() && diagnostics.ok();}
 
-	public boolean land(){return control.on() && autoPilot.land() && !routePlan.ground();}
+	public boolean flyHome(){return control.on() && diagnostics.flyHomeImmediately();}
 
-	public boolean grounded(){return control.off() && autoPilot.flyHome() && routePlan.atHome();}
+	public boolean grounded(){return control.off();}
 
-	public boolean landed(){return control.on() && autoPilot.land() && routePlan.ground();}
+	public boolean temperatureWarning(){
+		return control.on() && diagnostics.temperatureWarning();}
 
 	public void run(){
 		if (grounded()){
@@ -33,14 +33,13 @@ public class Controller implements Runnable {
 			routePlan.returnToHome();
 			control.turnOff();
 			assert(grounded());
-		} else if (land()){
-			sys.logLand();
-			routePlan.land();
-			assert(landed());
 		} else if (routeActive()){
 			sys.logRouteActive();
 			routePlan.travel();
 			assert(routeActive());
+		} else if (temperatureWarning()){
+			sys.logTemperatureWarning();
+			assert(temperatureWarning());
 		}
 	}
 }

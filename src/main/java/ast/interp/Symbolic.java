@@ -34,6 +34,23 @@ public final class Symbolic {
         }
     }
 
+    Optional<Func<String>> interpProgQuick(Prog prog){
+        Obj Aepsilon = lookupObj(prog.getAepsilon());
+        Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
+        if (
+            !Aepsilon.isPrimitive() &&
+            m_epsilon.isPresent() &&
+            m_epsilon.get().dom().equals(Theta(Aepsilon))
+            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+            && (isReactive?hasInitialState(Aepsilon):true)
+        ){
+            return m_epsilon;
+        } else {
+            logBottom(prog);
+            return Optional.empty();
+        }
+    }
+
     Optional<Func<String>> interpProg(Prog prog){
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
@@ -589,7 +606,7 @@ public final class Symbolic {
                 return lookupPhi(((Ap)e).getP(),obj).isInitial();
             } else {
                 E eP = lookupE(((Ap)e).getP(),obj);
-                return isInitialState(eP,A);
+                return isInitialState(eP,obj);
             }
         } else if (e instanceof EUnary){
             return isInitialState((EUnary)e,A);

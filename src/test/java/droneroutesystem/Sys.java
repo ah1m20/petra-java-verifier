@@ -76,4 +76,8 @@ import ast.terms.External;
     public void logTravelToLand() {
         System.out.println("travelToLand");
     }
+
+    public void logTemperatureWarning() {
+        System.out.println("temperatureWarning");
+    }
 }

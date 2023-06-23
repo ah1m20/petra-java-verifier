@@ -28,4 +28,11 @@ import ast.terms.Base;
         }
     }
 
+    public void logTemperatureWarning() {
+        if (ok()){
+            sys.logTemperatureWarning();
+            assert(ok());
+        }
+    }
+
 }

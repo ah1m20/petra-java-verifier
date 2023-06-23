@@ -2,18 +2,18 @@ package droneroutesystem;
 
 import ast.terms.Initial;
 
-public class FlyHome {
+public class FlyHomeTrigger {
 
     private final Wifi wifi  = new Wifi();
     private final Battery battery  = new Battery();
 
 
-    public boolean flyHome(){
+    public boolean enabled(){
         return wifi.lowSNR() || battery.returnHomeLevel();
     }
 
     @Initial
-    public boolean notFlyHome(){
+    public boolean disabled(){
         return !(wifi.lowSNR() || battery.returnHomeLevel());
     }
 }

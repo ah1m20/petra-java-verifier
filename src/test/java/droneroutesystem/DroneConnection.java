@@ -5,6 +5,7 @@ import ast.terms.External;
 @External
 public class DroneConnection implements Runnable {
 
+    private final Sys sys = new Sys();
     private final Waypoint home = new Waypoint(0,0,0);
     private final Waypoint takeOff = new Waypoint(0,0,100);
     private final Waypoint a = new Waypoint(10,0,100);
@@ -158,22 +159,27 @@ public class DroneConnection implements Runnable {
     }
 
     public void goToHome(){
+        sys.logTravelToHome();
         goTo(home);
     }
 
     public void goToA() {
+        sys.logTravelFromGroundToA();
         goTo(a);
     }
 
     public void goToB() {
+        sys.logTravelFromAToB();
         goTo(b);
     }
 
     public void goToC() {
+        sys.logTravelFromBToC();
         goTo(c);
     }
 
     public void goToLand() {
+        sys.logTravelToLand();
         Waypoint waypoint = new Waypoint(getX(),getY(),0);
         goToXYZ(waypoint.getX(), waypoint.getY(), waypoint.getZ());
     }
@@ -185,4 +191,44 @@ public class DroneConnection implements Runnable {
     public boolean onLand(){ return getX() != 0 && getY() != 0 && getZ() == 0; }
 
     public boolean atHome(){ return getX() == 0 && getY() == 0 && getZ() == 0; }
+
+    public void waitUntilHome() {
+        sys.logWaitUntilHome();
+        while(!atHome()){
+            sys.sleep();
+        }
+        assert (atHome());
+    }
+
+    public void waitUntilLanded() {
+        sys.logWaitUntilLanded();
+        while(!onLand()){
+            sys.sleep();
+        }
+        assert (onLand());
+    }
+
+    public void waitUntilA() {
+        sys.logWaitUntilA();
+        while(!atA()){
+            sys.sleep();
+        }
+        assert (atA());
+    }
+
+    public void waitUntilB() {
+        sys.logWaitUntilB();
+        while(!atB()){
+            sys.sleep();
+        }
+        assert (atB());
+    }
+
+    public void waitUntilC() {
+        sys.logWaitUntilC();
+        while(!atC()){
+            sys.sleep();
+        }
+        assert (atC());
+    }
 }
