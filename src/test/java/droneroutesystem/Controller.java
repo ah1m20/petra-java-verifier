@@ -20,7 +20,9 @@ public class Controller implements Runnable {
 
 	public boolean land(){return control.on() && autoPilot.land() && !routePlan.ground();}
 
-	public boolean grounded(){return control.off();}
+	public boolean grounded(){return control.off() && autoPilot.flyHome() && routePlan.atHome();}
+
+	public boolean landed(){return control.on() && autoPilot.land() && routePlan.ground();}
 
 	public void run(){
 		if (grounded()){
@@ -34,11 +36,11 @@ public class Controller implements Runnable {
 		} else if (land()){
 			sys.logLand();
 			routePlan.land();
-			assert(flyHome() ^ land() ^ routeActive());
+			assert(landed());
 		} else if (routeActive()){
 			sys.logRouteActive();
 			routePlan.travel();
-			assert(flyHome() ^ land() ^ routeActive());
+			assert(routeActive());
 		}
 	}
 }

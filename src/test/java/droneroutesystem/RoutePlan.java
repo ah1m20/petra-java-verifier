@@ -24,18 +24,21 @@ public class RoutePlan {
 		} else if (b()){
 			position.travelFromBToC();
 			assert(c());
+		} else if (c()){
+			position.travelToHome();
+			assert(atHome());
 		}
 	}
 
 	public void land(){
-		if (ground() ^ a() ^ b() ^ c()){
+		if (atHome() ^ ground() ^ a() ^ b() ^ c()){
 			position.travelToLand();
 			assert(ground());
 		}
 	}
 
 	public void returnToHome(){
-		if (ground() ^ a() ^ b() ^ c()){
+		if (atHome() ^ ground() ^ a() ^ b() ^ c()){
 			position.travelToHome();
 			assert(atHome());
 		}

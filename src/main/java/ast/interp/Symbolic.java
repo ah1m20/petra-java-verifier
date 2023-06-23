@@ -153,7 +153,11 @@ public final class Symbolic {
         }
     }
 
-    public static <T> void isNotSubseteq(Set<List<String>> a, Set<List<String>> b, Obj A){
+    public static <T> void preconditionisNotSubseteqDomain(Set<List<String>> a, Set<List<String>> b, Obj A){
+        LOG.info("precondition: \n\n"+a+"\n\nis not subset or equal to domain:\n\n"+b);
+    }
+
+    public static <T> void imageIsNotSubseteqPostcondition(Set<List<String>> a, Set<List<String>> b, Obj A){
         LOG.info("image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
     }
 
@@ -326,12 +330,12 @@ public final class Symbolic {
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
         if (!(subseteq(in,interpS.dom()) )){
-            isNotSubseteq(in,interpS.dom(),A);
+            preconditionisNotSubseteqDomain(in,interpS.dom(),A);
             return false;
         }
         Set<List<String>> image = interpS.image(in);
         if (!subseteq(image, out)){
-            isNotSubseteq(image,out,A);
+            imageIsNotSubseteqPostcondition(image,out,A);
             logBottom(c,A);
             return false;
         }
