@@ -1,6 +1,8 @@
 package droneroutesystem;
 
-public class Sys {
+import ast.terms.External;
+
+@External public class Sys {
     public void exit(){
         System.exit(0);
     }

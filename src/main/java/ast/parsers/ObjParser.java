@@ -48,11 +48,11 @@ public final class ObjParser {
     }
 
     private Obj parse(ClassOrInterfaceDeclaration declaration){
-//        if (isExternalObject(declaration)){
-//            return externalObject(declaration);
-//        } else {
+        if (isExternalObject(declaration)){
+            return externalObject(declaration);
+        } else {
             return parsePetraObject(declaration);
-//        }
+        }
     }
 
     private Obj parsePetraObject(ClassOrInterfaceDeclaration declaration){

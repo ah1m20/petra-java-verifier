@@ -1,7 +1,11 @@
 package simplethermostat;
 
+import ast.terms.External;
+
 import java.util.concurrent.atomic.AtomicBoolean;
-final class Bool extends AtomicBoolean {
+
+@External
+public final class Bool extends AtomicBoolean {
     public boolean isTrue(){return this.get();}
     public boolean isFalse(){return !this.get();}
     public void setTrue(){this.set(true);}

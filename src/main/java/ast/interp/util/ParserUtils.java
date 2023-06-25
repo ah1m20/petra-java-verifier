@@ -46,6 +46,10 @@ public final class ParserUtils {
         return declaration.isAnnotationPresent(Base.class);
     }
 
+    public static boolean isExternalObject(ClassOrInterfaceDeclaration declaration){
+        return declaration.isAnnotationPresent(External.class);
+    }
+
     public static ObjType objectType(ClassOrInterfaceDeclaration declaration){
         return isBaseObject(declaration)?ObjType.BASE:ObjType.NON_BASE;
     }

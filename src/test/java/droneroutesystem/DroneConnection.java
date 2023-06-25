@@ -1,5 +1,8 @@
 package droneroutesystem;
 
+import ast.terms.External;
+
+@External
 public class DroneConnection implements Runnable {
 
     private final Sys sys = new Sys();

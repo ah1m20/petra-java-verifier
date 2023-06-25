@@ -1,6 +1,8 @@
 package simplethermostat;
 
-public class Sensor implements Runnable {
+import ast.terms.External;
+
+@External public class Sensor implements Runnable {
     private final static Sensor sensor = new Sensor();
 
     private Sensor() {
