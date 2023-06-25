@@ -22,16 +22,9 @@ public final class SParserRecursive {
         if (statements.size()==1 && statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
            return parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
         } else {
-            Z left = null;
             if (statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
-                if (statement.asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("par") &&
-                        statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()>1){
-                    left = parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
-                    return new ZBinary(left,StatementOperator.PAR,parseZ(statements.subList(1,statements.size())));
-                } else if (statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==0){
-                    left = parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
-                    return new ZBinary(left,StatementOperator.SEQ,parseZ(statements.subList(1,statements.size())));
-                }
+                Z left = parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
+                return new ZBinary(left,StatementOperator.SEQ,parseZ(statements.subList(1,statements.size())));
             }
         }
         throw new IllegalArgumentException("");
@@ -44,7 +37,17 @@ public final class SParserRecursive {
             return new Am(methodCallExpr.getScope().get().asNameExpr().getNameAsString(),methodCallExpr.getNameAsString());
         } else if (methodCallExpr.getNameAsString().equals("par") &&
                     methodCallExpr.getArguments().size()>1){
-            return parse(methodCallExpr.getArguments());
+            Z left = parseZ(methodCallExpr.getArguments().get(0));
+            return new ZBinary(left,StatementOperator.PAR,parse(methodCallExpr.getArguments().subList(1,methodCallExpr.getArguments().size())));
+        }
+        throw new IllegalArgumentException("");
+    }
+
+    private Z parseZ(Expression arg){
+        if (arg.isLambdaExpr() && arg.asLambdaExpr().getBody().isExpressionStmt() && arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
+            return parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
+        } else if (arg.isLambdaExpr()){
+            return parseZ(arg.asLambdaExpr().getBody().asBlockStmt().getStatements());
         }
         throw new IllegalArgumentException("");
     }

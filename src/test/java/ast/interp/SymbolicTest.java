@@ -1,6 +1,7 @@
 package ast.interp;
 
 import ast.terms.Prog;
+import com.google.gson.Gson;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,6 +16,15 @@ public class SymbolicTest {
     public void testLightSystem() throws URISyntaxException, IOException {
         Prog prog = buildProgram("src/test/java/lightsystem/","toggle","Light","Light","Power","Control");
         Symbolic symbolic = new Symbolic(prog);
+        symbolic.printOutput();
+        assertTrue(symbolic.interpProg(prog).isPresent());
+    }
+
+    @Test
+    public void testLightSystem2() throws URISyntaxException, IOException {
+        Prog prog = buildProgram("src/test/java/lightsystem2/","toggle","Light","Light","Power","Control");
+        Symbolic symbolic = new Symbolic(prog);
+        System.out.println(new Gson().toJson(symbolic.lookupObj(prog.getAepsilon())));
         symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
     }
