@@ -84,7 +84,8 @@ public final class ObjParser {
                 // process delta
                 List<C> cases = cparser.parse(m, isBaseObject(declaration));
                 if (cases.isEmpty()){
-                    obj.addDelta(invalidDelta(m,"expected body of one if statement or an if-else chain.",m.getNameAsString(),cases));
+                    //obj.addDelta(invalidDelta(m,"expected body of one if statement or an if-else chain.",m.getNameAsString(),cases));
+                    return invalidObj(m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), objectType(declaration));
                 } else if (!cases.isEmpty() && forall(cases, c->isValid(c))){
                     Delta delta = new Delta(m.getNameAsString(),cases);
                     obj.addDelta(delta);

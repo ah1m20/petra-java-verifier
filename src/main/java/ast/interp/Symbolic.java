@@ -30,7 +30,11 @@ public final class Symbolic {
     Symbolic(Prog prog){
         this.isReactive = prog.isReactive();
         for (Obj obj : prog.getObjs()){
-            objectTable.put(obj.getA(),obj);
+            if (obj.isValid()){
+                objectTable.put(obj.getA(),obj);
+            } else {
+                throw new IllegalArgumentException("Cannot compute semantics due to invalid syntax.");
+            }
         }
     }
 
