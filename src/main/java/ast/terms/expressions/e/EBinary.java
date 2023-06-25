@@ -2,7 +2,7 @@ package ast.terms.expressions.e;
 
 
 
-public final class EBinary implements E{
+public final class EBinary extends E {
     private final E left;
     private final BinaryOperator operator;
     private final E right;

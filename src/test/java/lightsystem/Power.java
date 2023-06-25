@@ -4,20 +4,20 @@ import ast.terms.Base;
 
 @Base
 public class Power {
-	private volatile boolean active = false;
-	public boolean on() { return active; }
-	public boolean off() { return !active; }
+	private final Bool bool = new Bool();
+	public boolean on() { return bool.isTrue(); }
+	public boolean off() { return bool.isFalse(); }
 
 	public void turnOn() {
 		if (on() ^ off()){
-			active = true;
+			bool.setTrue();
 			assert(on());
 		}
 	}
 
 	public void turnOff() {
 		if (on() ^ off()){
-			active = false;
+			bool.setFalse();
 			assert(off());
 		}
 	}

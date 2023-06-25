@@ -1,13 +1,21 @@
 package ast.terms.statements.s;
 
 
-public final class Am implements Z {
+import ast.terms.Term;
+
+public class Am extends Term implements Z {
     private final String a;
     private final String m;
 
     public Am(String a, String m) {
         this.a = a;
         this.m = m;
+    }
+
+    public Am(boolean valid, int lineError, String errorMessage) {
+        super(valid,lineError,errorMessage);
+        this.a = null;
+        this.m = null;
     }
 
     public String getA() {
@@ -18,5 +26,4 @@ public final class Am implements Z {
         return m;
     }
 
-    
 }

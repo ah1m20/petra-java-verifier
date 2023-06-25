@@ -2,7 +2,7 @@ package flatlightingsystem;
 
 import static ast.interp.util.Program.par;
 
-public class Flat {
+public class Flat implements Runnable {
 	private final Room front = new Room();
 	private final Room kitchen = new Room();
 	private final Room bedroom = new Room();
@@ -16,30 +16,26 @@ public class Flat {
 								!(!front.bothOn() && !kitchen.bothOn() && bedroom.bothOn()) &&
 								!(!front.bothOn() && !kitchen.bothOn() && !bedroom.bothOn()); }
 
-	public void toggle() {
+	public void run() {
 		if (other()){
 			par(()->bedroom.turnOff(),
 				()-> front.turnOff(),
 				()-> kitchen.turnOff());
 			assert(none());
-		}
-		if (all()){
+		} else if (all()){
 			bedroom.toggle();
 			assert(downstairs());
-		}
-		if (downstairs()){
+		} else if (downstairs()){
 			par(()-> front.toggle(),
-			    ()-> kitchen.toggle());
-			bedroom.toggle();
+			    ()-> kitchen.toggle(),
+				()-> bedroom.toggle());
 			assert(upstairs());
-		}
-		if (upstairs()){
+		} else if (upstairs()){
 			bedroom.toggle();
 			assert(none());
-		}
-		if (none()){
-			bedroom.toggle();
-			par(()-> front.toggle(),
+		} else if (none()){
+			par(()->bedroom.toggle(),
+				()-> front.toggle(),
 				()-> kitchen.toggle());
 			assert(all());
 		}

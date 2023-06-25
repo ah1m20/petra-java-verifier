@@ -1,6 +1,7 @@
 package dronesystem;
 
 import ast.terms.Base;
+import ast.terms.Initial;
 import droneroutesystem.Waypoint;
 
 @Base
@@ -10,6 +11,7 @@ public class Position {
 
 	public boolean inAir(){ return connection.getZ() == 100; }
 
+	@Initial
 	public boolean atHome(){ return connection.getX() == 0 && connection.getY() == 0 && connection.getZ() == 0; }
 
 	public void travelToHomeAndWaitTillHome() {

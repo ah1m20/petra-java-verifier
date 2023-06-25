@@ -4,44 +4,38 @@ import ast.terms.Base;
 
 @Base
 public class PositionManager {
-    private enum State {
-        START,
-        BUY_OPENNED,
-        SELL_OPENNED,
 
-        BUY_CLOSED,
+    private final State state = new State();
 
-        SELL_CLOSED;
-    }
-    private volatile State state = State.START;
-    public boolean start() { return state==State.START; }
-    public boolean buyOpened() { return state==State.BUY_OPENNED; }
-    public boolean sellOpened() { return state==State.SELL_OPENNED; }
+    public boolean start() { return state.start(); }
+    public boolean buyOpened()  { return state.buyOpened(); }
+    public boolean sellOpened() { return state.sellOpened(); }
 
-    public boolean buyClosed() { return state==State.BUY_CLOSED; }
-    public boolean sellClosed() { return state==State.SELL_CLOSED; }
+    public boolean buyClosed() { return state.buyClosed(); }
+    public boolean sellClosed() { return state.sellClosed(); }
+
     public void setCloseBuy() {
         if (start() ^ buyOpened()){
-            state = State.BUY_CLOSED;
+            state.setBuyClosed();
             assert(buyClosed());
         }
     }
     public void setCloseSell() {
         if (start() ^ sellOpened()){
-            state = State.SELL_CLOSED;
+            state.setSellClosed();
             assert(sellClosed());
         }
     }
 
     public void setOpenBuy(){
         if (start() ^ buyClosed() ^ sellClosed()){
-            state = State.BUY_OPENNED;
+            state.setBuyOpenned();
             assert(buyOpened());
         }
     }
     public void setOpenSell() {
         if (start() ^ buyClosed() ^ sellClosed()){
-            state = State.SELL_OPENNED;
+            state.setSellOpenned();
             assert(sellOpened());
         }
     }

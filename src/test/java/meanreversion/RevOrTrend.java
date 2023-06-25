@@ -4,20 +4,20 @@ import ast.terms.Base;
 
 @Base
 public class RevOrTrend {
-	private volatile boolean reversion = false;
-	public boolean reversion() { return reversion; }
-	public boolean trend() { return !reversion; }
+	private final Bool reversion = new Bool(true);
+	public boolean reversion() { return reversion.isTrue(); }
+	public boolean trend() { return reversion.isFalse(); }
 
 	public void setReversion() {
 		if (reversion() ^ trend()){
-			reversion = true;
+			reversion.isTrue();
 			assert(reversion());
 		}
 	}
 
 	public void setTrend() {
 		if (reversion() ^ trend()){
-			reversion = false;
+			reversion.isFalse();
 			assert(trend());
 		}
 	}

@@ -1,9 +1,6 @@
 package ast.terms.expressions.e;
 
-import ast.terms.Terminal;
-
-
-public final class Ap implements E, Terminal {
+public final class Ap extends E {
     private final String a;
     private final String p;
 

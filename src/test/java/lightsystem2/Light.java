@@ -2,7 +2,7 @@ package lightsystem2;
 
 import static ast.interp.util.Program.par;
 
-public class Light {
+public class Light implements Runnable {
 	private final Power p1 = new Power();
 	private final Control c1 = new Control();
 
@@ -12,7 +12,7 @@ public class Light {
 	public boolean bothOn() { return p1.on() && c1.on() && p2.on() && c2.on(); }
 	public boolean eitherOff() { return ( p1.off() || c1.off()) || ( p2.off() || c2.off()); }
 
-	public void toggle() {
+	public void run() {
 		if (eitherOff()){
 			par(()-> {
 				par(()-> p1.turnOn(),
@@ -22,8 +22,7 @@ public class Light {
 						()-> c2.turnOn());
 			});
 			assert(bothOn());
-		}
-		if (bothOn()){
+		} else if (bothOn()){
 			par(()-> p1.turnOff(), ()-> c1.turnOff());
 			par(()-> p2.turnOff(), ()-> c2.turnOff());
 			assert(eitherOff());

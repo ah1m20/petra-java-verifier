@@ -7,39 +7,39 @@ package droneroutesystem;
  * As Petra is new language / paradigm for formal verification it is difficult to map directly from ideas to verified models, without strong process for doing so.
  */
 
+import ast.terms.Initial;
+
 public class Controller implements Runnable {
-
+	private final SysWrapper sys = new SysWrapper();
 	private final RoutePlan routePlan = new RoutePlan();
-	private final AutoPilot autoPilot = new AutoPilot();
-
+	private final Diagnostics diagnostics = new Diagnostics();
 	private final Control control = new Control();
 
-	public boolean routeActive(){return control.on() && autoPilot.none();}
-	public boolean flyHome(){return control.on() && autoPilot.flyHome();}
+	@Initial public boolean routeActive(){return control.on() && diagnostics.ok();}
 
-	public boolean land(){return control.on() && autoPilot.land();}
+	public boolean flyHome(){return control.on() && diagnostics.flyHomeImmediately();}
 
 	public boolean grounded(){return control.off();}
 
+	public boolean temperatureWarning(){
+		return control.on() && diagnostics.temperatureWarning();}
+
 	public void run(){
 		if (grounded()){
-			control.exit();
+			sys.exit();
 			assert(grounded());
-		}
-		if (flyHome()){
-			control.turnOff();
+		} else if (flyHome()){
+			sys.logLand();
 			routePlan.returnToHome();
+			control.turnOff();
 			assert(grounded());
-		}
-		if (land()){
-			control.logLand();
-			routePlan.land();
-			assert(flyHome() ^ land() ^ routeActive());
-		}
-		if (routeActive()){
-			control.logRC();
+		} else if (routeActive()){
+			sys.logRouteActive();
 			routePlan.travel();
-			assert(flyHome() ^ land() ^ routeActive());
+			assert(routeActive());
+		} else if (temperatureWarning()){
+			sys.logTemperatureWarning();
+			assert(temperatureWarning());
 		}
 	}
 }

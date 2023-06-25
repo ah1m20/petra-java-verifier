@@ -1,13 +1,16 @@
 package droneroutesystem;
 
-public final class Land {
+import ast.terms.Initial;
+
+public final class TemperatureTrigger {
     private final Temperature temperature  = new Temperature();
 
-    public boolean land(){
+    public boolean enabled(){
         return temperature.high();
     }
 
-    public boolean notLand(){
+    @Initial
+    public boolean disabled(){
         return !temperature.high();
     }
 }

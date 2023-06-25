@@ -13,10 +13,10 @@ import ast.terms.expressions.PrePost;
 import ast.terms.expressions.d.D;
 import ast.terms.expressions.d.DBinary;
 import ast.terms.expressions.d.P;
-import ast.terms.expressions.d.True;
 import ast.terms.expressions.e.*;
 import ast.terms.statements.c.C;
 import ast.terms.statements.s.*;
+
 import ast.interp.util.Set;
 
 import static ast.interp.util.Collections.*;
@@ -26,21 +26,47 @@ public final class Symbolic {
 
     final static Logger LOG = new Logger();
     final ObjectTable objectTable = new ObjectTable();
-
+    final boolean isReactive;
     Symbolic(Prog prog){
+        this.isReactive = prog.isReactive();
         for (Obj obj : prog.getObjs()){
-            objectTable.put(obj.getA(),obj);
+            if (obj.isValid()){
+                objectTable.put(obj.getA(),obj);
+            } else {
+                throw new IllegalArgumentException("Cannot compute semantics due to invalid syntax.");
+            }
+        }
+    }
+
+    Optional<Func<String>> interpProgQuick(Prog prog){
+        Obj Aepsilon = lookupObj(prog.getAepsilon());
+        Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
+        if (
+            !Aepsilon.isPrimitive() &&
+            m_epsilon.isPresent() &&
+            m_epsilon.get().dom().equals(Theta(Aepsilon))
+            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+            && (isReactive?hasInitialState(Aepsilon):true)
+        ){
+            return m_epsilon;
+        } else {
+            logBottom(prog);
+            return Optional.empty();
         }
     }
 
     Optional<Func<String>> interpProg(Prog prog){
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
-        if (!Aepsilon.isPrimitive() &&
+        if (
+                //forall(prog.getObjs(), o->interpObj(o).isPresent()) &&
+            !Aepsilon.isPrimitive() &&
             interpObj(Aepsilon).isPresent() &&
-                m_epsilon.isPresent() &&
-                m_epsilon.get().dom().equals(Theta(Aepsilon)) &&
-                union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))) {
+            m_epsilon.isPresent() &&
+            m_epsilon.get().dom().equals(Theta(Aepsilon))
+            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+            && (isReactive?hasInitialState(Aepsilon):true)
+         ){
             return m_epsilon;
         } else {
             logBottom(prog);
@@ -60,14 +86,19 @@ public final class Symbolic {
         return set(set(A.getOverlinePhi()), (e->e.getP()));
     }
 
-    E lookupE(String p, Obj A){
+    Phi lookupPhi(String p, Obj A){
         Optional<Phi> phi = find(A.getOverlinePhi(), x->x.getP().equals(p));
         if (phi.isPresent()){
-            return phi.get().getE();
+            return phi.get();
         } else {
             throw new IllegalStateException("cannot find predicate: "+p);
         }
     }
+
+    E lookupE(String p, Obj A){
+        return lookupPhi(p,A).getE();
+    }
+
     Obj lookupObj(String objectId){
         return objectTable.lookup(objectId);
     }
@@ -104,10 +135,11 @@ public final class Symbolic {
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
                 forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A)) &&
-                isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A) ){
+                (isReactive?isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
+        ){
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
-            logObjectPrivateStateSpace(Omega(A),A);
+            //logObjectPrivateStateSpace(Omega(A),A);
             logBottom(A);
             return Optional.empty();
         }
@@ -124,7 +156,7 @@ public final class Symbolic {
     public static <T> boolean forall(Collection<T> collection, Predicate<T> toHold){
         boolean res =  ast.interp.util.Collections.forall(collection,toHold);
         if (!res){
-            LOG.info("is not forall.");
+            //LOG.info("is not forall.");
             return false;
         } else {
             return true;
@@ -142,8 +174,12 @@ public final class Symbolic {
         }
     }
 
-    public static <T> void isNotSubseteq(Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info("image "+a+" is not subset or equal to postcondition "+b);
+    public static <T> void preconditionisNotSubseteqDomain(Set<List<String>> a, Set<List<String>> b, Obj A){
+        LOG.info("precondition: \n\n"+a+"\n\nis not subset or equal to domain:\n\n"+b);
+    }
+
+    public static <T> void imageIsNotSubseteqPostcondition(Set<List<String>> a, Set<List<String>> b, Obj A){
+        LOG.info("image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
     }
 
     public static <T> boolean logBottom(T value, boolean holds, Obj A) {
@@ -231,6 +267,9 @@ public final class Symbolic {
                 if (i!=j){
                     Optional<Func<String>> a = interpC(ovelineC.get(i),A);
                     Optional<Func<String>> b = interpC(ovelineC.get(j),A);
+                    if (!a.isPresent() || !b.isPresent()){
+                        return false;
+                    }
                     if (intersect(a.get().dom(),b.get().dom()).size()!=0){
                         logCasesDomainOverlap(i,a.get().dom(),j,b.get().dom(),A);
                         return false;
@@ -282,6 +321,10 @@ public final class Symbolic {
     Optional<Func<String>> interpPrimitiveC(C c, Obj A){
         Set<String> pre = interpPrePost(c.getPre(),A);
         Set<String> post = interpPrePost(c.getPost(),A);
+        if (post.size()>1){
+            // base method not a function at its symbolic interpretation is constucted from the product pre x post
+            return Optional.empty();
+        }
         Set<Mapsto<String,String>> def = set();
         for (String p : pre){
             for (String q : post){
@@ -307,13 +350,17 @@ public final class Symbolic {
         Set<E> e_q = set(Q, q-> lookupE(q,A));
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
-        Set<List<String>> image = interpS.image(in);
-        boolean result = subseteq(image, out);
-        if (!result){
-            isNotSubseteq(image,out,A);
-            logBottom(c,A);
+        if (!(subseteq(in,interpS.dom()) )){
+            preconditionisNotSubseteqDomain(in,interpS.dom(),A);
+            return false;
         }
-        return result;
+        Set<List<String>> image = interpS.image(in);
+        if (!subseteq(image, out)){
+            imageIsNotSubseteqPostcondition(image,out,A);
+            logBottom(c,A);
+            return false;
+        }
+        return true;
     }
 
     Func<List<String>> interpSkip(Skip skip, Obj A){
@@ -378,7 +425,9 @@ public final class Symbolic {
     }
 
     Set<List<String>> interpE(E e, Obj A){
-        if (e instanceof Ap){
+        if (e instanceof True){
+            return Omega(A);
+        } else if (e instanceof Ap){
             return interpAp((Ap)e, A);
         } else if (e instanceof EUnary){
             return interpE((EUnary)e,A);
@@ -389,12 +438,7 @@ public final class Symbolic {
     }
 
     Set<String> interpPrePost(PrePost prePost, Obj A){
-        if (prePost instanceof True){
-            return Theta(A);
-        } else if (prePost instanceof D){
-            return interpD((D)prePost,A);
-        }
-        throw new IllegalArgumentException("prePost must be instanceof D or True.");
+        return interpD((D) prePost, A);
     }
 
     Set<String> interpD(D d, Obj A){
@@ -426,7 +470,7 @@ public final class Symbolic {
 
     public void printOutput() {
         for (Obj o : objectTable.values()){
-            if (o instanceof Obj){
+            if (o instanceof Obj && !o.isPrimitive()){
                 System.out.println(o.getA()+": "+interpObj(o));
                 System.out.println("\t\\Omega = "+Omega(o));
                 System.out.println("\t\\Theta = "+Theta(o));
@@ -494,5 +538,52 @@ public final class Symbolic {
         Set<List<String>> V = ir.get().restrict(P).range();
         Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
         return Optional.of(new Func<>(P,Q,f.def()));
+    }
+
+    boolean hasInitialState(Obj A){
+        boolean result = existsOne(A.getOverlinePhi(),phi->isInitialState(phi,A));
+        if (!result){
+            LOG.info(A.getA()+" has no initial state.");
+        }
+        return result;
+    }
+
+    boolean isInitialState(Phi phi, Obj A){
+        return phi.isInitial() && isInitialState(phi.getE(),A);
+    }
+
+    boolean isInitialState(EUnary unary, Obj A){
+        if (unary.getOperator()== UnaryOperator.NOT){
+            return !isInitialState(unary.getInner(),A);
+        } else if (unary.getOperator()==UnaryOperator.PAREN){
+            return isInitialState(unary.getInner(),A);
+        }
+        throw new IllegalArgumentException("operator must be NOT or PAREN");
+    }
+
+    boolean isInitialState(EBinary binary, Obj A){
+        if (binary.getOperator()== BinaryOperator.AND){
+            return isInitialState(binary.getLeft(),A) && isInitialState(binary.getRight(),A);
+        } else if (binary.getOperator()==BinaryOperator.OR){
+            return isInitialState(binary.getLeft(),A) || isInitialState(binary.getRight(),A);
+        }
+        throw new IllegalArgumentException("operator must be AND or OR");
+    }
+
+    boolean isInitialState(E e, Obj A){
+        if (e instanceof Ap){
+            Obj obj = lookupObj(((Ap)e).getA(),A);
+            if (obj.isPrimitive()){
+                return lookupPhi(((Ap)e).getP(),obj).isInitial();
+            } else {
+                E eP = lookupE(((Ap)e).getP(),obj);
+                return isInitialState(eP,obj);
+            }
+        } else if (e instanceof EUnary){
+            return isInitialState((EUnary)e,A);
+        } else if (e instanceof EBinary){
+            return isInitialState((EBinary)e,A);
+        }
+        throw new IllegalArgumentException("must be instanceof Ap, EUnary or EBinary");
     }
 }

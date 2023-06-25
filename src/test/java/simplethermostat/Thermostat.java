@@ -1,12 +1,14 @@
 package simplethermostat;
 
-public class Thermostat {
+import ast.terms.Initial;
+
+public class Thermostat implements Runnable {
 
     private final Logging logging = new Logging();
     private final Temperature temperature = new Temperature();
     private final Control control = new Control();
 
-    public boolean OffAndBelowTarget(){
+    @Initial public boolean OffAndBelowTarget(){
         return control.off() && temperature.belowTarget();
     }
     public boolean OffAndOnOrAboveTarget(){
@@ -18,21 +20,19 @@ public class Thermostat {
     public boolean OnAndOnOrAboveTarget(){
         return control.on() && temperature.aboveOrEqualToTarget();
     }
-    public void action(){
+
+    public void run(){
         if (OffAndBelowTarget()){
             logging.logOffAndBelowTarget();
             control.turnOn();
             assert(OnAndBelowTarget() ^ OnAndOnOrAboveTarget());
-        }
-        if (OffAndOnOrAboveTarget()){
+        } else if (OffAndOnOrAboveTarget()){
             logging.logOffAndOnOrAboveTarget();
             assert(OffAndBelowTarget() ^ OffAndOnOrAboveTarget());
-        }
-        if (OnAndBelowTarget()){
+        } else if (OnAndBelowTarget()){
             logging.logOnAndBelowTarget();
             assert(OnAndBelowTarget() ^ OnAndOnOrAboveTarget());
-        }
-        if (OnAndOnOrAboveTarget()){
+        } else if (OnAndOnOrAboveTarget()){
             logging.logOnAndOnOrAboveTarget();
             control.turnOff();
             assert(OffAndBelowTarget() ^ OffAndOnOrAboveTarget());

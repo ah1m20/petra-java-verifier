@@ -1,8 +1,7 @@
 package ast.terms.expressions.e;
 
 
-
-public class EUnary implements E{
+public class EUnary extends E {
     private final E inner;
     private final UnaryOperator operator;
     public EUnary(E inner, UnaryOperator operator) {

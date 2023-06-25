@@ -1,11 +1,9 @@
 package simplethermostat;
 
+import static ast.interp.util.Program.startReactive;
+
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        Thermostat thermostat = new Thermostat();
-        while(true){
-            thermostat.action();
-            Thread.sleep(1000);
-        }
+        startReactive(0,new Thermostat(), Sensor.getInstance());
     }
 }

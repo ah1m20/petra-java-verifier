@@ -9,15 +9,12 @@ public class Room {
 	public boolean bothOn() { return centre.on() && side.on(); }
 	public boolean bothOff() { return centre.off() && side.off(); }
 
-	public boolean other() { return !(centre.on() && side.on()) && !(centre.off() && side.off()); }
-
 	public void toggle() {
 		if (bothOff()){
 			centre.turnOn();
 			side.turnOn();
 			assert(bothOn());
-		}
-		if (bothOn()){
+		} else if (bothOn()){
 			par(()-> centre.turnOff(),
 				()-> side.turnOff());
 			assert(bothOff());
@@ -25,7 +22,7 @@ public class Room {
 	}
 
 	public void turnOff() {
-		if (other()){
+		if (bothOn() ^ bothOff()){
 			centre.turnOff();
 			side.turnOff();
 			assert(bothOff());

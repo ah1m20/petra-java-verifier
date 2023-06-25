@@ -31,6 +31,10 @@ public final class Collections {
         return list.stream().filter(predicate).findAny();
     }
 
+    public static <T> List<T> filter(List<T> list, Predicate<T> predicate){
+        return list.stream().filter(predicate).collect(Collectors.toCollection(()->new ArrayList<>()));
+    }
+
     public static <T> Set<T> filter(Set<T> set, Predicate<T> predicate){
         return set.stream().filter(predicate).collect(Collectors.toCollection(()->set()));
     }
@@ -71,6 +75,10 @@ public final class Collections {
 
     public static <T> boolean exists(Collection<T> collection, Predicate<T> toHold){
         return collection.stream().anyMatch(toHold);
+    }
+
+    public static <T> boolean existsOne(Collection<T> collection, Predicate<T> toHold){
+        return collection.stream().filter(toHold).count()==1;
     }
 
     public static <T,R> Set<R> builder(Function<T,R> mapper, Set<T> set){
