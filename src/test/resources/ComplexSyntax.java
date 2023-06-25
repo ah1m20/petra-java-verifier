@@ -26,7 +26,11 @@ public class ComplexSyntax {
 			assert(on());
 		}
 		if (on()){
-			par(()-> a.turnOff(),
+			par(()-> {
+						a.turn();
+						a.turnOff();
+						par(()-> b1.turnOff(), ()-> b2.turnOff(), ()-> b3.turnOff());
+					},
 				()-> b.turnOff());
 			assert(off());
 		}

@@ -16,15 +16,8 @@ import ast.terms.expressions.d.P;
 import ast.terms.expressions.d.True;
 import ast.terms.expressions.e.*;
 import ast.terms.statements.c.C;
-import ast.terms.statements.s.Binary;
-import ast.terms.statements.s.S;
-
+import ast.terms.statements.s.*;
 import ast.interp.util.Set;
-import ast.terms.statements.s.SBinary;
-import ast.terms.statements.s.r.Am;
-import ast.terms.statements.s.r.R;
-import ast.terms.statements.s.r.RBinary;
-import ast.terms.statements.s.r.Skip;
 
 import static ast.interp.util.Collections.*;
 import static ast.interp.util.Ops.*;
@@ -323,45 +316,6 @@ public final class Symbolic {
         return result;
     }
 
-    Optional<Func<List<String>>> interpS(S s, Obj A){
-        if (s instanceof Skip){
-            return Optional.of(interpSkip((Skip)s, A));
-        } else if (s instanceof R){
-            return interpR((R)s,A);
-        } else if (s instanceof SBinary){
-            return interpS((SBinary)s, A);
-        }
-        throw new IllegalArgumentException("s must be Skip, Am, RBinary or SBinary.");
-    }
-
-    Optional<Func<List<String>>> interpNonSeperated(SBinary binary, Obj A) {
-        Optional<Func<List<String>>> ir = interpS(binary.getLeft(), A);
-        Optional<Func<List<String>>> irPrim = interpS(binary.getRight(), A);
-
-        if (!(ir.isPresent() && irPrim.isPresent())){
-            logBottom(binary,A);
-            return Optional.empty();
-        }
-
-        if ( subseteq(ir.get().range(), irPrim.get().dom()) ){
-            Func<List<String>> f = irPrim.get().compose(ir.get());
-            return Optional.of(f);
-        } else {
-            logBottom(binary,A);
-            return Optional.empty();
-        }
-
-    }
-
-    Optional<Func<List<String>>> interpS(SBinary binary, Obj A){
-        if (!intersect(fields(binary.getLeft()), fields(binary.getRight())).isEmpty()){
-            return interpNonSeperated(binary,A);
-        } else if (intersect(fields(binary.getLeft()), fields(binary.getRight())).isEmpty()){
-            return interpSeperated(binary,A);
-        }
-        throw new IllegalArgumentException("");
-    }
-
     Func<List<String>> interpSkip(Skip skip, Obj A){
         return id(Omega(A));
     }
@@ -384,33 +338,6 @@ public final class Symbolic {
             return Optional.of(functionProduct(funcs));
         } else {
             logBottom(am,A);
-            return Optional.empty();
-        }
-    }
-
-    Optional<Func<List<String>>> interpR(R r, Obj A){
-        if (r instanceof Am){
-            return interpAm((Am)r, A);
-        } else if (r instanceof RBinary){
-            return interpSeperated((RBinary)r, A);
-        }
-        throw new IllegalArgumentException("operator must be Am or RBinary");
-    }
-
-    Optional<Func<List<String>>> interpSeperated(Binary binary, Obj A){
-        S s = binary.getLeft();
-        S sPrim = binary.getRight();
-        Optional<Func<List<String>>> ir = interpS(s, A);
-        Optional<Func<List<String>>> irPrim = interpS(sPrim, A);
-        if (ir.isPresent() && irPrim.isPresent() &&
-                intersect(fields(s), fields(sPrim)).isEmpty() ){
-            Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
-            Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
-            Set<List<String>> V = ir.get().restrict(P).range();
-            Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
-            return Optional.of(new Func<>(P,Q,f.def()));
-        } else {
-            logBottom(binary,A);
             return Optional.empty();
         }
     }
@@ -488,8 +415,8 @@ public final class Symbolic {
             Am Am = ((Am) s);
             String a = Am.getA();
             return set(a);
-        } else if (s instanceof Binary){
-            Binary binary = ((Binary) s);
+        } else if (s instanceof ZBinary){
+            ZBinary binary = ((ZBinary) s);
             S right = binary.getRight();
             S left = binary.getLeft();
             return union(fields(right),fields(left));
@@ -520,5 +447,52 @@ public final class Symbolic {
                 }
             }
         }
+    }
+
+    Optional<Func<List<String>>> interpS(S s, Obj A){
+        if (s instanceof Skip){
+            return Optional.of(interpSkip((Skip)s, A));
+        } else if (s instanceof Z){
+            return interpZ((Z)s, A);
+        }
+        throw new IllegalArgumentException("s must be Skip, Am, RBinary or SBinary.");
+    }
+
+    Optional<Func<List<String>>> interpZ(Z z, Obj A){
+        if (z instanceof ZBinary){
+            return interpSequentialOrParallel((ZBinary) z,A);
+        } else if (z instanceof Am){
+            return interpAm((Am)z, A);
+        }
+        throw new IllegalArgumentException("s must be Skip, Am, RBinary or SBinary.");
+    }
+
+    Optional<Func<List<String>>> interpSequentialOrParallel(ZBinary binary, Obj A){
+        S s = binary.getLeft();
+        S sPrim = binary.getRight();
+        Optional<Func<List<String>>> ir = interpS(s, A);
+        Optional<Func<List<String>>> irPrim = interpS(sPrim, A);
+        if (!(ir.isPresent() && irPrim.isPresent())){
+            logBottom(binary,A);
+            return Optional.empty();
+        }
+        if (binary.getOperator()==StatementOperator.SEQ){
+            if (!(intersect(fields(s), fields(sPrim)).isEmpty() ||
+                    subseteq(ir.get().range(),irPrim.get().dom()))){
+                logBottom(binary,A);
+                return Optional.empty();
+            }
+        }
+        if (binary.getOperator()==StatementOperator.PAR){
+            if (!intersect(fields(s), fields(sPrim)).isEmpty()){
+                logBottom(binary,A);
+                return Optional.empty();
+            }
+        }
+        Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
+        Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
+        Set<List<String>> V = ir.get().restrict(P).range();
+        Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
+        return Optional.of(new Func<>(P,Q,f.def()));
     }
 }

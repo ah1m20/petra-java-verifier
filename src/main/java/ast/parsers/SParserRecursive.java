@@ -1,40 +1,43 @@
 package ast.parsers;
 
-import ast.terms.statements.s.S;
-import ast.terms.statements.s.SBinary;
-import ast.terms.statements.s.r.*;
+import ast.terms.statements.s.*;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.Statement;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public final class SParserRecursive {
 
     public S parseS(List<Statement> statements){
         Statement statement = statements.get(0);
-        if (statements.size()==1){
-            R r = null;
-            if (statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
-                r = parseR(statement.asExpressionStmt().getExpression().asMethodCallExpr());
-            } else if (statement.isEmptyStmt()){
-                r = new Skip();
-            }
-            return r;
+        if (statements.size()==1 && statement.isEmptyStmt()){
+            return new Skip();
         } else {
-            R left = null;
-            if (statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
-                left = parseR(statement.asExpressionStmt().getExpression().asMethodCallExpr());
-            } else if (statement.isEmptyStmt()){
-                left = new Skip();
-            }
-            return new SBinary(left,parseS(statements.subList(1,statements.size())));
+            return parseZ(statements);
         }
     }
+    public Z parseZ(List<Statement> statements){
+        Statement statement = statements.get(0);
+        if (statements.size()==1 && statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
+           return parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
+        } else {
+            Z left = null;
+            if (statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
+                if (statement.asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("par") &&
+                        statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()>1){
+                    left = parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
+                    return new ZBinary(left,StatementOperator.PAR,parseZ(statements.subList(1,statements.size())));
+                } else if (statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==0){
+                    left = parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
+                    return new ZBinary(left,StatementOperator.SEQ,parseZ(statements.subList(1,statements.size())));
+                }
+            }
+        }
+        throw new IllegalArgumentException("");
+    }
 
-    private R parseR(MethodCallExpr methodCallExpr){
+    private Z parseZ(MethodCallExpr methodCallExpr){
         if (methodCallExpr.getArguments().size()==0 &&
                 methodCallExpr.getScope().isPresent() &&
                     methodCallExpr.getScope().get().isNameExpr()){
@@ -45,19 +48,35 @@ public final class SParserRecursive {
         }
         throw new IllegalArgumentException("");
     }
-
-    public R parse(List<Expression> args){
+    public Z parse(List<Expression> args){
         Expression arg = args.get(0);
         if (args.size()==1){
-            return parseR(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
+            if (arg.asLambdaExpr().getBody().isExpressionStmt() &&
+                    arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
+                return parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
+            } else if(arg.asLambdaExpr().getBody().isBlockStmt() && arg.asLambdaExpr().getBody().asBlockStmt().getStatements().size()>0){
+                return parseZ(arg.asLambdaExpr().getBody().asBlockStmt().getStatements());
+            }
         } else {
-            R first = null;
+            Z first = null;
             if (arg.isLambdaExpr() &&
                     arg.asLambdaExpr().getBody().isExpressionStmt() &&
-                    arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
-                first = parseR(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
+                        arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr() &&
+                            arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("par") &&
+                                arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()>1){
+                first = parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
+                return new ZBinary(first,StatementOperator.PAR,parse(args.subList(1,args.size())));
+            } else if (
+                    arg.isLambdaExpr() &&
+                        arg.asLambdaExpr().getBody().isExpressionStmt() &&
+                            arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr() &&
+                                arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==0){
+                first = parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
+                return new ZBinary(first,StatementOperator.SEQ,parse(args.subList(1,args.size())));
+            } else if(arg.asLambdaExpr().getBody().isBlockStmt() && arg.asLambdaExpr().getBody().asBlockStmt().getStatements().size()>0){
+                return parseZ(arg.asLambdaExpr().getBody().asBlockStmt().getStatements());
             }
-            return new RBinary(first,parse(args.subList(1,args.size())));
         }
+        throw new IllegalArgumentException("");
     }
 }

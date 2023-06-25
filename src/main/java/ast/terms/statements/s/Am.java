@@ -1,10 +1,7 @@
-package ast.terms.statements.s.r;
-
-import ast.terms.Terminal;
-import ast.terms.statements.s.S;
+package ast.terms.statements.s;
 
 
-public final class Am implements S, R, RTerminal {
+public final class Am implements Z {
     private final String a;
     private final String m;
 
