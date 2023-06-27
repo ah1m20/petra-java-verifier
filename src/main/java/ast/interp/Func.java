@@ -12,6 +12,9 @@ public final class Func<T> {
     private final Set<Mapsto<T,T>> def;
 
     public Func(Set<T> domain, Set<T> range, Set<Mapsto<T,T>> def) {
+        if (domain.size()!=def.size()){
+            throw new IllegalArgumentException("not a total function as the number of elements in the domain differs to the number of mappings.");
+        }
         this.domain = domain;
         this.range = range;
         this.def = def;
