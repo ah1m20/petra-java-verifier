@@ -2,10 +2,11 @@ package ast.parsers;
 
 import ast.terms.statements.s.*;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.Statement;
 
 import java.util.List;
+
+import static ast.interp.util.ParserUtils.invalidZ;
 
 public final class SParserRecursive {
 
@@ -14,72 +15,73 @@ public final class SParserRecursive {
         if (statements.size()==1 && statement.isEmptyStmt()){
             return new Skip();
         } else {
-            return parseZ(statements);
+            try {
+                return parseZ(statements);
+            } catch (NodeException e){
+                return invalidZ(e.getNode(),"not valid statement.");
+            }
         }
     }
     public Z parseZ(List<Statement> statements){
         Statement statement = statements.get(0);
-        if (statements.size()==1 && statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
-           return parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
+        if (!(statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr())){
+            throw new NodeException(statement);
+        }
+        if (statements.size()==1 &&
+                (statement.asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("par") ||
+                        statement.asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("seq") ||
+                            statement.asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("auto")) &&
+                statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()>1){
+            Z left = parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().get(0));
+            return new ZBinary(left,parse(statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().subList(1,statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size())));
         } else {
-            if (statement.isExpressionStmt() && statement.asExpressionStmt().getExpression().isMethodCallExpr()){
-                Z left = parseZ(statement.asExpressionStmt().getExpression().asMethodCallExpr());
-                return new ZBinary(left,StatementOperator.SEQ,parseZ(statements.subList(1,statements.size())));
-            }
+            return parseQ(statements);
         }
-        throw new IllegalArgumentException("");
-    }
-
-    private Z parseZ(MethodCallExpr methodCallExpr){
-        if (methodCallExpr.getArguments().size()==0 &&
-                methodCallExpr.getScope().isPresent() &&
-                    methodCallExpr.getScope().get().isNameExpr()){
-            return new Am(methodCallExpr.getScope().get().asNameExpr().getNameAsString(),methodCallExpr.getNameAsString());
-        } else if (methodCallExpr.getNameAsString().equals("par") &&
-                    methodCallExpr.getArguments().size()>1){
-            Z left = parseZ(methodCallExpr.getArguments().get(0));
-            return new ZBinary(left,StatementOperator.PAR,parse(methodCallExpr.getArguments().subList(1,methodCallExpr.getArguments().size())));
-        }
-        throw new IllegalArgumentException("");
     }
 
     private Z parseZ(Expression arg){
         if (arg.isLambdaExpr() && arg.asLambdaExpr().getBody().isExpressionStmt() && arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
-            return parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
+            // x.M
+            return new Am(
+                    arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getScope().get().asNameExpr().getNameAsString(),
+                    arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString());
         } else if (arg.isLambdaExpr()){
-            return parseZ(arg.asLambdaExpr().getBody().asBlockStmt().getStatements());
+            // ()->{...}
+            return parseQ(arg.asLambdaExpr().getBody().asBlockStmt().getStatements());
         }
-        throw new IllegalArgumentException("");
+        throw new NodeException(arg);
     }
+
     public Z parse(List<Expression> args){
         Expression arg = args.get(0);
-        if (args.size()==1){
-            if (arg.asLambdaExpr().getBody().isExpressionStmt() &&
-                    arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
-                return parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
-            } else if(arg.asLambdaExpr().getBody().isBlockStmt() && arg.asLambdaExpr().getBody().asBlockStmt().getStatements().size()>0){
-                return parseZ(arg.asLambdaExpr().getBody().asBlockStmt().getStatements());
-            }
-        } else {
-            Z first = null;
-            if (arg.isLambdaExpr() &&
-                    arg.asLambdaExpr().getBody().isExpressionStmt() &&
-                        arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr() &&
-                            arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString().equals("par") &&
-                                arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()>1){
-                first = parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
-                return new ZBinary(first,StatementOperator.PAR,parse(args.subList(1,args.size())));
-            } else if (
-                    arg.isLambdaExpr() &&
-                        arg.asLambdaExpr().getBody().isExpressionStmt() &&
-                            arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr() &&
-                                arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==0){
-                first = parseZ(arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr());
-                return new ZBinary(first,StatementOperator.SEQ,parse(args.subList(1,args.size())));
-            } else if(arg.asLambdaExpr().getBody().isBlockStmt() && arg.asLambdaExpr().getBody().asBlockStmt().getStatements().size()>0){
-                return parseZ(arg.asLambdaExpr().getBody().asBlockStmt().getStatements());
-            }
+        if (!(arg.isLambdaExpr())){
+            throw new NodeException(arg);
         }
-        throw new IllegalArgumentException("");
+        if (args.size()==1){
+            return parseZ(arg);
+        } else {
+            Z first = parseZ(arg);
+            return new ZBinary(first,parse(args.subList(1,args.size())));
+        }
     }
+
+    public Q parseQ(List<Statement> statements){
+        Statement statement = statements.get(0);
+        if (!(statement.isExpressionStmt() &&
+                statement.asExpressionStmt().getExpression().isMethodCallExpr() &&
+                statement.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==0 &&
+                statement.asExpressionStmt().getExpression().asMethodCallExpr().getScope().isPresent() &&
+                statement.asExpressionStmt().getExpression().asMethodCallExpr().getScope().get().isNameExpr())){
+            throw new NodeException(statement);
+        }
+        if (statements.size()==1){
+            return new Am(statement.asExpressionStmt().getExpression().asMethodCallExpr().getScope().get().asNameExpr().getNameAsString(),
+                    statement.asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString());
+        } else {
+            Q left = new Am(statement.asExpressionStmt().getExpression().asMethodCallExpr().getScope().get().asNameExpr().getNameAsString(),
+                    statement.asExpressionStmt().getExpression().asMethodCallExpr().getNameAsString());
+            return new QBinary(left,parseQ(statements.subList(1,statements.size())));
+        }
+    }
+
 }

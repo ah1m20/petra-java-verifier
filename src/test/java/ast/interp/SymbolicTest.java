@@ -23,7 +23,7 @@ public class SymbolicTest {
 
     @Test
     public void testLightSystem2() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/lightsystem2/","run","Light","Main","Light","Power","Control");
+        Prog prog = buildProgram("src/test/java/lightingsystem2/","run","Light","Main","Light","Power","Control");
         Symbolic symbolic = new Symbolic(prog);
         System.out.println(new Gson().toJson(symbolic.lookupObj(prog.getAepsilon())));
         symbolic.printOutput();

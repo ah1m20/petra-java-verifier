@@ -45,6 +45,7 @@ public class Verification {
             stream
                     .filter(path -> path.getFileName().toString().contains(JAVA_FILE_EXT))
                     .filter(path -> path.toString().contains(root.getCanonicalName().replaceAll("\\."+root.getSimpleName(),"")))
+                    // path.toString().contains(root.getCanonicalName().replaceAll("\\.","\\\\"))
                     .forEach(path -> {
                         try {
                             File file = path.toFile();

@@ -1,9 +1,7 @@
 package ast.terms.statements.s;
 
 
-import ast.terms.Term;
-
-public class Am extends Term implements Z {
+public class Am extends Q {
     private final String a;
     private final String m;
 

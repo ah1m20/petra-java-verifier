@@ -33,7 +33,11 @@ public final class CParser {
                 PrePost pre = dParser.parse(statement.asIfStmt().getCondition());
                 S s = !isPrimitive?sParser.parseS(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):null;
                 PrePost post = dParser.parse(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).asAssertStmt().getCheck().asEnclosedExpr().getInner());
-                return new C(pre, s, post);
+                if (s==null || s.isValid()){
+                    return new C(pre, s, post);
+                } else {
+                    return invalidC(statement,"not valid if statement.");
+                }
             }
         }
         return invalidC(statement,"not valid if statement.");

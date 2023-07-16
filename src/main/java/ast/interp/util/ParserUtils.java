@@ -4,6 +4,7 @@ import ast.terms.*;
 import ast.terms.expressions.e.E;
 import ast.terms.statements.c.C;
 import ast.terms.statements.s.Am;
+import ast.terms.statements.s.Z;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
@@ -16,8 +17,16 @@ public final class ParserUtils {
     }
 
     public static int getLineNumber(Node node){
-        return node.getRange().get().begin.line;
+        if (node.getRange().isPresent()){
+            return node.getRange().get().begin.line;
+        } else {
+            for (Node n : node.getChildNodes()){
+                return getLineNumber(n);
+            }
+        }
+        return -1;
     }
+
     public static Obj invalidObj(Node node, String errorMessage, String objectName, ObjType objType){
         return new Obj(false,getLineNumber(node),errorMessage,objectName,objType);
     }
@@ -28,6 +37,10 @@ public final class ParserUtils {
 
     public static Delta invalidDelta(Node node, String errorMessage, String methodLabel, List<C> overlineC){
         return new Delta(false,getLineNumber(node),errorMessage,methodLabel,overlineC);
+    }
+
+    public static Z invalidZ(Node node, String errorMessage){
+        return new Z(false,getLineNumber(node),errorMessage);
     }
 
     public static C invalidC(Node node, String errorMessage){

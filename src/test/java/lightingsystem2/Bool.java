@@ -1,4 +1,4 @@
-package lightsystem2;
+package lightingsystem2;
 
 import ast.terms.External;
 

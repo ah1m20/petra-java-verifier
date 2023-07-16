@@ -454,18 +454,18 @@ public final class Symbolic {
         throw new IllegalArgumentException("d must be instanceof P or DBinary.");
     }
 
-    Set<String> fields(S s){
-        if (s instanceof Am){
-            Am Am = ((Am) s);
+    Set<String> fields(Z z){
+        if (z instanceof Am){
+            Am Am = ((Am) z);
             String a = Am.getA();
             return set(a);
-        } else if (s instanceof ZBinary){
-            ZBinary binary = ((ZBinary) s);
-            S right = binary.getRight();
-            S left = binary.getLeft();
+        } else if (z instanceof ZBinary){
+            ZBinary binary = ((ZBinary) z);
+            Z right = binary.getRight();
+            Z left = binary.getLeft();
             return union(fields(right),fields(left));
         }
-        throw new IllegalArgumentException("s must be instanceof Am or Binary.");
+        throw new IllegalArgumentException("z must be instanceof Am or ZBinary.");
     }
 
     public void printOutput() {
@@ -504,34 +504,46 @@ public final class Symbolic {
 
     Optional<Func<List<String>>> interpZ(Z z, Obj A){
         if (z instanceof ZBinary){
-            return interpSequentialOrParallel((ZBinary) z,A);
-        } else if (z instanceof Am){
-            return interpAm((Am)z, A);
+            return interpZBinary((ZBinary) z,A);
+        } else if (z instanceof Q){
+            return interpQ((Q) z,A);
         }
-        throw new IllegalArgumentException("s must be Skip, Am, RBinary or SBinary.");
+        throw new IllegalArgumentException("z must be a ZBinary or Q.");
     }
 
-    Optional<Func<List<String>>> interpSequentialOrParallel(ZBinary binary, Obj A){
-        S s = binary.getLeft();
-        S sPrim = binary.getRight();
-        Optional<Func<List<String>>> ir = interpS(s, A);
-        Optional<Func<List<String>>> irPrim = interpS(sPrim, A);
+    Optional<Func<List<String>>> interpQ(Q q, Obj A){
+        if (q instanceof QBinary){
+            return interpQBinary((QBinary) q,A);
+        } else if (q instanceof Am){
+            return interpAm((Am)q, A);
+        }
+        throw new IllegalArgumentException("q must be a QBinary or Am.");
+    }
+
+    Optional<Func<List<String>>> interpQBinary(QBinary binary, Obj A){
+        Q q = binary.getLeft();
+        Q qPrim = binary.getRight();
+        Optional<Func<List<String>>> ir = interpQ(q, A);
+        Optional<Func<List<String>>> irPrim = interpQ(qPrim, A);
         if (!(ir.isPresent() && irPrim.isPresent())){
             logBottom(binary,A);
             return Optional.empty();
         }
-        if (binary.getOperator()==StatementOperator.SEQ){
-            if (!(intersect(fields(s), fields(sPrim)).isEmpty() ||
-                    subseteq(ir.get().range(),irPrim.get().dom()))){
-                logBottom(binary,A);
-                return Optional.empty();
-            }
+        Func<List<String>> f = irPrim.get().compose(ir.get());
+        return Optional.of(new Func<>(ir.get().dom(), irPrim.get().range(),f.def()));
+    }
+    Optional<Func<List<String>>> interpZBinary(ZBinary binary, Obj A){
+        Z z = binary.getLeft();
+        Z zPrim = binary.getRight();
+        Optional<Func<List<String>>> ir = interpZ(z, A);
+        Optional<Func<List<String>>> irPrim = interpZ(zPrim, A);
+        if (!(ir.isPresent() && irPrim.isPresent())){
+            logBottom(binary,A);
+            return Optional.empty();
         }
-        if (binary.getOperator()==StatementOperator.PAR){
-            if (!intersect(fields(s), fields(sPrim)).isEmpty()){
-                logBottom(binary,A);
-                return Optional.empty();
-            }
+        if (!intersect(fields(z), fields(zPrim)).isEmpty()){
+            logBottom(binary,A);
+            return Optional.empty();
         }
         Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
         Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());

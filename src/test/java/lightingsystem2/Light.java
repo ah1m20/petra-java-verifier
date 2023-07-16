@@ -1,4 +1,4 @@
-package lightsystem2;
+package lightingsystem2;
 
 import static ast.interp.util.Program.par;
 
@@ -14,17 +14,13 @@ public class Light implements Runnable {
 
 	public void run() {
 		if (eitherOff()){
-			par(()-> {
-				par(()-> p1.turnOn(),
-						()-> c1.turnOn());
-			}, ()-> {
-				par(()-> p2.turnOn(),
-						()-> c2.turnOn());
-			});
+			par(()-> p1.turnOn(),
+					()-> c1.turnOn(),
+					()-> p2.turnOn(),
+					()-> c2.turnOn());
 			assert(bothOn());
 		} else if (bothOn()){
-			par(()-> p1.turnOff(), ()-> c1.turnOff());
-			par(()-> p2.turnOff(), ()-> c2.turnOff());
+			par(()-> p1.turnOff(), ()-> c1.turnOff(), ()-> p2.turnOff(), ()-> c2.turnOff());
 			assert(eitherOff());
 		}
 	}
