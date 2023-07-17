@@ -18,6 +18,7 @@ public class ObjParserTest {
         ObjParser objParser = new ObjParser(Paths.get(resource.toURI()).toFile().getAbsolutePath(), true);
         Obj obj = objParser.parse("ComplexSyntax");
         System.out.println(new Gson().toJson(obj));
+        System.out.println(PetraControlledEnglish.translate(obj));
         assertTrue(obj.isValid());
     }
 }
