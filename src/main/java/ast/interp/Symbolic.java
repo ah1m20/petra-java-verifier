@@ -525,12 +525,13 @@ public final class Symbolic {
         Q qPrim = binary.getRight();
         Optional<Func<List<String>>> ir = interpQ(q, A);
         Optional<Func<List<String>>> irPrim = interpQ(qPrim, A);
-        if (!(ir.isPresent() && irPrim.isPresent())){
+        if (ir.isPresent() && irPrim.isPresent() && subseteq(ir.get().range(), irPrim.get().dom())){
+            Func<List<String>> f = irPrim.get().compose(ir.get());
+            return Optional.of(new Func<>(ir.get().dom(), irPrim.get().range(),f.def()));
+        } else {
             logBottom(binary,A);
             return Optional.empty();
         }
-        Func<List<String>> f = irPrim.get().compose(ir.get());
-        return Optional.of(new Func<>(ir.get().dom(), irPrim.get().range(),f.def()));
     }
     Optional<Func<List<String>>> interpZBinary(ZBinary binary, Obj A){
         Z z = binary.getLeft();

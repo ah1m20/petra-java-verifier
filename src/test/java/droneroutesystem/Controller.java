@@ -9,6 +9,8 @@ package droneroutesystem;
 
 import ast.terms.Initial;
 
+import static ast.interp.util.Program.par;
+
 public class Controller implements Runnable {
 	private final SysWrapper sys = new SysWrapper();
 	private final RoutePlan routePlan = new RoutePlan();
@@ -29,13 +31,12 @@ public class Controller implements Runnable {
 			sys.exit();
 			assert(grounded());
 		} else if (flyHome()){
-			sys.logLand();
-			routePlan.returnToHome();
-			control.turnOff();
+			par(sys::logLand,
+				routePlan::returnToHome,
+				control::turnOff);
 			assert(grounded());
 		} else if (routeActive()){
-			sys.logRouteActive();
-			routePlan.travel();
+			par(sys::logRouteActive,routePlan::travel);
 			assert(routeActive());
 		} else if (temperatureWarning()){
 			sys.logTemperatureWarning();
