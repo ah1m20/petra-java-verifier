@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import static ast.interp.PetraControlledEnglish.format;
+import static ast.interp.PetraControlledEnglish.translate;
 import static ast.interp.Symbolic.forall;
 import static ast.interp.util.Collections.filter;
 import static ast.interp.util.Collections.list;
@@ -82,6 +84,7 @@ public class Verification {
             tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> symbolic.interpProgQuick(prog).isPresent()));
             for (Obj o : prog.getObjs()) {
                 if (o instanceof Obj) {
+                    tasks.add(new ControlledEnglishTask(o.getA(), () -> {System.out.println(format(translate(o),14)); return true;} ));
                     tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> symbolic.interpObj(o).isPresent()));
                     for (Delta d : o.getOverlineDelta()) {
                         for (int i = 0; i < d.getOverlineC().size(); i++) {

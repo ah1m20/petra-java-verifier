@@ -40,7 +40,12 @@ public final class SParserRecursive {
     }
 
     private Z parseZ(Expression arg){
-        if (arg.isLambdaExpr() && arg.asLambdaExpr().getBody().isExpressionStmt() && arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
+        if (arg.isMethodReferenceExpr()){
+            // x.M
+            return new Am(
+                    arg.asMethodReferenceExpr().getScope().asTypeExpr().getTypeAsString(),
+                    arg.asMethodReferenceExpr().getIdentifier());
+        } else if (arg.isLambdaExpr() && arg.asLambdaExpr().getBody().isExpressionStmt() && arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().isMethodCallExpr()){
             // x.M
             return new Am(
                     arg.asLambdaExpr().getBody().asExpressionStmt().getExpression().asMethodCallExpr().getScope().get().asNameExpr().getNameAsString(),
@@ -54,7 +59,7 @@ public final class SParserRecursive {
 
     public Z parse(List<Expression> args){
         Expression arg = args.get(0);
-        if (!(arg.isLambdaExpr())){
+        if (!(arg.isLambdaExpr() || arg.isMethodReferenceExpr())){
             throw new NodeException(arg);
         }
         if (args.size()==1){

@@ -43,7 +43,9 @@ public final class PetraControlledEnglish {
     }
 
     private static String translate(E e){
-        if (e instanceof Ap){
+        if (e instanceof True){
+            return "any possible state";
+        } else if (e instanceof Ap){
             return ((Ap) e).getA()+" "+((Ap) e).getP();
         } else if (e instanceof EUnary && ((EUnary) e).getOperator()==UnaryOperator.PAREN ){
             return "("+translate(((EUnary) e).getInner())+")";
@@ -103,5 +105,17 @@ public final class PetraControlledEnglish {
 
     private static String translate(C c){
         return "given "+translate(c.getPre())+", when "+translate(c.getS())+" completes, then "+translate(c.getPost());
+    }
+
+    public static String format(String s, int wordsPerLine){
+        String[] split = s.split(" ");
+        StringBuilder output = new StringBuilder();
+        for (int i=0;i<split.length;i++){
+            output.append(split[i]+" ");
+            if (i!=0 && i%wordsPerLine==0){
+                output.append("\n");
+            }
+        }
+        return output.toString();
     }
 }
