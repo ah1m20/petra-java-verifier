@@ -11,22 +11,23 @@ import ast.terms.expressions.d.P;
 import ast.terms.expressions.e.*;
 import ast.terms.statements.c.C;
 import ast.terms.statements.s.*;
+import com.google.common.base.CaseFormat;
 
 public final class PetraControlledEnglish {
     public static String translate(Obj obj){
 
-        String A = obj.getA();
+        String A = convert(obj.getA());
 
         StringBuilder betas = new StringBuilder();
         for (Beta beta : obj.getOverlineBeta()){
-            betas.append("a component "+beta.getFieldId()+" of type "+beta.getObjectId()+", ");
+            betas.append("a component "+convert(beta.getFieldId())+" of type "+convert(beta.getObjectId())+", ");
         }
 
         StringBuilder states = new StringBuilder();
         StringBuilder stateMeanings = new StringBuilder();
         for (Phi phi : obj.getOverlinePhi()){
-            states.append(phi.getP()+",");
-            stateMeanings.append(phi.getP()+" means "+translate(phi.getE())+", ");
+            states.append(convert(phi.getP())+", ");
+            stateMeanings.append(convert(phi.getP())+" means "+translate(phi.getE())+", ");
         }
 
         StringBuilder deltas = new StringBuilder();
@@ -36,7 +37,7 @@ public final class PetraControlledEnglish {
             for (int i=1; i<delta.getOverlineC().size(); i++){
                 cases.append(", or "+translate(delta.getOverlineC().get(i)));
             }
-            deltas.append("an action "+delta.getM()+" where "+cases+", ");
+            deltas.append("an action "+convert(delta.getM())+" where "+cases+", ");
         }
 
         return A+" is a system which has "+betas+"and is in a state which is one of "+states+" where "+stateMeanings+"and has "+deltas+"and nothing else.";
@@ -46,7 +47,7 @@ public final class PetraControlledEnglish {
         if (e instanceof True){
             return "any possible state";
         } else if (e instanceof Ap){
-            return ((Ap) e).getA()+" "+((Ap) e).getP();
+            return convert(((Ap) e).getA())+" "+convert(((Ap) e).getP());
         } else if (e instanceof EUnary && ((EUnary) e).getOperator()==UnaryOperator.PAREN ){
             return "("+translate(((EUnary) e).getInner())+")";
         } else if (e instanceof EUnary && ((EUnary) e).getOperator()==UnaryOperator.NOT ){
@@ -67,7 +68,7 @@ public final class PetraControlledEnglish {
 
     private static String translate(D d){
         if (d instanceof P){
-            return ((P) d).getP();
+            return convert(((P) d).getP());
         } else if (d instanceof DBinary){
             return translate(((DBinary) d).getLeft())+" or "+translate(((DBinary) d).getRight());
         }
@@ -96,7 +97,7 @@ public final class PetraControlledEnglish {
 
     private static String translate(Q q){
         if (q instanceof Am){
-            return ((Am) q).getM()+" "+((Am) q).getA();
+            return convert(((Am) q).getM())+" "+convert(((Am) q).getA());
         } else if (q instanceof QBinary){
             return translate(((QBinary) q).getLeft())+" before "+translate(((QBinary) q).getRight());
         }
@@ -117,5 +118,13 @@ public final class PetraControlledEnglish {
             }
         }
         return output.toString();
+    }
+
+    private static String convert(String s){
+        if (Character.isUpperCase(s.charAt(0))){
+            return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,s).replaceAll("_"," ");
+        } else {
+            return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,s).replaceAll("_"," ");
+        }
     }
 }
