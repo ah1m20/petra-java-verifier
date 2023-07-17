@@ -69,7 +69,7 @@ public final class PetraControlledEnglish {
         if (d instanceof P){
             return ((P) d).getP();
         } else if (d instanceof DBinary){
-            return translate(((DBinary) d).getLeft())+", or "+translate(((DBinary) d).getRight());
+            return translate(((DBinary) d).getLeft())+" or "+translate(((DBinary) d).getRight());
         }
         throw new IllegalArgumentException();
     }
