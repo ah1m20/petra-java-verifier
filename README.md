@@ -175,10 +175,14 @@ pre/post conditions of the case. This is also true for the methods in the ```Pow
 ### How do I get set up? ###
 
 Clone the repo and navigate to the project's root directory then do
-```mvn clean install``` to build and install the project jars to your local maven repo.
+```mvn clean install``` to build the project jar.
 
-Then add this maven dependency to your project:
+Then install the jar to your local maven repo:
+```mvn install:install-file –Dfile=<path-to-jar-in-local-maven-repo> -DgroupId=com.cognitionbox.petra -DartifactId=petra-java-verification -Dversion=1.0-SNAPSHOT```
+e.g.
+```mvn install:install-file –Dfile=mvn install:install-file -Dfile=C:\Users\xyz\.m2\com\cognitionbox\petra\petra-java-verifier\1.0-SNAPSHOT\petra-java-verifier-1.0-SNAPSHOT.jar -DgroupId=com.cognitionbox.petra -DartifactId=petra-java-verification -Dversion=1.0-SNAPSHOT```
 
+Then add this maven dependency to your Java project:
 ```
 <dependency>
     <groupId>com.cognitionbox.petra</groupId>

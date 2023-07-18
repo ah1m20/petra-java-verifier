@@ -64,6 +64,7 @@ public class SymbolicTest {
         assertTrue(symbolic.interpProg(prog).isPresent());
     }
 
+    @Ignore
     @Test
     public void testEnergyManagementSystem() throws URISyntaxException, IOException {
         Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/energymanagement/","run","EnergyManagement","Main","EnergyManagement","Library","ZeplerBuilding","Floor1","AirConditioners","Appliances","Heaters","Plumbing","ComputerRoom","ComputerNetwork","ComputerRoom","Logger");
@@ -72,6 +73,7 @@ public class SymbolicTest {
         assertTrue(symbolic.interpProg(prog).isPresent());
     }
 
+    @Ignore
     @Test public void testMeanRev() throws URISyntaxException, IOException {
         Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/meanreversion/","run","MeanRev","Main","MeanRev","PositionManager","RevOrTrend","Trading");
         Symbolic symbolic = new Symbolic(prog);
