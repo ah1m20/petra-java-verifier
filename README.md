@@ -5,9 +5,12 @@ Verifier for the Java variant of Petra.
 
 ### What is Petra? ###
 
-* A new way to structure OOP programs for Verification & Validation oriented programming.
-* A verifier for Java 8 OOP programs written using the Petra standard.
-* Can be implemented with any language that supports lambdas and Java style interfaces.
+* A new way to structure OOP programs which enables efficient and comprehensive formal verification, 
+whilst simplifying code so that its easier to validate (e.g using code reviews and testing etc.)
+* Petra uses theory from formal verification and has been specifically design from the ground up to be a 
+formal method and a programming language.
+* ```petra-java-verifier``` is the first implementation of Petra which verifies Java 8 OOP programs written using an 
+expressive subset of Java 8.
 
 ## How to program in Petra? ##
 
@@ -16,20 +19,25 @@ There are some notions in Petra which should be understood in order to learn Pet
 ## Notions ##
 
 ### Verification ###
-Proves absence of errors. A mathematical / logical process which provides a proof of system correctness.
-Correctness is defined by the verification system in use, for example the Java compiler can verify that
-a typed variable cannot be assigned to a value of the wrong type. Compilers in general only provide a weak set of
-guarantees that cannot be easily related to verifying the behaviour of a program with respect to a domain problem.
+Proves absence of errors. 
+A mathematical / logical process which provides a proof of system correctness.
+Correctness is defined by the verification system, for example the Java compiler can verify that
+a typed variable cannot be assigned to a value of the wrong type. Compilers for OOP languages in general 
+only provide a weak set of guarantees and these do not easily relate to the behaviour of a program with respect 
+to a domain problem. Functional languages are better in this respect however they do not scale well for large systems,
+which have many sub-systems, and those which are more naturally modelled with objects and/or state, and often the variety/complexity 
+of code written in functional languages leads to systems which are hard to understand and verify.
 
 ### Validation ###
 Proves presence of errors.
-Formal verification methods aim to provide very strong correctness guarantees, however even with these methods a verified system
-can still go wrong as it can be used if there is a mismatch between itself and the context it is being used in.
-For example a verified automobile should not be used as a floatation device. This is where validation comes in and
-code in formal methods must be easy to validate in order for the method to be useful.
-This requires the code as close to natural language as possible.
-A review and testing process which allows stakeholders to gain confidence in the system.
-Validation should be used to increase the likely-hood that a system does what it was intended to do.
+Formal verification methods aim to provide very strong correctness guarantees, 
+however even a comprehensively verified system can still go wrong, if there is a mismatch between the system 
+and the context it is being used in. For example a verified automobile should not be used as a floatation device. 
+This is addressed by validation. Validation includes review and testing processed 
+which allows stakeholders to gain confidence in the system. 
+Validation is used to increase the likely-hood that a system does what it was intended to do.
+Code in formal methods must be easy to validate in order for the method to be useful.
+This requires the code to be as modular as possible (for testing) and as close to natural language as possible (for reviews).
 
 ### V&V ###
 Verification and Validation (V&V) are both required to ensure systems meet the expectation of stakeholders.
@@ -37,11 +45,23 @@ Verification and Validation (V&V) are both required to ensure systems meet the e
 ### Top down / Bottom up reasoning ###
 Petra composes programs using a hierarchical composition of both data and control flow.
 When programming it can be useful to think in terms of both top-down decomposition
-of a domain and bottom-up composition.
+of a domain and bottom-up composition of abstractions over primitive values.
 
-#### Example: Light System ####
+## Petra's features ##
 
-##### Light #####
+Petra provides strong correctness guarantees which include:
+Determinism for both sequential and parallel programs (which means programs behave like functions) and
+Reachability of states (all methods guarantee that given an input, the method terminates and the result is an output,
+as specified by the method's contract pre- and post-conditions). These checks are fully automated so the developer
+does have to perform any manual proof steps and therefore does not have to be an expert in formal methods.
+The checks have also designed to be efficient to compute such that they scale well for systems of any size.
+In addition, Petra offers a fluid way to express domain problems within code in a way that allows for domain level instructions
+to be verified, and Petra code can directly translate into a controlled English,
+which is a subset of english which is used to remove ambiguity.
+
+### Example: Light System ###
+
+#### Light ####
 ```java
 public class Light implements Runnable {
     
@@ -131,25 +151,16 @@ public class Light implements Runnable {
     
 }
 ```
+### Explaination ###
 
-The state symbolic space of the Light object is given by the Cartesian product of Button X Power.
-```Light = Button X Power = {(on,on), (on,off), (off,on), (off,off)}```
-
-1) Executing the 1st step is successful as ```button.on & power.on``` filters Light to produce ```{(on,on)}```
-   which contains or is equal to the current state ```{(on,on)}```, and therefore the current state is
-   replaced with ```{(off,off)}```.
-
-2) Executing the 2nd step is successful as ```button.off & power.off``` filters Light to produce ```{(off,off)}```
-   which contains or is equal to the current state ```{(off,off)}```, and therefore the current state is
-   replaced with ```{(on,on)}```.
-
-3) Executing the 3rd step is successful as button.on & power.on filters Light to produce ```{(on,on)}```
-   which contains or is equal to the current state ```{(on,on)}```, and therefore the current state is
-   replaced with ```{(off,off)}```.
-
-At this point all steps have been used and the final state is ```{(off,off)}```.
-This means these steps have successfully moved the state from the kase's precondition to its
-postcondition and therefore we have proved reachability and refinement in one go.
+The state symbolic space of the Light object is given by the Cartesian product of the symbolic states 
+of Power and Control (which are defined by the boolean methods) i.e.
+```Power = {on,off}``` and
+```Control = {on,off}``` therefore
+```Light = Power X Control = {(on,on), (on,off), (off,on), (off,off)}```.
+The ```toggle``` method has two cases, one for going from ```off``` to ```on``` and the other from ```on``` to ```off```.
+Each case is correct as the composition of method calls in each result in transitions which respect the
+pre/post conditions of the case. This is also true for the methods in the ```Power``` and ```Control``` objects.
 
 ### How do I get set up? ###
 
@@ -167,7 +178,7 @@ Then add this maven dependency to your project:
 ```
 
 ### Use Cases ###
-Petra is well suited to back-end processing, including but not limited to,
+Petra is well suited to back-end server processing, including but not limited to,
 critical business processes, infrastructure orchestration, task coordination,
 modelling and execution of workflows for business processes, AI, machine learning,
 smart contract execution and blockchain applications.
