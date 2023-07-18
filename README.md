@@ -61,17 +61,19 @@ which is a subset of english which is used to remove ambiguity.
 
 ### Example: Light System ###
 
-##### Entry Point #####
-This is used to start a Petra system and is invoked from the Java main method.
+##### Main #####
+This is used to start a Petra system.
 ```java
-public class PetraExample {
+import static com.cognitionbox.petra.ast.interp.util.Program.start;
+
+public class Main {
     public static void main(String[] args){
-        Petra.start(new Light());
+        start(new Light());
     }
 }
 ```
 
-#### Light ####
+#### Light (entry point) ####
 ```java
 public class Light implements Runnable {
     
@@ -143,24 +145,6 @@ public class Control {
 }
 ```
 
-```java
-public class Light implements Runnable {
-
-    //...
-   
-   public void toggle() {
-      if (off()){
-         power.turnOn();
-         control.turnOn();
-         assert(on());
-      } else if (on()){
-         par(()->power.turnOff(), ()->control.turnOff());
-         assert(off());
-      }
-   }
-    
-}
-```
 ### Explaination ###
 
 The state symbolic space of the Light object is given by the Cartesian product of the symbolic states 
@@ -205,16 +189,14 @@ public class LightVerification extends Verification {
     }
 }
 ```
+Then run the above class in order to run the Petra verification process for the chosen entry point.
 
 ### Use Cases ###
-Petra is well suited to back-end server processing, including but not limited to,
-critical business processes, infrastructure orchestration, task coordination,
-modelling and execution of workflows for business processes, AI, machine learning,
-smart contract execution and blockchain applications.
+Petra is well suited to back-end server processing, including but not limited to:
+modelling and execution of critical workflows for business processes, AI, machine learning,
+smart contract execution, blockchain applications, infrastructure orchestration and task coordination.
 
-##### JVM language support #####
-
-###### Java 8 ######
+### JVM language support ###
 The petra-java-verifier has been written in Java 8,
 which parses and verifiers a subset of Java 8 which conforms to Petra's standard for OOP.
 
