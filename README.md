@@ -61,6 +61,16 @@ which is a subset of english which is used to remove ambiguity.
 
 ### Example: Light System ###
 
+##### Entry Point #####
+This is used to start a Petra system and is invoked from the Java main method.
+```java
+public class PetraExample {
+    public static void main(String[] args){
+        Petra.start(new Light());
+    }
+}
+```
+
 #### Light ####
 ```java
 public class Light implements Runnable {
@@ -173,8 +183,23 @@ Then add this maven dependency to your project:
 <dependency>
     <groupId>com.cognitionbox.petra</groupId>
     <artifactId>petra-java-verification</artifactId>
-    <version>alpha-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
+```
+
+Then create a verification class for the entry point of the program you would like to verify (see below for example).
+```java
+@RunWith(Parameterized.class)
+public class LightVerification extends Verification {
+    public LightVerification(VerificationTask task) {
+        super(task);
+    }
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection tasks() {
+        return verify(Light.class);
+    }
+}
 ```
 
 ### Use Cases ###
@@ -182,22 +207,6 @@ Petra is well suited to back-end server processing, including but not limited to
 critical business processes, infrastructure orchestration, task coordination,
 modelling and execution of workflows for business processes, AI, machine learning,
 smart contract execution and blockchain applications.
-
-### Petra Components, Operations & Features ###
-
-##### Entry Point #####
-This is used to start a Petra system and is invoked from the Java main method.
-```java
-public class PetraExample {
-    public static void main(String[] args){
-        
-        // The line below starts a Petra graph named toggle within the Light view and
-        // takes an instance of Light (via the instantiation model, see below) as input and changes its state.
-        
-        Petra.start(new Light());
-    }
-}
-```
 
 ##### JVM language support #####
 
