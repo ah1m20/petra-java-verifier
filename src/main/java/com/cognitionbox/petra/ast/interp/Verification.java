@@ -25,7 +25,7 @@ import static com.cognitionbox.petra.ast.interp.util.Collections.filter;
 import static com.cognitionbox.petra.ast.interp.util.Collections.list;
 import static org.junit.Assert.assertTrue;
 
-public class Verification {
+public abstract class Verification {
 
     private static final Logger LOG = new Logger();
 
