@@ -158,12 +158,22 @@ pre/post conditions of the case. This is also true for the methods in the ```Pow
 
 ### How do I get set up? ###
 
-Clone the repo and navigate to the project's root directory then do
-```mvn clean install``` to build the project jar.
+#### Development Environment ####
 
-Then install the jar to your local maven repo:
-```mvn install:install-file –Dfile=<path-to-jar-in-local-maven-repo> -DgroupId=com.cognitionbox.petra -DartifactId=petra-java-verification -Dversion=1.0-SNAPSHOT```
-e.g.
+Clone the repo by running ```git clone https://github.com/ah1m20/petra-java-verifier``` then if previously not installed
+download and install both Java JDK (8 or greater) and the Maven build tool.
+We recommend to use JetBrains IntelliJ IDEA (https://www.jetbrains.com/idea/download/) as an IDE for Java development and to use its built in Maven integration, however
+Maven can be downloaded separately from https://maven.apache.org/download.cgi and can be installed using instructions from 
+https://maven.apache.org/install.html
+
+
+#### Maven Dependancies ####
+
+Once cloned, use a command line to navigate to the project's root directory and run 
+```mvn clean install``` to build the project jar.
+Then install the jar to your local maven repo by using the command below and filling in the correct path to the built .jar file (which can be found by looking at the log output of the previous step):
+```mvn install:install-file –Dfile=<path-to-jar-in-local-maven-repo> -DgroupId=com.cognitionbox.petra -DartifactId=petra-java-verification -Dversion=1.0-SNAPSHOT``` see below for example.
+##### Example #####
 ```mvn install:install-file –Dfile=mvn install:install-file -Dfile=C:\Users\xyz\.m2\com\cognitionbox\petra\petra-java-verifier\1.0-SNAPSHOT\petra-java-verifier-1.0-SNAPSHOT.jar -DgroupId=com.cognitionbox.petra -DartifactId=petra-java-verification -Dversion=1.0-SNAPSHOT```
 
 Then add this maven dependency to your Java project:
