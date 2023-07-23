@@ -36,7 +36,22 @@ public final class Program {
     }
 
     public static void par(Runnable... runnables){
-
+        if (runnables.length==1){
+            runnables[0].run();
+            return;
+        }
+        Thread[] threads = new Thread[runnables.length];
+        for (int i=0;i<runnables.length;i++){
+            threads[i] = new Thread(runnables[i]);
+            threads[i].start();
+        }
+        for (int i=0;i<threads.length;i++){
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static void start(Runnable entryPoint){
