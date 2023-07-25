@@ -185,7 +185,7 @@ Then add this maven dependency to your Java project:
 </dependency>
 ```
 
-Then create a verification class for the entry point of the program you would like to verify (see below for example).
+Then within your Java project test folder, create a verification class for the entry point of the program you would like to verify (see below for example).
 ```java
 @RunWith(Parameterized.class)
 public class LightVerification extends Verification {
