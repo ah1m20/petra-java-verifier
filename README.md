@@ -171,10 +171,8 @@ https://maven.apache.org/install.html
 
 Once cloned, use a command line to navigate to the project's root directory and run 
 ```mvn clean install``` to build the project jar.
-Then install the jar to your local maven repo by using the command below and filling in the correct path to the built .jar file (which can be found by looking at the log output of the previous step):
-```mvn install:install-file –Dfile=<path-to-jar-in-local-maven-repo> -DgroupId=com.cognitionbox.petra -DartifactId=petra-java-verification -Dversion=1.0-SNAPSHOT``` see below for example.
-##### Example #####
-```mvn install:install-file –Dfile=C:\Users\xyz\.m2\com\cognitionbox\petra\petra-java-verifier\1.0-SNAPSHOT\petra-java-verifier-1.0-SNAPSHOT.jar -DgroupId=com.cognitionbox.petra -DartifactId=petra-java-verification -Dversion=1.0-SNAPSHOT```
+Then install the jar to your local maven repo by using the command below:
+```mvn install:install-file -Dfile="target/petra-java-verifier-1.0-SNAPSHOT.jar" -DgroupId="com.cognitionbox.petra" -DartifactId="petra-java-verification" -Dversion="1.0-SNAPSHOT"```
 
 Then add this maven dependency to your Java project:
 ```
