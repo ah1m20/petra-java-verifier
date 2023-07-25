@@ -1,0 +1,45 @@
+digraph G {
+
+  start -> RC;
+  start -> LandImmediately;
+  start -> FlyHome;
+
+
+  FlyHome->grounded;
+  grounded -> end;
+
+  RC->LandImmediately;
+
+  LandImmediately->RC;
+
+  RC->FlyHome;
+
+  subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    RC;
+    R -> RC;
+    L -> RC;
+    B -> RC;
+    F -> RC;
+    RC -> R;
+    RC -> L;
+    RC -> B;
+    RC -> F;
+    label = "RC";
+  }
+
+  subgraph cluster_1 {
+    node [style=filled];
+    LandImmediately;
+    FlyHome
+    label = "AutoPilot";
+    color=blue
+  }
+
+
+
+  start [shape=Mdiamond];
+  end [shape=Msquare];
+}
