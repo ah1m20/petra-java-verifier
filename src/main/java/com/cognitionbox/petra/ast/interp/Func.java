@@ -1,11 +1,12 @@
 package com.cognitionbox.petra.ast.interp;
 
 import com.cognitionbox.petra.ast.interp.util.Set;
-import com.cognitionbox.petra.ast.interp.util.Collections;
-import com.cognitionbox.petra.ast.interp.util.Ops;
+
+
 
 import static com.cognitionbox.petra.ast.interp.util.Collections.filter;
 import static com.cognitionbox.petra.ast.interp.util.Collections.set;
+import static com.cognitionbox.petra.ast.interp.util.Ops.mapsto;
 
 public final class Func<T> {
     private final Set<T> domain;
@@ -44,11 +45,11 @@ public final class Func<T> {
     }
 
     public Func<T> compose(Func<T> f){
-        Set<Mapsto<T,T>> comp = Collections.set();
+        Set<Mapsto<T,T>> comp = set();
         for (Mapsto<T,T> left : f.def()){
             for (Mapsto<T,T> right : this.def()){
                 if (left.getToo().equals(right.getFrom())){
-                    comp.add(Ops.mapsto(left.getFrom(),right.getToo()));
+                    comp.add(mapsto(left.getFrom(),right.getToo()));
                 }
             }
         }
@@ -57,7 +58,7 @@ public final class Func<T> {
 
     public Func<T> restrict(Set<T> dom){
         Set<Mapsto<T,T>> restricted = filter(def(), map->dom.contains(map.getFrom()));
-        Set<T> range = Collections.set(restricted, map->map.getToo());
+        Set<T> range = set(restricted, map->map.getToo());
         return new Func<>(dom,range,restricted);
     }
 
