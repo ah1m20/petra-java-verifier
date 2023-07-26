@@ -16,7 +16,7 @@ public class SymbolicTest {
 
     @Test
     public void testLightSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/lightsystem/","run","Light","Main","Light","Power","Control");
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/lightsystem/","run","Light","Main","Light","Power","Control");
         Symbolic symbolic = new Symbolic(prog);
         //symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
@@ -24,7 +24,7 @@ public class SymbolicTest {
 
     @Test
     public void testLightSystem2() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/lightingsystem2/","run","Light","Main","Light","Power","Control");
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/lightingsystem2/","run","Light","Main","Light","Power","Control");
         Symbolic symbolic = new Symbolic(prog);
         System.out.println(new Gson().toJson(symbolic.lookupObj(prog.getAepsilon())));
         //symbolic.printOutput();
@@ -33,7 +33,7 @@ public class SymbolicTest {
 
     @Test
     public void testFlatLightingSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/flatlightingsystem/","run","Flat","Main","Flat","Room","Light");
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/flatlightingsystem/","run","Flat","Main","Flat","Room","Light");
         Symbolic symbolic = new Symbolic(prog);
         //symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
@@ -41,7 +41,7 @@ public class SymbolicTest {
 
     @Test
     public void testDroneRouteSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/droneroutesystem/","run","Controller","Main","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Control","FlyHomeTrigger","TemperatureTrigger","Diagnostics","SysWrapper");
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/droneroutesystem/","run","Controller","Main","Controller","RoutePlan","Battery","Temperature","Wifi","Position","Control","FlyHomeTrigger","TemperatureTrigger","Diagnostics","SysWrapper");
         Symbolic symbolic = new Symbolic(prog);
         //symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
@@ -49,7 +49,7 @@ public class SymbolicTest {
 
     @Test
     public void testSimplethermostat() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/simplethermostat/","run","Thermostat","Main","Thermostat","Temperature","Control","Logging");
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/simplethermostat/","run","Thermostat","Main","Thermostat","Temperature","Control","Logging");
         Symbolic symbolic = new Symbolic(prog);
         //symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
