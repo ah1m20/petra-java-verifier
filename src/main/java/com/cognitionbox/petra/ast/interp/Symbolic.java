@@ -281,7 +281,7 @@ public final class Symbolic {
 
 
     public Optional<Func<String>> interpC(C c, Obj A){
-        if (A.isPrimitive() || c.getS() instanceof Skip){
+        if (A.isPrimitive()){
             return interpPrimitiveC(c,A);
         } else {
             return interpNonPrimitiveC(c,A);
