@@ -2,7 +2,7 @@ package com.cognitionbox.petra.examples.tradingsystem;
 
 // 2 x 4 = 8
 public class MeanRevStrategy implements Runnable{
-    private final SMASignal smaSignal = new SMASignal(); // 2
+    private final SmaSignal smaSignal = new SmaSignal(); // 2
     private final Decision decision = new Decision(); // 4
 
     public boolean openBuy(){return (decision.start() || decision.closed()) && smaSignal.midBelowSma();} // 2
