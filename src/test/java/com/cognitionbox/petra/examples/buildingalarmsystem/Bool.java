@@ -1,4 +1,4 @@
-package com.cognitionbox.petra.examples.flatlightingsystem;
+package com.cognitionbox.petra.examples.buildingalarmsystem;
 
 import com.cognitionbox.petra.ast.terms.External;
 

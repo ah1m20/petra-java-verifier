@@ -33,7 +33,7 @@ public class SymbolicTest {
 
     @Test
     public void testFlatLightingSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/flatlightingsystem/","run","Flat","Main","Flat","Room","Light");
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/buildingalarmsystem/","run","Building","Main","Building","Room","AlarmSensor");
         Symbolic symbolic = new Symbolic(prog);
         //symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
