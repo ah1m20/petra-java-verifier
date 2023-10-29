@@ -22,15 +22,16 @@ public class Set<T> extends LinkedHashSet<T> {
 
     public String toString(boolean latex){
         String escape = latex?"\\":"";
+        String sep = latex?",":"";
         Iterator<T> iterator = this.iterator();
         if (!iterator.hasNext()){
             return escape+"{"+escape+"}";
         }
         StringBuilder sb = new StringBuilder();
         sb.append(escape+"{");
-        sb.append(elementToString(iterator.next()));
+        sb.append(elementToString(iterator.next())+(iterator.hasNext()?"\n":""));
         while (iterator.hasNext()){
-            sb.append(","+elementToString(iterator.next()));
+            sb.append(sep+elementToString(iterator.next())+(iterator.hasNext()?"\n":""));
         }
         sb.append(escape+"}");
         return sb.toString();
@@ -49,7 +50,7 @@ public class Set<T> extends LinkedHashSet<T> {
             while (iterator.hasNext()){
                 sb.append(","+iterator.next());
             }
-            sb.append(")\n");
+            sb.append(")");
             return sb.toString();
         } else {
             return t.toString();

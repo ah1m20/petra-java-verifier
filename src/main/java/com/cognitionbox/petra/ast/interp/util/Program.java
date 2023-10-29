@@ -35,6 +35,12 @@ public final class Program {
         }
     }
 
+    public static void seq(Runnable... runnables){
+        for (int i=0;i<runnables.length;i++){
+            runnables[i].run();
+        }
+    }
+
     public static void par(Runnable... runnables){
         if (runnables.length==1){
             runnables[0].run();

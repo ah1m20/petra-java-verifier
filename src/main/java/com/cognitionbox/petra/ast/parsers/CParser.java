@@ -13,20 +13,21 @@ import com.github.javaparser.ast.stmt.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
-import static com.cognitionbox.petra.ast.interp.util.Collections.list;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class CParser {
     private final DParser dParser = new DParser();
     private final SParserRecursive sParser = new SParserRecursive();
     public List<C> parse(MethodDeclaration declaration, boolean isPrimitive){
+        AtomicInteger id = new AtomicInteger();
         if (declaration.getBody().isPresent() && declaration.getBody().get().getStatements().size()==1){
-            return Collections.list(ifElseStatements(declaration.getBody().get().getStatements().get(0).asIfStmt()), statement->parse(statement,isPrimitive));
+            return Collections.list(ifElseStatements(declaration.getBody().get().getStatements().get(0).asIfStmt()), statement->parse(id.getAndIncrement(),statement,isPrimitive));
         } else {
             return Collections.list();
         }
     }
 
-    private C parse(Statement statement, boolean isPrimitive){
+    private C parse(int id, Statement statement, boolean isPrimitive){
         if (statement.isIfStmt() &&
                 statement.asIfStmt().getThenStmt().isBlockStmt()) {
             int size = statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().size();
@@ -35,13 +36,13 @@ public final class CParser {
                 S s = !isPrimitive?sParser.parseS(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):null;
                 PrePost post = dParser.parse(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).asAssertStmt().getCheck().asEnclosedExpr().getInner());
                 if (s==null || s.isValid()){
-                    return new C(pre, s, post);
+                    return new C(id,pre, s, post);
                 } else {
-                    return ParserUtils.invalidC(statement,"not valid if statement.");
+                    return ParserUtils.invalidC(id,statement,"not valid if statement.");
                 }
             }
         }
-        return ParserUtils.invalidC(statement,"not valid if statement.");
+        return ParserUtils.invalidC(id,statement,"not valid if statement.");
     }
 
     private List<IfStmt> ifElseStatements(IfStmt ifStmt){

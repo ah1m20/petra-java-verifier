@@ -27,7 +27,12 @@ public final class PetraControlledEnglish {
         StringBuilder stateMeanings = new StringBuilder();
         for (Phi phi : obj.getOverlinePhi()){
             states.append(convert(phi.getP())+", ");
-            stateMeanings.append(convert(phi.getP())+" means "+translate(phi.getE())+", ");
+
+            if (obj.isPrimitive()){
+                stateMeanings.append(convert(phi.getP())+" has an assumed meaning, ");
+            } else {
+                stateMeanings.append(convert(phi.getP())+" means "+translate(phi.getE())+", ");
+            }
         }
 
         StringBuilder deltas = new StringBuilder();

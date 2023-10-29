@@ -87,9 +87,9 @@ public abstract class Verification {
                     for (Delta d : o.getOverlineDelta()) {
                         for (int i = 0; i < d.getOverlineC().size(); i++) {
                             C c = d.getOverlineC().get(i);
-                            tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> symbolic.interpC(c, o).isPresent()));
+                            tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> symbolic.interpC(d.getM(),c, o).isPresent()));
                         }
-                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> symbolic.pairwiseDisjointDomC(d.getOverlineC(), o)));
+                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> symbolic.pairwiseDisjointDomC(d.getM(),d.getOverlineC(), o)));
                     }
                 }
             }

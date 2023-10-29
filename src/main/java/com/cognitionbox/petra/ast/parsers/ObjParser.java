@@ -51,7 +51,11 @@ public final class ObjParser {
         if (ParserUtils.isExternalObject(declaration)){
             return ParserUtils.externalObject(declaration);
         } else {
-            return parsePetraObject(declaration);
+            if (isPrimitiveObject(declaration)){
+                return parsePrimitive(declaration);
+            } else {
+                return parsePetraObject(declaration);
+            }
         }
     }
 
@@ -64,8 +68,10 @@ public final class ObjParser {
             if (!f.isPrivate() || !f.isFinal() || f.getVariables().size()!=1){
                 return ParserUtils.invalidObj(f,"expected a single private final field.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
             }
-            VariableDeclarator v = f.getVariable(0);
-            obj.addBeta(new Beta(v.getNameAsString(),v.getTypeAsString()));
+            if (!f.isAnnotationPresent(External.class)){
+                VariableDeclarator v = f.getVariable(0);
+                obj.addBeta(new Beta(v.getNameAsString(),v.getTypeAsString()));
+            }
         }
         for (MethodDeclaration m : declaration.getMethods()){
             if (!m.isPublic()){
@@ -98,5 +104,29 @@ public final class ObjParser {
         return obj;
     }
 
+    private boolean isPrimitiveObject(ClassOrInterfaceDeclaration declaration){
+        return declaration.isAnnotationPresent(Base.class);
+    }
+
+    private Obj parsePrimitive(ClassOrInterfaceDeclaration declaration){
+        Obj obj = new Obj(declaration.getNameAsString(),ParserUtils.objectType(declaration));
+        for (MethodDeclaration m : declaration.getMethods()){
+            if (!m.isPublic()){
+                throw new IllegalArgumentException("expected public method.");
+            }
+            if (m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")){
+                // process phi
+                Phi phi = new Phi(m.isAnnotationPresent(Initial.class),m.getNameAsString(),null);
+                obj.addPhi(phi);
+            } else if (m.getType().isVoidType()){
+                // process delta
+                Delta delta = new Delta(m.getNameAsString(),cparser.parse(m,true));
+                obj.addDelta(delta);
+            } else {
+                throw new IllegalArgumentException("expected boolean or void method.");
+            }
+        }
+        return obj;
+    }
 
 }

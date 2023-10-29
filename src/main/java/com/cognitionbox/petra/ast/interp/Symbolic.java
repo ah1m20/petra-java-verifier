@@ -39,7 +39,7 @@ public final class Symbolic {
 
     Optional<Func<String>> interpProgQuick(Prog prog){
         Obj Aepsilon = lookupObj(prog.getAepsilon());
-        Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
+        Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
             !Aepsilon.isPrimitive() &&
             m_epsilon.isPresent() &&
@@ -56,7 +56,7 @@ public final class Symbolic {
 
     Optional<Func<String>> interpProg(Prog prog){
         Obj Aepsilon = lookupObj(prog.getAepsilon());
-        Optional<Func<String>> m_epsilon = interpOverlineC(lookupM(prog.getM(),Aepsilon),Aepsilon);
+        Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
                 //forall(prog.getObjs(), o->interpObj(o).isPresent()) &&
             !Aepsilon.isPrimitive() &&
@@ -133,7 +133,7 @@ public final class Symbolic {
         if (forall(A.getOverlineBeta(), beta->logBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A)) &&
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
-                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(lookupM(delta.getM(),A), A).isPresent(),A)) &&
+                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A)) &&
                 (isReactive?isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
@@ -173,12 +173,12 @@ public final class Symbolic {
         }
     }
 
-    public static <T> void preconditionisNotSubseteqDomain(Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info("precondition: \n\n"+a+"\n\nis not subset or equal to domain:\n\n"+b);
+    public static <T> void preconditionisNotSubseteqDomain(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
+        LOG.info(m+" c"+caseId+" precondition: \n\n"+a+"\n\nis not subset or equal to domain:\n\n"+b);
     }
 
-    public static <T> void imageIsNotSubseteqPostcondition(Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info("image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
+    public static <T> void imageIsNotSubseteqPostcondition(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
+        LOG.info(m+" c"+caseId+" image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
     }
 
     public static <T> boolean logBottom(T value, boolean holds, Obj A) {
@@ -206,11 +206,11 @@ public final class Symbolic {
     }
 
     public static void logCasesDomainOverlap(int i, Set<String> a, int j, Set<String> b, Obj A){
-        LOG.info("[c_"+i+"]^{"+A.getA()+"} = "+a+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
+        LOG.info("[c_"+i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
     }
 
     public static void logPredicatesOverlap(String p_i, Set<List<String>> a, String p_j, Set<List<String>> b, Obj A){
-        LOG.info("["+p_i+"]^{"+A.getA()+"} = "+a+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
+        LOG.info("["+p_i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
     }
 
     Optional<IObj> interpPrimitiveObj(Obj A){
@@ -229,13 +229,13 @@ public final class Symbolic {
 
     Map<String, Optional<Func<String>>> interpDeltas(List<Delta> overlineDelta, Obj A){
         Map<String, Optional<Func<String>>> record = new HashMap<>();
-        forEach(overlineDelta, delta->record.put(delta.getM(),interpOverlineC(delta.getOverlineC(),A)));
+        forEach(overlineDelta, delta->record.put(delta.getM(),interpOverlineC(delta.getM(),delta.getOverlineC(),A)));
         return record;
     }
 
-    Optional<Func<String>> interpOverlineC(List<C> ovelineC, Obj A){
-        if (forall(ovelineC,c->logBottom(c,interpC(c,A).isPresent(),A)) && pairwiseDisjointDomC(ovelineC,A)){
-            return Optional.of(functionUnion(list(ovelineC, c-> interpC(c,A).get())));
+    Optional<Func<String>> interpOverlineC(String m, List<C> ovelineC, Obj A){
+        if (forall(ovelineC,c->logBottom(c,interpC(m,c,A).isPresent(),A)) && pairwiseDisjointDomC(m,ovelineC,A)){
+            return Optional.of(functionUnion(list(ovelineC, c-> interpC(m,c,A).get())));
         } else {
             logBottom(ovelineC,A);
             return Optional.empty();
@@ -249,8 +249,8 @@ public final class Symbolic {
                     Set<List<String>> a = interpE(i.getE(),A);
                     Set<List<String>> b = interpE(j.getE(),A);
                     if (intersect(a,b).size()!=0){
-                        logPrivateStateSpace(i.getP(),a,A);
-                        logPrivateStateSpace(j.getP(),b,A);
+                        //logPrivateStateSpace(i.getP(),a,A);
+                        //logPrivateStateSpace(j.getP(),b,A);
                         logPredicatesOverlap(i.getP(),a,j.getP(),b,A);
                         return false;
                     }
@@ -260,12 +260,12 @@ public final class Symbolic {
         return true;
     }
 
-    boolean pairwiseDisjointDomC(List<C> ovelineC, Obj A) {
+    boolean pairwiseDisjointDomC(String m, List<C> ovelineC, Obj A) {
         for (int i=0;i<ovelineC.size();i++){
             for (int j=0;j<ovelineC.size();j++){
                 if (i!=j){
-                    Optional<Func<String>> a = interpC(ovelineC.get(i),A);
-                    Optional<Func<String>> b = interpC(ovelineC.get(j),A);
+                    Optional<Func<String>> a = interpC(m,ovelineC.get(i),A);
+                    Optional<Func<String>> b = interpC(m,ovelineC.get(j),A);
                     if (!a.isPresent() || !b.isPresent()){
                         return false;
                     }
@@ -280,17 +280,17 @@ public final class Symbolic {
     }
 
 
-    public Optional<Func<String>> interpC(C c, Obj A){
+    public Optional<Func<String>> interpC(String m, C c, Obj A){
         if (A.isPrimitive() || c.getS() instanceof Skip){
             return interpPrimitiveC(c,A);
         } else {
-            return interpNonPrimitiveC(c,A);
+            return interpNonPrimitiveC(m,c,A);
         }
     }
 
-    Optional<Func<String>> interpNonPrimitiveC(C c, Obj A){
+    Optional<Func<String>> interpNonPrimitiveC(String m, C c, Obj A){
         if (condition1(c,A) &&
-                condition2(c,A)){
+                condition2(m,c,A)){
             return Optional.of(f(c,A));
         } else {
             logBottom(c,A);
@@ -341,7 +341,7 @@ public final class Symbolic {
         return result;
     }
     // TODO
-    boolean condition2(C c, Obj A) {
+    boolean condition2(String m, C c, Obj A) {
         Func<List<String>> interpS = interpS(c.getS(),A).get();
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
@@ -350,12 +350,12 @@ public final class Symbolic {
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
         if (!(subseteq(in,interpS.dom()) )){
-            preconditionisNotSubseteqDomain(in,interpS.dom(),A);
+            preconditionisNotSubseteqDomain(m,c.getId(),in,interpS.dom(),A);
             return false;
         }
         Set<List<String>> image = interpS.image(in);
         if (!subseteq(image, out)){
-            imageIsNotSubseteqPostcondition(image,out,A);
+            imageIsNotSubseteqPostcondition(m,c.getId(),image,out,A);
             logBottom(c,A);
             return false;
         }
@@ -368,7 +368,7 @@ public final class Symbolic {
 
     Optional<Func<List<String>>> interpAm(Am am, Obj A){
         Obj A_ = lookupObj(am.getA(),A);
-        Optional<Func<String>> interp = interpOverlineC(lookupM(am.getM(),A_),A_);
+        Optional<Func<String>> interp = interpOverlineC(am.getM(),lookupM(am.getM(),A_),A_);
         if (interp.isPresent()){
             List<Func<String>> funcs = new ArrayList<>();
             for (int i=0;i<A.getOverlineBeta().size();i++){
@@ -484,7 +484,7 @@ public final class Symbolic {
                 for (Delta d : o.getOverlineDelta()){
                     System.out.println("\t"+d.getM()+":");
                     for (C c : d.getOverlineC()){
-                        System.out.println("\t\tcase: "+interpC(c,o));
+                        System.out.println("\t\tcase: "+interpC(d.getM(),c,o));
                     }
                     //pairwiseDisjointDomC(d.getOverlineC(),o);
                 }

@@ -44,8 +44,8 @@ public final class ParserUtils {
         return new Z(false,getLineNumber(node),errorMessage);
     }
 
-    public static C invalidC(Node node, String errorMessage){
-        return new C(false,getLineNumber(node),errorMessage);
+    public static C invalidC(int id, Node node, String errorMessage){
+        return new C(id, false,getLineNumber(node),errorMessage);
     }
 
     public static Am invalidAm(Node node, String errorMessage){
