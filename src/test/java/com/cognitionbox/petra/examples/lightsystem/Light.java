@@ -1,13 +1,14 @@
 package com.cognitionbox.petra.examples.lightsystem;
 
 import static com.cognitionbox.petra.ast.interp.util.Program.par;
+import com.cognitionbox.petra.ast.terms.Initial;
 
 public class Light implements Runnable {
 	private final Power power = new Power();
 	private final Control control = new Control();
 
 	public boolean on() { return power.on() && control.on(); }
-	public boolean off() { return power.off() || control.off(); }
+	@Initial public boolean off() { return power.off() || control.off(); }
 
 	public void run() {
 		if (off()){

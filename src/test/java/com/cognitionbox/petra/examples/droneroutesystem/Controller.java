@@ -31,6 +31,17 @@ public class Controller implements Runnable {
 			sys.exit();
 			assert(grounded());
 		} else if (flyHome()){
+			/*
+			 * Note currently the below will not pass the test as the system does not support sequential ops in this way.
+			 *  sys.logLand();
+			 *  routePlan.returnToHome();
+			 *  control.turnOff();
+			 *
+			 * However, it would in this way:
+			 *  seq(sys::logLand,
+			 * 		routePlan::returnToHome,
+			 *      control::turnOff);
+			 */
 			par(sys::logLand,
 				routePlan::returnToHome,
 				control::turnOff);
