@@ -23,7 +23,7 @@ import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 
 public final class Symbolic {
 
-    final static ProofLogger PROOF_LOGGER = new ProofLogger(false);
+    final private ProofLogger PROOF_LOGGER = new ProofLogger(false);
     final ObjectTable objectTable = new ObjectTable();
     final boolean isReactive;
     Symbolic(Prog prog){

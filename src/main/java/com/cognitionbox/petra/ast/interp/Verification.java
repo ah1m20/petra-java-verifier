@@ -77,19 +77,18 @@ public abstract class Verification {
     public static Collection verify(Class<?> root) {
         Prog prog = parseSrcFiles(root);
         if (forall(prog.getObjs(), o->o.isValid())){
-            Symbolic symbolic = new Symbolic(prog);
             List<VerificationTask> tasks = new ArrayList<>();
-            tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> symbolic.interpProgQuick(prog).isPresent()));
+            tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> new Symbolic(prog).interpProgQuick(prog).isPresent()));
             for (Obj o : prog.getObjs()) {
                 if (o instanceof Obj) {
                     tasks.add(new ControlledEnglishTask(o.getA(), () -> {System.out.println(PetraControlledEnglish.format(PetraControlledEnglish.translate(o),14)); return true;} ));
-                    tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> symbolic.interpObj(o).isPresent()));
+                    tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> new Symbolic(prog).interpObj(o).isPresent()));
                     for (Delta d : o.getOverlineDelta()) {
                         for (int i = 0; i < d.getOverlineC().size(); i++) {
                             C c = d.getOverlineC().get(i);
-                            tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> symbolic.interpC(d.getM(),c, o).isPresent()));
+                            tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> new Symbolic(prog).interpC(d.getM(),c, o).isPresent()));
                         }
-                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> symbolic.pairwiseDisjointDomC(d.getM(),d.getOverlineC(), o)));
+                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> new Symbolic(prog).pairwiseDisjointDomC(d.getM(),d.getOverlineC(), o)));
                     }
                 }
             }
