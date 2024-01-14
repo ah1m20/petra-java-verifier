@@ -16,4 +16,9 @@ public final class QBinary extends Q {
     public Q getRight() {
         return right;
     }
+
+    @Override
+    public String toString() {
+        return left + ";" + right;
+    }
 }

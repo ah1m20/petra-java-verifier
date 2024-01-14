@@ -3,7 +3,7 @@ package com.cognitionbox.petra.ast.interp;
 import java.util.*;
 import java.util.function.Predicate;
 
-import com.cognitionbox.petra.ast.interp.util.Logger;
+import com.cognitionbox.petra.ast.interp.util.loggers.ProofLogger;
 import com.cognitionbox.petra.ast.terms.Obj;
 import com.cognitionbox.petra.ast.terms.Prog;
 import com.cognitionbox.petra.ast.terms.Beta;
@@ -23,7 +23,7 @@ import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 
 public final class Symbolic {
 
-    final static Logger LOG = new Logger();
+    final static ProofLogger PROOF_LOGGER = new ProofLogger(false);
     final ObjectTable objectTable = new ObjectTable();
     final boolean isReactive;
     Symbolic(Prog prog){
@@ -38,6 +38,7 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpProgQuick(Prog prog){
+        PROOF_LOGGER.log(prog,"ENTRY");
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
@@ -45,16 +46,18 @@ public final class Symbolic {
             m_epsilon.isPresent() &&
             m_epsilon.get().dom().equals(Theta(Aepsilon))
             && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
-            && (isReactive?hasInitialState(Aepsilon):true)
+            && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
         ){
+            PROOF_LOGGER.logNonBottom(prog,"ENTRY");
             return m_epsilon;
         } else {
-            logBottom(prog);
+            PROOF_LOGGER.logBottom(prog,"ENTRY");
             return Optional.empty();
         }
     }
 
     Optional<Func<String>> interpProg(Prog prog){
+        PROOF_LOGGER.log(prog,"ENTRY");
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
@@ -64,11 +67,12 @@ public final class Symbolic {
             m_epsilon.isPresent() &&
             m_epsilon.get().dom().equals(Theta(Aepsilon))
             && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
-            && (isReactive?hasInitialState(Aepsilon):true)
+            && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
          ){
+            PROOF_LOGGER.logNonBottom(prog,"ENTRY");
             return m_epsilon;
         } else {
-            logBottom(prog);
+            PROOF_LOGGER.logBottom(prog,"ENTRY");
             return Optional.empty();
         }
     }
@@ -130,25 +134,19 @@ public final class Symbolic {
     }
 
     Optional<IObj> interpNonPrimitiveObj(Obj A){
-        if (forall(A.getOverlineBeta(), beta->logBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A)) &&
+        PROOF_LOGGER.log(A,"OBJ");
+        if (forall(A.getOverlineBeta(), beta->PROOF_LOGGER.logBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A,"OBJ")) &&
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
-                forall(A.getOverlineDelta(), delta->logBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A)) &&
-                (isReactive?isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
+                forall(A.getOverlineDelta(), delta->PROOF_LOGGER.logBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE")) &&
+                (isReactive?PROOF_LOGGER.isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
+            PROOF_LOGGER.logNonBottom(A,"OBJ");
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             //logObjectPrivateStateSpace(Omega(A),A);
-            logBottom(A);
+            PROOF_LOGGER.logBottom(A,"OBJ");
             return Optional.empty();
-        }
-    }
-    public boolean isEqual(Object a, Object b, Obj A){
-        if (!a.equals(b)){
-            LOG.info(a+" is not equal to "+b);
-            return false;
-        } else {
-            return true;
         }
     }
 
@@ -162,55 +160,14 @@ public final class Symbolic {
         }
     }
 
-
     public boolean isNotEmpty(String p, E e, Obj A){
         Set<List<String>> set = interpE(e, A);
         if (set.isEmpty()){
-            logPrivateStateSpace(p,set,A);
+            PROOF_LOGGER.logPrivateStateSpace(p,set,A);
             return false;
         } else {
             return true;
         }
-    }
-
-    public static <T> void preconditionisNotSubseteqDomain(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info(m+" c"+caseId+" precondition: \n\n"+a+"\n\nis not subset or equal to domain:\n\n"+b);
-    }
-
-    public static <T> void imageIsNotSubseteqPostcondition(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info(m+" c"+caseId+" image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
-    }
-
-    public static <T> boolean logBottom(T value, boolean holds, Obj A) {
-        if (!holds) {
-            logBottom(value, A);
-            return false;
-        }
-        return true;
-    }
-
-    public static <T> void logBottom(T t){
-        LOG.info("["+t+"] = \\bot");
-    }
-
-    public static <T> void logBottom(T t, Obj A){
-        LOG.info("["+t+"]^{"+A.getA()+"} = \\bot");
-    }
-
-    public static void logObjectPrivateStateSpace(Set<List<String>> set, Obj A){
-        LOG.info("[Omega^{"+A.getA()+"}]^{"+A.getA()+"} = "+(!set.isEmpty()?set:"\\emptyset"));
-    }
-
-    public static void logPrivateStateSpace(String label, Set<List<String>> set, Obj A){
-        LOG.info("["+label+"]^{"+A.getA()+"} = "+(!set.isEmpty()?set:"\\emptyset"));
-    }
-
-    public static void logCasesDomainOverlap(int i, Set<String> a, int j, Set<String> b, Obj A){
-        LOG.info("[c_"+i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
-    }
-
-    public static void logPredicatesOverlap(String p_i, Set<List<String>> a, String p_j, Set<List<String>> b, Obj A){
-        LOG.info("["+p_i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
     }
 
     Optional<IObj> interpPrimitiveObj(Obj A){
@@ -228,16 +185,19 @@ public final class Symbolic {
     }
 
     Map<String, Optional<Func<String>>> interpDeltas(List<Delta> overlineDelta, Obj A){
+        PROOF_LOGGER.log(overlineDelta,A.getA());
         Map<String, Optional<Func<String>>> record = new HashMap<>();
         forEach(overlineDelta, delta->record.put(delta.getM(),interpOverlineC(delta.getM(),delta.getOverlineC(),A)));
         return record;
     }
 
     Optional<Func<String>> interpOverlineC(String m, List<C> ovelineC, Obj A){
-        if (forall(ovelineC,c->logBottom(c,interpC(m,c,A).isPresent(),A)) && pairwiseDisjointDomC(m,ovelineC,A)){
+        PROOF_LOGGER.log(ovelineC,A.getA());
+        if (forall(ovelineC,c->PROOF_LOGGER.logBottom(c,interpC(m,c,A).isPresent(),A,"CASE")) && pairwiseDisjointDomC(m,ovelineC,A)){
+            PROOF_LOGGER.logNonBottom(ovelineC,A,"CASES");
             return Optional.of(functionUnion(list(ovelineC, c-> interpC(m,c,A).get())));
         } else {
-            logBottom(ovelineC,A);
+            PROOF_LOGGER.logBottom(ovelineC,A,"CASES");
             return Optional.empty();
         }
     }
@@ -251,7 +211,7 @@ public final class Symbolic {
                     if (intersect(a,b).size()!=0){
                         //logPrivateStateSpace(i.getP(),a,A);
                         //logPrivateStateSpace(j.getP(),b,A);
-                        logPredicatesOverlap(i.getP(),a,j.getP(),b,A);
+                        PROOF_LOGGER.logPredicatesOverlap(i.getP(),a,j.getP(),b,A);
                         return false;
                     }
                 }
@@ -270,7 +230,7 @@ public final class Symbolic {
                         return false;
                     }
                     if (intersect(a.get().dom(),b.get().dom()).size()!=0){
-                        logCasesDomainOverlap(i,a.get().dom(),j,b.get().dom(),A);
+                        PROOF_LOGGER.logCasesDomainOverlap(i,a.get().dom(),j,b.get().dom(),A);
                         return false;
                     }
                 }
@@ -289,13 +249,37 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpNonPrimitiveC(String m, C c, Obj A){
-        if (condition1(c,A) &&
-                condition2(m,c,A)){
-            return Optional.of(f(c,A));
+        //logStartProofTree();
+        PROOF_LOGGER.log(c,A.getA());
+        Optional<Func<List<String>>> s = interpS(c.getS(),A);
+        if (condition1(s) &&
+                condition2(m,c,A,s)){
+            PROOF_LOGGER.logNonBottom(c,A,"CASE");
+            //logEndProofTree();
+            return Optional.of(f(c,A,s));
         } else {
-            logBottom(c,A);
+            PROOF_LOGGER.logBottom(c,A,"CASE");
+            //logEndProofTree();
             return Optional.empty();
         }
+    }
+
+    Func<String> f(C c, Obj A, Optional<Func<List<String>>> s){
+        Set<String> P = interpPrePost(c.getPre(),A);
+        Set<String> Q = interpPrePost(c.getPost(),A);
+        Set<Mapsto<String,String>> def = set();
+        for (String p : P){
+            for (String p_ : Q){
+                Set<List<String>> e_p = interpE(lookupE(p,A),A);
+                Set<List<String>> e_p_ = interpE(lookupE(p_,A),A);
+                if (s.isPresent()){
+                    if (subseteq(s.get().image(e_p), e_p_)){
+                        def.add(mapsto(p,p_));
+                    }
+                }
+            }
+        }
+        return new Func<>(P,Q,def);
     }
 
     Func<String> f(C c, Obj A){
@@ -318,10 +302,12 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpPrimitiveC(C c, Obj A){
+        PROOF_LOGGER.log(c,A,"BASECASE");
         Set<String> pre = interpPrePost(c.getPre(),A);
         Set<String> post = interpPrePost(c.getPost(),A);
         if (post.size()>1){
             // base method not a function at its symbolic interpretation is constucted from the product pre x post
+            PROOF_LOGGER.logBottom(c,A,"BASECASE");
             return Optional.empty();
         }
         Set<Mapsto<String,String>> def = set();
@@ -330,19 +316,16 @@ public final class Symbolic {
                 def.add(mapsto(p,q));
             }
         }
+        PROOF_LOGGER.logNonBottom(c,A,"BASECASE");
         return Optional.of(new Func<>(pre,post,def));
     }
 
-    boolean condition1(C c, Obj A) {
-        boolean result = interpS(c.getS(),A).isPresent();
-        if (!result){
-            logBottom(c,A);
-        }
-        return result;
+    boolean condition1(Optional<Func<List<String>>> s) {
+        return s.isPresent();
     }
     // TODO
-    boolean condition2(String m, C c, Obj A) {
-        Func<List<String>> interpS = interpS(c.getS(),A).get();
+    boolean condition2(String m, C c, Obj A, Optional<Func<List<String>>> s) {
+        Func<List<String>> interpS = s.get();
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
         Set<E> e_p = set(P, p-> lookupE(p,A));
@@ -350,13 +333,12 @@ public final class Symbolic {
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
         if (!(subseteq(in,interpS.dom()) )){
-            preconditionisNotSubseteqDomain(m,c.getId(),in,interpS.dom(),A);
+            PROOF_LOGGER.preconditionisNotSubseteqDomain(m,c.getId(),in,interpS.dom(),A);
             return false;
         }
         Set<List<String>> image = interpS.image(in);
         if (!subseteq(image, out)){
-            imageIsNotSubseteqPostcondition(m,c.getId(),image,out,A);
-            logBottom(c,A);
+            PROOF_LOGGER.imageIsNotSubseteqPostcondition(m,c.getId(),image,out,A);
             return false;
         }
         return true;
@@ -367,6 +349,7 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpAm(Am am, Obj A){
+        PROOF_LOGGER.log(am,A,"CALL");
         Obj A_ = lookupObj(am.getA(),A);
         Optional<Func<String>> interp = interpOverlineC(am.getM(),lookupM(am.getM(),A_),A_);
         if (interp.isPresent()){
@@ -381,9 +364,10 @@ public final class Symbolic {
                     funcs.add(id(Theta(A_i)));
                 }
             }
+            PROOF_LOGGER.logNonBottom(am,A,"CALL");
             return Optional.of(functionProduct(funcs));
         } else {
-            logBottom(am,A);
+            PROOF_LOGGER.logBottom(am,A,"CALL");
             return Optional.empty();
         }
     }
@@ -520,47 +504,43 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpQBinary(QBinary binary, Obj A){
+        PROOF_LOGGER.log(binary,A,"SEQ");
         Q q = binary.getLeft();
         Q qPrim = binary.getRight();
         Optional<Func<List<String>>> ir = interpQ(q, A);
         Optional<Func<List<String>>> irPrim = interpQ(qPrim, A);
         if (ir.isPresent() && irPrim.isPresent() && subseteq(ir.get().range(), irPrim.get().dom())){
             Func<List<String>> f = irPrim.get().compose(ir.get());
+            PROOF_LOGGER.logNonBottom(binary,A,"SEQ");
             return Optional.of(new Func<>(ir.get().dom(), irPrim.get().range(),f.def()));
         } else {
-            logBottom(binary,A);
+            PROOF_LOGGER.logBottom(binary,A,"SEQ");
             return Optional.empty();
         }
     }
     Optional<Func<List<String>>> interpZBinary(ZBinary binary, Obj A){
+        PROOF_LOGGER.log(binary,A,"PAR");
         Z z = binary.getLeft();
         Z zPrim = binary.getRight();
         Optional<Func<List<String>>> ir = interpZ(z, A);
         Optional<Func<List<String>>> irPrim = interpZ(zPrim, A);
         if (!(ir.isPresent() && irPrim.isPresent())){
-            logBottom(binary,A);
+            PROOF_LOGGER.logBottom(binary,A,"PAR");
             return Optional.empty();
         }
         if (!intersect(fields(z), fields(zPrim)).isEmpty()){
-            logBottom(binary,A);
+            PROOF_LOGGER.logBottom(binary,A,"PAR");
             return Optional.empty();
         }
         Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
         Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
         Set<List<String>> V = ir.get().restrict(P).range();
         Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
+        PROOF_LOGGER.logNonBottom(binary,A,"PAR");
         return Optional.of(new Func<>(P,Q,f.def()));
     }
 
-    boolean hasInitialState(Obj A){
-        boolean result = existsOne(A.getOverlinePhi(),phi->isInitialState(phi,A));
-        if (!result){
-            LOG.info(A.getA()+" has no initial state.");
-        }
-        return result;
-    }
-
-    boolean isInitialState(Phi phi, Obj A){
+    public boolean isInitialState(Phi phi, Obj A){
         return phi.isInitial() && isInitialState(phi.getE(),A);
     }
 

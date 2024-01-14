@@ -1,6 +1,6 @@
 package com.cognitionbox.petra.ast.interp;
 
-import com.cognitionbox.petra.ast.interp.util.Logger;
+import com.cognitionbox.petra.ast.interp.util.loggers.Logger;
 import com.cognitionbox.petra.ast.parsers.MainParser;
 import com.cognitionbox.petra.ast.parsers.ObjParser;
 import com.cognitionbox.petra.ast.terms.Delta;

@@ -18,5 +18,9 @@ public final class DBinary implements D {
         return right;
     }
 
-    
+    @Override
+    public String toString() {
+        return left +
+                "+" + right;
+    }
 }

@@ -24,4 +24,8 @@ public class Am extends Q {
         return m;
     }
 
+    @Override
+    public String toString() {
+        return a + "." + m;
+    }
 }

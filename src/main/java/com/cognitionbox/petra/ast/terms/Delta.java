@@ -30,7 +30,7 @@ public final class Delta extends Term {
     }
 
     @Override
-    public String toString() {
-        return this.getClass().getSimpleName()+"@"+hashCode();
+    public String toString(){
+        return m;
     }
 }

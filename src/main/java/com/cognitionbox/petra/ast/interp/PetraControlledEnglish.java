@@ -81,7 +81,7 @@ public final class PetraControlledEnglish {
     }
 
     private static String translate(S s){
-        if (s==null){
+        if (s==null || s instanceof G){
             return "assume";
         } else if (s instanceof Skip){
             return "do nothing";

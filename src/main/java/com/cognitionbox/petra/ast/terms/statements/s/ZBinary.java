@@ -16,4 +16,9 @@ public final class ZBinary extends Z {
     public Z getRight() {
         return right;
     }
+
+    @Override
+    public String toString() {
+        return left + "//" + right;
+    }
 }

@@ -2,6 +2,7 @@ package com.cognitionbox.petra.ast.parsers;
 
 import com.cognitionbox.petra.ast.terms.expressions.PrePost;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
+import com.cognitionbox.petra.ast.terms.statements.s.G;
 import com.cognitionbox.petra.ast.terms.statements.s.S;
 import com.cognitionbox.petra.ast.interp.util.Collections;
 import com.cognitionbox.petra.ast.interp.util.ParserUtils;
@@ -33,7 +34,7 @@ public final class CParser {
             int size = statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().size();
             if (size > 1 && statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).isAssertStmt()) {
                 PrePost pre = dParser.parse(statement.asIfStmt().getCondition());
-                S s = !isPrimitive?sParser.parseS(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):null;
+                S s = !isPrimitive?sParser.parseS(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):new G("assumed");
                 PrePost post = dParser.parse(statement.asIfStmt().getThenStmt().asBlockStmt().getStatements().get(size - 1).asAssertStmt().getCheck().asEnclosedExpr().getInner());
                 if (s==null || s.isValid()){
                     return new C(id,pre, s, post);
