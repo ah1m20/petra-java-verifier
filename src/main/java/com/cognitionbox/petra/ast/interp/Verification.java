@@ -88,7 +88,10 @@ public abstract class Verification {
                             C c = d.getOverlineC().get(i);
                             tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> new Symbolic(prog).interpC(d.getM(),c, o).isPresent()));
                         }
-                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> new Symbolic(prog).pairwiseDisjointDomC(d.getM(),d.getOverlineC(), o)));
+                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> {
+                            Symbolic symbolic = new Symbolic(prog);
+                            return symbolic.interpOverlineC(d.getM(),symbolic.lookupM(d.getM(),o),o).isPresent();
+                        }));
                     }
                 }
             }

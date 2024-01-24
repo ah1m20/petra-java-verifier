@@ -62,11 +62,11 @@ public final class ProofLogger {
     }
 
     public <T> void preconditionisNotSubseteqDomain(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info(m+" c"+caseId+" precondition: \n\n"+a+"\n\nis not subset or equal to domain:\n\n"+b);
+        //LOG.info(m+" c"+caseId+" precondition: \n\n"+a+"\n\nis not subset or equal to domain:\n\n"+b);
     }
 
     public <T> void imageIsNotSubseteqPostcondition(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info(m+" c"+caseId+" image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
+        //LOG.info(m+" c"+caseId+" image: \n\n"+a+"\n\nis not subset or equal to postcondition:\n\n"+b);
     }
 
     public void logObjectPrivateStateSpace(Set<List<String>> set, Obj A){
@@ -74,15 +74,15 @@ public final class ProofLogger {
     }
 
     public void logPrivateStateSpace(String label, Set<List<String>> set, Obj A){
-        LOG.info("["+label+"]^{"+A.getA()+"} = "+(!set.isEmpty()?set:"\\emptyset"));
+        //LOG.info("["+label+"]^{"+A.getA()+"} = "+(!set.isEmpty()?set:"\\emptyset"));
     }
 
     public void logCasesDomainOverlap(int i, Set<String> a, int j, Set<String> b, Obj A){
-        LOG.info("[c_"+i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
+        //LOG.info("[c_"+i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
     }
 
     public void logPredicatesOverlap(String p_i, Set<List<String>> a, String p_j, Set<List<String>> b, Obj A){
-        LOG.info("["+p_i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
+        //LOG.info("["+p_i+"]^{"+A.getA()+"} = \n"+a+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = "+b+"\n\n on states \n\n"+intersect(a,b));
     }
 
     public boolean hasInitialState(Obj A, Symbolic symbolic){
@@ -100,19 +100,4 @@ public final class ProofLogger {
         }
         return true;
     }
-
-//    public void logStartProofTree() {
-//        StringBuilder tabs = new StringBuilder();
-//        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
-//        LOG.info(tabs+"\\begin{equation}");
-//        LOG.info(tabs+"\\begin{align}");
-//    }
-//
-//    public void logEndProofTree() {
-//        StringBuilder tabs = new StringBuilder();
-//        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("\t"));
-//        LOG.info(tabs+"\\end{align}");
-//        LOG.info(tabs+"\\end{equation}");
-//        LOG.info("");
-//    }
 }

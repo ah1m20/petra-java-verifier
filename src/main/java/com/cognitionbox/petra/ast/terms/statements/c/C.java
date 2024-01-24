@@ -44,8 +44,8 @@ public final class C extends Term {
 
     @Override
     public String toString() {
-        return "[" + pre +
-                "] " + s +
-                " [" + post +"]";
+        return "{" + pre +
+                "}" + s +
+                "{" + post +"}";
     }
 }

@@ -1,5 +1,7 @@
 package com.cognitionbox.petra.examples.buildingalarmsystem;
 
+import com.cognitionbox.petra.ast.terms.Initial;
+
 import static com.cognitionbox.petra.ast.interp.util.Program.par;
 
 public class Building implements Runnable {
@@ -9,7 +11,7 @@ public class Building implements Runnable {
 	public boolean all() { return front.bothArmed() && kitchen.bothArmed() && bedroom.bothArmed(); }
 	public boolean downstairs() { return front.bothArmed() && kitchen.bothArmed() && !bedroom.bothArmed(); }
 	public boolean upstairs() { return !front.bothArmed() && !kitchen.bothArmed() && bedroom.bothArmed(); }
-	public boolean none() { return !front.bothArmed() && !kitchen.bothArmed() && !bedroom.bothArmed(); }
+	@Initial public boolean none() { return !front.bothArmed() && !kitchen.bothArmed() && !bedroom.bothArmed(); }
 
 	public boolean other() { return !(front.bothArmed() && kitchen.bothArmed() && bedroom.bothArmed()) &&
 								!(front.bothArmed() && kitchen.bothArmed() && !bedroom.bothArmed()) &&

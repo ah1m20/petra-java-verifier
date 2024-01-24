@@ -6,4 +6,9 @@ public final class Skip extends S {
     public Skip(boolean valid, int lineError, String errorMessage) {
         super(valid, lineError, errorMessage);
     }
+
+    @Override
+    public String toString(){
+        return "skip";
+    }
 }

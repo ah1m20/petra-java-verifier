@@ -98,6 +98,15 @@ public final class Symbolic {
         }
     }
 
+    Delta lookupDelta(String p, Obj A){
+        Optional<Delta> delta = find(A.getOverlineDelta(), x->x.getM().equals(p));
+        if (delta.isPresent()){
+            return delta.get();
+        } else {
+            throw new IllegalStateException("cannot find method: "+p);
+        }
+    }
+
     E lookupE(String p, Obj A){
         return lookupPhi(p,A).getE();
     }
@@ -193,11 +202,12 @@ public final class Symbolic {
 
     Optional<Func<String>> interpOverlineC(String m, List<C> ovelineC, Obj A){
         PROOF_LOGGER.log(ovelineC,A.getA());
-        if (forall(ovelineC,c->PROOF_LOGGER.logBottom(c,interpC(m,c,A).isPresent(),A,"CASE")) && pairwiseDisjointDomC(m,ovelineC,A)){
-            PROOF_LOGGER.logNonBottom(ovelineC,A,"CASES");
-            return Optional.of(functionUnion(list(ovelineC, c-> interpC(m,c,A).get())));
+        List<Optional<Func<String>>> interpOvelineC = list(ovelineC, c->interpC(m,c,A));
+        if (forall(interpOvelineC,ic->ic.isPresent()) && pairwiseDisjointDomC(m,interpOvelineC,A)){
+            PROOF_LOGGER.logNonBottom(lookupDelta(m,A),A,"CASES");
+            return Optional.of(functionUnion(list(interpOvelineC, ic-> ic.get())));
         } else {
-            PROOF_LOGGER.logBottom(ovelineC,A,"CASES");
+            PROOF_LOGGER.logBottom(lookupDelta(m,A),A,"CASES");
             return Optional.empty();
         }
     }
@@ -220,12 +230,12 @@ public final class Symbolic {
         return true;
     }
 
-    boolean pairwiseDisjointDomC(String m, List<C> ovelineC, Obj A) {
+    boolean pairwiseDisjointDomC(String m, List<Optional<Func<String>>> ovelineC, Obj A) {
         for (int i=0;i<ovelineC.size();i++){
             for (int j=0;j<ovelineC.size();j++){
                 if (i!=j){
-                    Optional<Func<String>> a = interpC(m,ovelineC.get(i),A);
-                    Optional<Func<String>> b = interpC(m,ovelineC.get(j),A);
+                    Optional<Func<String>> a = ovelineC.get(i);
+                    Optional<Func<String>> b = ovelineC.get(j);
                     if (!a.isPresent() || !b.isPresent()){
                         return false;
                     }

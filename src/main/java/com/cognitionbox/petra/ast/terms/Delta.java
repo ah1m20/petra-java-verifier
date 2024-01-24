@@ -31,6 +31,11 @@ public final class Delta extends Term {
 
     @Override
     public String toString(){
-        return m;
+        StringBuilder sb = new StringBuilder();
+        sb.append("c0");
+        for (int i=1;i<overlineC.size();i++){
+            sb.append("+c"+i);
+        }
+        return sb.toString();
     }
 }
