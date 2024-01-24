@@ -1,9 +1,9 @@
-package com.cognitionbox.petra.examples.lightsystem3;
+package com.cognitionbox.petra.examples.roomlightsystem;
 
 import com.cognitionbox.petra.ast.terms.Base;
 
 @Base
-public class Power {
+public class Control {
         private boolean bool;
         public boolean on() { return bool==true; }
         public boolean off() { return bool==false; }

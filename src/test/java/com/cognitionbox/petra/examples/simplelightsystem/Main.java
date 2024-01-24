@@ -1,4 +1,4 @@
-package com.cognitionbox.petra.examples.lightingsystem2;
+package com.cognitionbox.petra.examples.simplelightsystem;
 
 import static com.cognitionbox.petra.ast.interp.util.Program.start;
 

@@ -15,16 +15,16 @@ import static org.junit.Assert.assertTrue;
 public class SymbolicTest {
 
     @Test
-    public void testLightSystem() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/lightsystem/","run","Light","Main","Light","Power","Control");
+    public void testSimpleLightSystem() throws URISyntaxException, IOException {
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/simplelightsystem/","run","Light","Main","Light","Power","Control");
         Symbolic symbolic = new Symbolic(prog);
         //symbolic.printOutput();
         assertTrue(symbolic.interpProg(prog).isPresent());
     }
 
     @Test
-    public void testLightSystem2() throws URISyntaxException, IOException {
-        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/lightingsystem2/","run","Light","Main","Light","Power","Control");
+    public void testDualLightSystem() throws URISyntaxException, IOException {
+        Prog prog = buildProgram("src/test/java/com/cognitionbox/petra/examples/duallightingsystem/","run","Light","Main","Light","Power","Control");
         Symbolic symbolic = new Symbolic(prog);
         System.out.println(new Gson().toJson(symbolic.lookupObj(prog.getAepsilon())));
         //symbolic.printOutput();

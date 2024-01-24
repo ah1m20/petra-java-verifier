@@ -1,4 +1,4 @@
-package com.cognitionbox.petra.examples.lightsystem3;
+package com.cognitionbox.petra.examples.roomlightsystem;
 
 import static com.cognitionbox.petra.ast.interp.util.Program.par;
 

@@ -1,11 +1,11 @@
-package com.cognitionbox.petra.examples.lightingsystem2;
+package com.cognitionbox.petra.examples.duallightingsystem;
 
 import com.cognitionbox.petra.ast.terms.Base;
-import com.cognitionbox.petra.examples.lightsystem.Bool;
+import com.cognitionbox.petra.examples.simplelightsystem.Bool;
 
 @Base
-public class Control {
-	private final Bool bool = new Bool();
+public class Power {
+	private final com.cognitionbox.petra.examples.simplelightsystem.Bool bool = new Bool();
 	public boolean on() { return bool.isTrue(); }
 	public boolean off() { return bool.isFalse(); }
 

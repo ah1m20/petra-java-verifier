@@ -1,4 +1,4 @@
-package com.cognitionbox.petra.examples.lightingsystem2;
+package com.cognitionbox.petra.examples.duallightingsystem;
 
 import static com.cognitionbox.petra.ast.interp.util.Program.par;
 
