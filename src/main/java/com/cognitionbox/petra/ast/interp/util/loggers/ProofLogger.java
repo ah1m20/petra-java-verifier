@@ -4,23 +4,15 @@ import com.cognitionbox.petra.ast.interp.Symbolic;
 import com.cognitionbox.petra.ast.interp.util.DepthTracker;
 import com.cognitionbox.petra.ast.interp.util.Set;
 import com.cognitionbox.petra.ast.terms.Obj;
-import com.cognitionbox.petra.ast.terms.Prog;
 
 import java.util.List;
 
 import static com.cognitionbox.petra.ast.interp.util.Collections.existsOne;
-import static com.cognitionbox.petra.ast.interp.util.Ops.intersect;
 
 public final class ProofLogger {
-    private final boolean enableLatex;
     private final SimpleProofLogger simpleProofLogger = new SimpleProofLogger();
-    private final LatexProofLogger latexProofLogger = new LatexProofLogger();
     private final DepthTracker tracker = new DepthTracker();
     private final Logger LOG = new Logger();
-    public ProofLogger(boolean enableLatex) {
-        this.enableLatex = enableLatex;
-    }
-
     public <T> void logNonBottom(T t, String rule) {
         logNonBottom(t,null,rule);
     }
@@ -28,19 +20,11 @@ public final class ProofLogger {
         logBottom(t,null,rule);
     }
     public <T> void logNonBottom(T t, Obj A, String rule) {
-        if (enableLatex){
-            latexProofLogger.logNonBottom(LOG,tracker.depth(), t,A,rule);
-        } else {
-            simpleProofLogger.logNonBottom(LOG,tracker.depth(),t,A,rule);
-        }
+        simpleProofLogger.logNonBottom(LOG,tracker.depth(),t,A,rule);
         tracker.markExit();
     }
     public <T> void logBottom(T t, Obj A, String rule) {
-        if (enableLatex){
-            latexProofLogger.logBottom(LOG,tracker.depth(),t,A,rule);
-        } else {
-            simpleProofLogger.logBottom(LOG,tracker.depth(),t,A,rule);
-        }
+        simpleProofLogger.logBottom(LOG,tracker.depth(),t,A,rule);
         tracker.markExit();
     }
 

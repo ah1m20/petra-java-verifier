@@ -11,7 +11,7 @@ import static com.cognitionbox.petra.ast.interp.util.Collections.set;
 
 public final class Logger {
     public void info(String s) {
-        System.out.println(s); // "INFO: "+
+        System.out.println("INFO:"+s);
     }
 
 
@@ -21,7 +21,11 @@ public final class Logger {
 
 
     public void debug(String s) {
-        System.out.println("INFO: "+Thread.currentThread().getStackTrace()[3]+s);
+        String prefix = Thread.currentThread().getStackTrace()[4].toString();
+        int diff = 100-prefix.length();
+        StringBuilder sb = new StringBuilder();
+        IntStream.range(0,diff).forEach(i->sb.append("_"));
+        System.out.println("DEBUG:"+prefix+sb+s);
     }
 
     private Set<String> logEntries = set();
