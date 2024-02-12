@@ -3,8 +3,7 @@ package com.cognitionbox.petra.ast.interp;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import com.cognitionbox.petra.ast.interp.util.Set;
+import java.util.Set;
 
 public class IObj {
     private Set<List<String>> Omega;

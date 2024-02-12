@@ -4,7 +4,6 @@ import com.cognitionbox.petra.ast.terms.expressions.PrePost;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
 import com.cognitionbox.petra.ast.terms.statements.s.G;
 import com.cognitionbox.petra.ast.terms.statements.s.S;
-import com.cognitionbox.petra.ast.interp.util.Collections;
 import com.cognitionbox.petra.ast.interp.util.ParserUtils;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
@@ -16,15 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.cognitionbox.petra.ast.interp.util.Ops.list;
+
 public final class CParser {
     private final DParser dParser = new DParser();
     private final SParserRecursive sParser = new SParserRecursive();
     public List<C> parse(MethodDeclaration declaration, boolean isPrimitive){
         AtomicInteger id = new AtomicInteger();
         if (declaration.getBody().isPresent() && declaration.getBody().get().getStatements().size()==1){
-            return Collections.list(ifElseStatements(declaration.getBody().get().getStatements().get(0).asIfStmt()), statement->parse(id.getAndIncrement(),statement,isPrimitive));
+            return list(ifElseStatements(declaration.getBody().get().getStatements().get(0).asIfStmt()), statement->parse(id.getAndIncrement(),statement,isPrimitive));
         } else {
-            return Collections.list();
+            return list();
         }
     }
 

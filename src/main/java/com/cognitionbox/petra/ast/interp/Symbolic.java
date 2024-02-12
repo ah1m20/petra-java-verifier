@@ -17,8 +17,6 @@ import com.cognitionbox.petra.ast.terms.expressions.e.*;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
 import com.cognitionbox.petra.ast.terms.statements.s.*;
 
-import com.cognitionbox.petra.ast.interp.util.Set;
-import static com.cognitionbox.petra.ast.interp.util.Collections.*;
 import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 
 public final class Symbolic {
@@ -37,7 +35,7 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpProgQuick(Prog prog){
-        PROOF_LOGGER.log(prog,"ENTRY");
+        PROOF_LOGGER.enter();
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
@@ -47,16 +45,16 @@ public final class Symbolic {
             && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
             && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
         ){
-            PROOF_LOGGER.logNonBottom(prog,"ENTRY");
+            PROOF_LOGGER.exitWithNonBottom(prog,"ENTRY");
             return m_epsilon;
         } else {
-            PROOF_LOGGER.logBottom(prog,"ENTRY");
+            PROOF_LOGGER.exitWithBottom(prog,"ENTRY");
             return Optional.empty();
         }
     }
 
     Optional<Func<String>> interpProg(Prog prog){
-        PROOF_LOGGER.log(prog,"ENTRY");
+        PROOF_LOGGER.enter();
         Obj Aepsilon = lookupObj(prog.getAepsilon());
         Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
@@ -68,10 +66,10 @@ public final class Symbolic {
             && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
             && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
          ){
-            PROOF_LOGGER.logNonBottom(prog,"ENTRY");
+            PROOF_LOGGER.exitWithNonBottom(prog,"ENTRY");
             return m_epsilon;
         } else {
-            PROOF_LOGGER.logBottom(prog,"ENTRY");
+            PROOF_LOGGER.exitWithBottom(prog,"ENTRY");
             return Optional.empty();
         }
     }
@@ -93,7 +91,7 @@ public final class Symbolic {
         if (phi.isPresent()){
             return phi.get();
         } else {
-            throw new IllegalStateException("cannot find predicate: "+p);
+            throw new IllegalArgumentException("cannot find predicate: "+p);
         }
     }
 
@@ -142,24 +140,24 @@ public final class Symbolic {
     }
 
     Optional<IObj> interpNonPrimitiveObj(Obj A){
-        PROOF_LOGGER.log(A,"OBJ");
-        if (forall(A.getOverlineBeta(), beta->PROOF_LOGGER.logBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A,"OBJ")) &&
+        PROOF_LOGGER.enter();
+        if (forall(A.getOverlineBeta(), beta->PROOF_LOGGER.exitWithBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A,"OBJ")) &&
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
-                forall(A.getOverlineDelta(), delta->PROOF_LOGGER.logBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE")) &&
+                forall(A.getOverlineDelta(), delta->PROOF_LOGGER.exitWithBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE")) &&
                 (isReactive?PROOF_LOGGER.isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
-            PROOF_LOGGER.logNonBottom(A,"OBJ");
+            PROOF_LOGGER.exitWithNonBottom(A,"OBJ");
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             //logObjectPrivateStateSpace(Omega(A),A);
-            PROOF_LOGGER.logBottom(A,"OBJ");
+            PROOF_LOGGER.exitWithBottom(A,"OBJ");
             return Optional.empty();
         }
     }
 
     public static <T> boolean forall(Collection<T> collection, Predicate<T> toHold){
-        boolean res =  com.cognitionbox.petra.ast.interp.util.Collections.forall(collection,toHold);
+        boolean res =  com.cognitionbox.petra.ast.interp.util.Ops.forall(collection,toHold);
         if (!res){
             //LOG.info("is not forall.");
             return false;
@@ -185,28 +183,28 @@ public final class Symbolic {
     Map<String, Set<List<String>>> interpOverlinePhi(List<Phi> overlinePhi, Obj A){
         Map<String, Set<List<String>>> record = new HashMap<>();
         if (A.isPrimitive()){
-            forEach(overlinePhi, phi->record.put(phi.getP(),null));
+            overlinePhi.forEach(phi->record.put(phi.getP(),null));
         } else {
-            forEach(overlinePhi, phi->record.put(phi.getP(), interpE(phi.getE(),A)));
+            overlinePhi.forEach(phi->record.put(phi.getP(), interpE(phi.getE(),A)));
         }
         return record;
     }
 
     Map<String, Optional<Func<String>>> interpDeltas(List<Delta> overlineDelta, Obj A){
-        PROOF_LOGGER.log(overlineDelta,A.getA());
+        PROOF_LOGGER.enter();
         Map<String, Optional<Func<String>>> record = new HashMap<>();
-        forEach(overlineDelta, delta->record.put(delta.getM(),interpOverlineC(delta.getM(),delta.getOverlineC(),A)));
+        overlineDelta.forEach(delta->record.put(delta.getM(),interpOverlineC(delta.getM(),delta.getOverlineC(),A)));
         return record;
     }
 
     Optional<Func<String>> interpOverlineC(String m, List<C> ovelineC, Obj A){
-        PROOF_LOGGER.log(ovelineC,A.getA());
+        PROOF_LOGGER.enter();
         List<Optional<Func<String>>> interpOvelineC = list(ovelineC, c->interpC(m,c,A));
         if (forall(interpOvelineC,ic->ic.isPresent()) && pairwiseDisjointDomC(m,interpOvelineC,A)){
-            PROOF_LOGGER.logNonBottom(lookupDelta(m,A),A,"CASES");
+            PROOF_LOGGER.exitWithNonBottom(lookupDelta(m,A),A,"CASES");
             return Optional.of(functionUnion(list(interpOvelineC, ic-> ic.get())));
         } else {
-            PROOF_LOGGER.logBottom(lookupDelta(m,A),A,"CASES");
+            PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
             return Optional.empty();
         }
     }
@@ -259,15 +257,15 @@ public final class Symbolic {
 
     Optional<Func<String>> interpNonPrimitiveC(String m, C c, Obj A){
         //logStartProofTree();
-        PROOF_LOGGER.log(c,A.getA());
+        PROOF_LOGGER.enter();
         Optional<Func<List<String>>> s = interpS(c.getS(),A);
         if (condition1(s) &&
                 condition2(m,c,A,s)){
-            PROOF_LOGGER.logNonBottom(c,A,"CASE");
+            PROOF_LOGGER.exitWithNonBottom(c,A,"CASE");
             //logEndProofTree();
             return Optional.of(f(c,A,s));
         } else {
-            PROOF_LOGGER.logBottom(c,A,"CASE");
+            PROOF_LOGGER.exitWithBottom(c,A,"CASE");
             //logEndProofTree();
             return Optional.empty();
         }
@@ -311,12 +309,12 @@ public final class Symbolic {
     }
 
     Optional<Func<String>> interpPrimitiveC(C c, Obj A){
-        PROOF_LOGGER.log(c,A,"BASECASE");
+        PROOF_LOGGER.enter();
         Set<String> pre = interpPrePost(c.getPre(),A);
         Set<String> post = interpPrePost(c.getPost(),A);
         if (post.size()>1){
             // base method not a function at its symbolic interpretation is constucted from the product pre x post
-            PROOF_LOGGER.logBottom(c,A,"BASECASE");
+            PROOF_LOGGER.exitWithBottom(c,A,"BASECASE");
             return Optional.empty();
         }
         Set<Mapsto<String,String>> def = set();
@@ -325,7 +323,7 @@ public final class Symbolic {
                 def.add(mapsto(p,q));
             }
         }
-        PROOF_LOGGER.logNonBottom(c,A,"BASECASE");
+        PROOF_LOGGER.exitWithNonBottom(c,A,"BASECASE");
         return Optional.of(new Func<>(pre,post,def));
     }
 
@@ -358,7 +356,7 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpAm(Am am, Obj A){
-        PROOF_LOGGER.log(am,A,"CALL");
+        PROOF_LOGGER.enter();
         Obj A_ = lookupObj(am.getA(),A);
         Optional<Func<String>> interp = interpOverlineC(am.getM(),lookupM(am.getM(),A_),A_);
         if (interp.isPresent()){
@@ -373,10 +371,10 @@ public final class Symbolic {
                     funcs.add(id(Theta(A_i)));
                 }
             }
-            PROOF_LOGGER.logNonBottom(am,A,"CALL");
+            PROOF_LOGGER.exitWithNonBottom(am,A,"CALL");
             return Optional.of(functionProduct(funcs));
         } else {
-            PROOF_LOGGER.logBottom(am,A,"CALL");
+            PROOF_LOGGER.exitWithBottom(am,A,"CALL");
             return Optional.empty();
         }
     }
@@ -513,39 +511,37 @@ public final class Symbolic {
     }
 
     Optional<Func<List<String>>> interpQBinary(QBinary binary, Obj A){
-        PROOF_LOGGER.log(binary,A,"SEQ");
-        Q q = binary.getLeft();
-        Q qPrim = binary.getRight();
-        Optional<Func<List<String>>> ir = interpQ(q, A);
-        Optional<Func<List<String>>> irPrim = interpQ(qPrim, A);
-        if (ir.isPresent() && irPrim.isPresent() && subseteq(ir.get().range(), irPrim.get().dom())){
-            Func<List<String>> f = irPrim.get().compose(ir.get());
-            PROOF_LOGGER.logNonBottom(binary,A,"SEQ");
-            return Optional.of(new Func<>(ir.get().dom(), irPrim.get().range(),f.def()));
+        PROOF_LOGGER.enter();
+        Optional<Func<List<String>>> q = interpQ(binary.getLeft(), A);
+        Optional<Func<List<String>>> qPrim = interpQ(binary.getRight(), A);
+        if (q.isPresent() && qPrim.isPresent() && subseteq(q.get().range(), qPrim.get().dom())){
+            Func<List<String>> f = qPrim.get().compose(q.get());
+            PROOF_LOGGER.exitWithNonBottom(binary,A,"SEQ");
+            return Optional.of(new Func<>(q.get().dom(), qPrim.get().range(),f.def()));
         } else {
-            PROOF_LOGGER.logBottom(binary,A,"SEQ");
+            PROOF_LOGGER.exitWithBottom(binary,A,"SEQ");
             return Optional.empty();
         }
     }
     Optional<Func<List<String>>> interpZBinary(ZBinary binary, Obj A){
-        PROOF_LOGGER.log(binary,A,"PAR");
+        PROOF_LOGGER.enter();
         Z z = binary.getLeft();
         Z zPrim = binary.getRight();
         Optional<Func<List<String>>> ir = interpZ(z, A);
         Optional<Func<List<String>>> irPrim = interpZ(zPrim, A);
         if (!(ir.isPresent() && irPrim.isPresent())){
-            PROOF_LOGGER.logBottom(binary,A,"PAR");
+            PROOF_LOGGER.exitWithBottom(binary,A,"PAR");
             return Optional.empty();
         }
         if (!intersect(fields(z), fields(zPrim)).isEmpty()){
-            PROOF_LOGGER.logBottom(binary,A,"PAR");
+            PROOF_LOGGER.exitWithBottom(binary,A,"PAR");
             return Optional.empty();
         }
         Set<List<String>> P = intersect(ir.get().dom(), irPrim.get().dom());
         Set<List<String>> Q = intersect(ir.get().range(), irPrim.get().range());
         Set<List<String>> V = ir.get().restrict(P).range();
         Func<List<String>> f = irPrim.get().restrict(V).compose(ir.get().restrict(P));
-        PROOF_LOGGER.logNonBottom(binary,A,"PAR");
+        PROOF_LOGGER.exitWithNonBottom(binary,A,"PAR");
         return Optional.of(new Func<>(P,Q,f.def()));
     }
 

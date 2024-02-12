@@ -2,76 +2,103 @@ package com.cognitionbox.petra.ast.interp.util;
 
 import com.cognitionbox.petra.ast.interp.Func;
 import com.cognitionbox.petra.ast.interp.Mapsto;
-import com.google.common.collect.Sets;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static com.cognitionbox.petra.ast.interp.util.Collections.list;
-import static com.cognitionbox.petra.ast.interp.util.Collections.set;
 
 public final class Ops {
 
-    public static void main(String[] args){
-        Set<String> a = new Set<>();
-        a.add("x");
-        a.add("y");
-        Set<String> b = new Set<>();
-        b.add("a");
-        b.add("b");
-        System.out.println(product(a,b));
+    public static <T> Set<T> singleton(T e){
+        return set(e);
+    }
+
+    public static <T> Set<T> set(Collection<T> e){
+        return new LinkedHashSet<>(e);
+    }
+    public static <T> Set<T> set(T... e){
+        return set(Arrays.asList(e));
+    }
+
+    public static <T> List<T> list(T... e){
+        return Arrays.asList(e);
+    }
+
+    public static <K,V> Map<K,V> map(){
+        return new LinkedHashMap<>();
+    }
+
+    public static <T> Optional<T> find(Collection<T> list, Predicate<T> predicate){
+        return list.stream().filter(predicate).findAny();
+    }
+
+    public static <T> List<T> filter(List<T> list, Predicate<T> predicate){
+        return list.stream().filter(predicate).collect(Collectors.toCollection(()->list()));
+    }
+
+    public static <T> Set<T> filter(Set<T> set, Predicate<T> predicate){
+        return set.stream().filter(predicate).collect(Collectors.toCollection(()->set()));
+    }
+
+    public static <T,R> Set<R> set(Set<T> set, Function<T,R> mapper){
+        return set.stream().map(mapper).collect(Collectors.toCollection(()->set()));
+    }
+
+    public static <T,R> Set<R> set(List<T> list, Function<T,R> mapper){
+        return list.stream().map(mapper).collect(Collectors.toCollection(()->set()));
+    }
+
+    public static <T,R> List<R> list(List<T> list, Function<T,R> mapper){
+        return list.stream().map(mapper).collect(Collectors.toList());
+    }
+
+    public static <T,R> List<R> list(T[] list, Function<T,R> mapper){
+        return Arrays.asList(list).stream().map(mapper).collect(Collectors.toList());
+    }
+
+    public static <T> boolean forall(Collection<T> collection, Predicate<T> toHold){
+        return collection.stream().allMatch(toHold);
+    }
+
+    public static <T> boolean exists(Collection<T> collection, Predicate<T> toHold){
+        return collection.stream().anyMatch(toHold);
+    }
+
+    public static <T> boolean existsOne(Collection<T> collection, Predicate<T> toHold){
+        return collection.stream().filter(toHold).count()==1;
+    }
+
+    public static <T> Func<T> func(Set<T> dom, Set<T> codom, Set<Mapsto<T,T>> def){
+        return new Func<>(dom,codom,def);
     }
 
     public static <T> boolean subseteq(Set<T> a, Set<T> b){
         return b.containsAll(a);
     }
     public static <T> Set<T> union(Set<T>... sets){
-        Set<T> newSet = new Set<>();
-        for (Set<T> s : sets){
-            newSet.addAll(s);
-        }
-        return newSet;
+        return union(Arrays.asList(sets));
     }
 
-    public static <T> Set<T> union(List<Set<T>> sets){
-        Set<T> newSet = new Set<>();
-        for (Set<T> s : sets){
-            newSet.addAll(s);
-        }
-        return newSet;
-    }
-
-    public static <T> Set<T> union(Set<Set<T>> sets){
-        Set<T> newSet = new Set<>();
-        for (Set<T> s : sets){
-            newSet.addAll(s);
-        }
+    public static <T> Set<T> union(Collection<Set<T>> sets){
+        Set<T> newSet = set();
+        sets.forEach(s->newSet.addAll(s));
         return newSet;
     }
 
     public static <T> Set<T> intersect(Set<T> a, Set<T> b){
-        Set<T> newSet = new Set<>();
+        Set<T> newSet = set();
         newSet.addAll(a);
         newSet.retainAll(b);
         return newSet;
     }
 
-    public static <T> Set<T> toSet(java.util.Set<T> s){
-        return new Set<>(s);
-    }
-
-    public static <T> java.util.Set<T> toJavaSet(Set<T> s){
-        return s;
-    }
     public static <T> Set<List<T>> product(Set<T>... sets){
-        List<java.util.Set<T>> javaSets = Collections.list(sets, s->toJavaSet(s));
-        return toSet(Sets.cartesianProduct(javaSets));
+        return product(Arrays.asList(sets));
     }
 
     public static <T> Set<List<T>> product(List<Set<T>> sets){
-        List<java.util.Set<T>> javaSets = Collections.list(sets, s->toJavaSet(s));
-        return toSet(Sets.cartesianProduct(javaSets));
+        return set(com.google.common.collect.Sets.cartesianProduct(sets));
     }
 
     public static <T> Mapsto<T,T> mapsto(T from, T too){
@@ -90,7 +117,7 @@ public final class Ops {
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         Set<List<T>> productDom = product(doms);
         Set<List<T>> productRange = product(ranges);
-        Set<Mapsto<List<T>,List<T>>> productDef = new Set<>();
+        Set<Mapsto<List<T>,List<T>>> productDef = set();
         for (List<T> in : productDom){
             List<T> out = new ArrayList<>();
             for (int i=0;i<in.size();i++){
@@ -106,14 +133,14 @@ public final class Ops {
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         Set<List<T>> productDom = product(doms);
         Set<List<T>> productRange = product(ranges);
-        Set<Mapsto<List<T>,List<T>>> productDef = new Set<>();
-        Set<List<Mapsto<T,T>>> input = product(Collections.list(funcs, f->f.def()));
+        Set<Mapsto<List<T>,List<T>>> productDef = set();
+        Set<List<Mapsto<T,T>>> input = product(list(funcs, f->f.def()));
         for (List<Mapsto<T, T>> in : input){
             List<T> x = new ArrayList<>();
             List<T> y = new ArrayList<>();
             for (int i=0;i<in.size();i++){
                 x.add(in.get(i).getFrom());
-                y.add(in.get(i).getToo());
+                y.add(in.get(i).getTo());
             }
             productDef.add(mapsto(x,y));
         }
@@ -121,7 +148,7 @@ public final class Ops {
     }
 
     public static <T> Func<T> id(Set<T> set){
-        Set<Mapsto<T,T>> def = Collections.set(set, e->mapsto(e,e));
+        Set<Mapsto<T,T>> def = set(set, e->mapsto(e,e));
         return new Func<>(set,set,def);
     }
 }

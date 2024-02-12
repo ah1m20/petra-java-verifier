@@ -8,7 +8,6 @@ import com.cognitionbox.petra.ast.terms.Obj;
 import com.cognitionbox.petra.ast.terms.Prog;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
 import com.cognitionbox.petra.ast.interp.junit.tasks.*;
-import com.cognitionbox.petra.ast.interp.util.Collections;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -20,9 +19,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import static com.cognitionbox.petra.ast.interp.PetraControlledEnglish.format;
 import static com.cognitionbox.petra.ast.interp.Symbolic.forall;
-import static com.cognitionbox.petra.ast.interp.util.Collections.filter;
-import static com.cognitionbox.petra.ast.interp.util.Collections.list;
+import static com.cognitionbox.petra.ast.interp.util.Ops.filter;
+import static com.cognitionbox.petra.ast.interp.util.Ops.list;
 import static org.junit.Assert.assertTrue;
 
 public abstract class Verification {
@@ -81,7 +81,7 @@ public abstract class Verification {
             tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> new Symbolic(prog).interpProgQuick(prog).isPresent()));
             for (Obj o : prog.getObjs()) {
                 if (o instanceof Obj) {
-                    tasks.add(new ControlledEnglishTask(o.getA(), () -> {System.out.println(PetraControlledEnglish.format(PetraControlledEnglish.translate(o),14)); return true;} ));
+                    tasks.add(new ControlledEnglishTask(o.getA(), () -> {LOG.info(format(PetraControlledEnglish.translate(o),14)); return true;} ));
                     tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> new Symbolic(prog).interpObj(o).isPresent()));
                     for (Delta d : o.getOverlineDelta()) {
                         for (int i = 0; i < d.getOverlineC().size(); i++) {
@@ -97,7 +97,7 @@ public abstract class Verification {
             }
             return tasks;
         } else {
-            return Collections.list(Collections.filter(prog.getObjs(), o->!o.isValid()), o->new SyntaxInvalid(o.getA(),o.getLineError(),o.getErrorMessage()));
+            return list(filter(prog.getObjs(), o->!o.isValid()), o->new SyntaxInvalid(o.getA(),o.getLineError(),o.getErrorMessage()));
         }
     }
 

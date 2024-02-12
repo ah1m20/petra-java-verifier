@@ -1,10 +1,8 @@
 package com.cognitionbox.petra.ast.parsers;
 
 import com.cognitionbox.petra.ast.terms.*;
-import com.cognitionbox.petra.ast.terms.*;
 import com.cognitionbox.petra.ast.terms.expressions.e.E;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
-import com.cognitionbox.petra.ast.interp.util.Collections;
 import com.cognitionbox.petra.ast.interp.util.ParserUtils;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -15,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+
+import static com.cognitionbox.petra.ast.interp.util.Ops.forall;
 
 public final class ObjParser {
     EParser eparser = new EParser();
@@ -91,7 +91,7 @@ public final class ObjParser {
                 List<C> cases = cparser.parse(m, ParserUtils.isBaseObject(declaration));
                 if (cases.isEmpty()){
                     return ParserUtils.invalidObj(m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
-                } else if (!cases.isEmpty() && Collections.forall(cases, c-> ParserUtils.isValid(c))){
+                } else if (!cases.isEmpty() && forall(cases, c-> ParserUtils.isValid(c))){
                     Delta delta = new Delta(m.getNameAsString(),cases);
                     obj.addDelta(delta);
                 } else {

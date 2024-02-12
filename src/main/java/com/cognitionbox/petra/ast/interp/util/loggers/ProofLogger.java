@@ -2,38 +2,42 @@ package com.cognitionbox.petra.ast.interp.util.loggers;
 
 import com.cognitionbox.petra.ast.interp.Symbolic;
 import com.cognitionbox.petra.ast.interp.util.DepthTracker;
-import com.cognitionbox.petra.ast.interp.util.Set;
 import com.cognitionbox.petra.ast.terms.Obj;
+import com.cognitionbox.petra.ast.terms.Term;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
 
-import static com.cognitionbox.petra.ast.interp.util.Collections.existsOne;
+import static com.cognitionbox.petra.ast.interp.util.Ops.existsOne;
 
 public final class ProofLogger {
-    private final SimpleProofLogger simpleProofLogger = new SimpleProofLogger();
     private final DepthTracker tracker = new DepthTracker();
     private final Logger LOG = new Logger();
-    public <T> void logNonBottom(T t, String rule) {
-        logNonBottom(t,null,rule);
-    }
-    public <T> void logBottom(T t, String rule) {
-        logBottom(t,null,rule);
-    }
-    public <T> void logNonBottom(T t, Obj A, String rule) {
-        simpleProofLogger.logNonBottom(LOG,tracker.depth(),t,A,rule);
-        tracker.markExit();
-    }
-    public <T> void logBottom(T t, Obj A, String rule) {
-        simpleProofLogger.logBottom(LOG,tracker.depth(),t,A,rule);
-        tracker.markExit();
-    }
 
-    public <T> void log(T t, String rule) {
+    public <T> void enter() {
         tracker.markEntry();
     }
 
-    public <T> void log(T t, Obj A, String rule) {
-        tracker.markEntry();
+    public <T extends Term> void exitWithNonBottom(T t, String rule) {
+        exitWithNonBottom(t,null,rule);
+    }
+    public <T extends Term> void exitWithBottom(T t, String rule) {
+        exitWithBottom(t,null,rule);
+    }
+
+    public <T extends Term> void exitWithNonBottom(T t, Obj A, String rule){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("|   "));
+        LOG.debug(tabs+"["+t+"]"+(A!=null?"^{"+A+"}":"")+" != Bot"+" by "+rule);
+        tracker.markExit();
+    }
+
+    public <T extends Term> void exitWithBottom(T t, Obj A, String rule){
+        StringBuilder tabs = new StringBuilder();
+        IntStream.range(0,tracker.depth()).forEach(x->tabs.append("|   "));
+        LOG.debug(tabs+"["+t+"]"+(A!=null?"^{"+A+"}":"")+" = Bot"+" by "+rule);
+        tracker.markExit();
     }
 
     public boolean isEqual(Object a, Object b, Obj A){
@@ -77,9 +81,9 @@ public final class ProofLogger {
         return result;
     }
 
-    public <T> boolean logBottom(T value, boolean holds, Obj A, String rule) {
+    public <T extends Term> boolean exitWithBottom(T value, boolean holds, Obj A, String rule) {
         if (!holds) {
-            logBottom(value, A, rule);
+            exitWithBottom(value, A, rule);
             return false;
         }
         return true;

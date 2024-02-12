@@ -2,23 +2,23 @@ package com.cognitionbox.petra.ast.interp;
 
 public class Mapsto<A,B> {
     private final A from;
-    private final B too;
+    private final B to;
 
-    public Mapsto(A from, B too) {
+    public Mapsto(A from, B to) {
         this.from = from;
-        this.too = too;
+        this.to = to;
     }
 
     public A getFrom() {
         return from;
     }
 
-    public B getToo() {
-        return too;
+    public B getTo() {
+        return to;
     }
 
     @Override
     public String toString() {
-        return from + " \\mapsto " +too;
+        return from + " \\mapsto " + to;
     }
 }

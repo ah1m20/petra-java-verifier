@@ -1,9 +1,7 @@
 package com.cognitionbox.petra.ast.interp;
 
-import com.cognitionbox.petra.ast.interp.Symbolic;
 import com.cognitionbox.petra.ast.terms.Prog;
 import com.google.gson.Gson;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;

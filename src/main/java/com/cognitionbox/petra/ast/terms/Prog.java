@@ -2,7 +2,7 @@ package com.cognitionbox.petra.ast.terms;
 
 import java.util.List;
 
-public class Prog {
+public class Prog extends Term {
     private final boolean reactive;
     private final String m;
     private final String Aepsilon;

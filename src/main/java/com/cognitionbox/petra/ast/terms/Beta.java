@@ -2,7 +2,7 @@ package com.cognitionbox.petra.ast.terms;
 
 
 
-public class Beta {
+public class Beta extends Term {
     private final String fieldId;
     private final String objectId;
 

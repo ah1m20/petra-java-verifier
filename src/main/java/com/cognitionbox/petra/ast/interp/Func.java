@@ -1,14 +1,12 @@
 package com.cognitionbox.petra.ast.interp;
 
-import com.cognitionbox.petra.ast.interp.util.Set;
 
+import java.util.Set;
+import java.util.function.Function;
 
+import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 
-import static com.cognitionbox.petra.ast.interp.util.Collections.filter;
-import static com.cognitionbox.petra.ast.interp.util.Collections.set;
-import static com.cognitionbox.petra.ast.interp.util.Ops.mapsto;
-
-public final class Func<T> {
+public final class Func<T> implements Function<T,T> {
     private final Set<T> domain;
     private final Set<T> range;
     private final Set<Mapsto<T,T>> def;
@@ -38,7 +36,7 @@ public final class Func<T> {
     public T apply(T in){
         for (Mapsto<T,T> mapping : def){
             if (mapping.getFrom().equals(in)){
-                return mapping.getToo();
+                return mapping.getTo();
             }
         }
         throw new IllegalArgumentException("no mapping exists for this input.");
@@ -48,8 +46,8 @@ public final class Func<T> {
         Set<Mapsto<T,T>> comp = set();
         for (Mapsto<T,T> left : f.def()){
             for (Mapsto<T,T> right : this.def()){
-                if (left.getToo().equals(right.getFrom())){
-                    comp.add(mapsto(left.getFrom(),right.getToo()));
+                if (left.getTo().equals(right.getFrom())){
+                    comp.add(mapsto(left.getFrom(),right.getTo()));
                 }
             }
         }
@@ -58,7 +56,7 @@ public final class Func<T> {
 
     public Func<T> restrict(Set<T> dom){
         Set<Mapsto<T,T>> restricted = filter(def(), map->dom.contains(map.getFrom()));
-        Set<T> range = set(restricted, map->map.getToo());
+        Set<T> range = set(restricted, map->map.getTo());
         return new Func<>(dom,range,restricted);
     }
 
