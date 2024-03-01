@@ -35,7 +35,7 @@ public abstract class Verification {
     }
 
     private static String JAVA_FILE_EXT = ".java";
-    private static String ROOT_DIR_PATH = "./";
+    private static String ROOT_DIR_PATH = "./src/main/";
 
     private static final String rootDir = new File(ROOT_DIR_PATH).getPath();
 
@@ -55,7 +55,7 @@ public abstract class Verification {
                             } else {
                                 ObjParser parser = new ObjParser(file.getAbsolutePath(),true);
                                 Obj obj = parser.parse(file.getName().replaceAll("\\.java",""));
-                                if (!obj.isExternal()){
+                                if (obj!=null && !obj.isExternal()){
                                     objs.add(obj);
                                 }
                             }

@@ -40,9 +40,12 @@ public final class ObjParser {
         JavaParser javaParser = new JavaParser();
         ParseResult<CompilationUnit> parseResult = javaParser.parse(src);
         if (parseResult.isSuccessful() &&
-                parseResult.getResult().isPresent() &&
-                        parseResult.getResult().get().getClassByName(className).isPresent()){
-            return parse(parseResult.getResult().get().getClassByName(className).get());
+                parseResult.getResult().isPresent()){
+            if (parseResult.getResult().get().getEnumByName(className).isPresent()){
+                return null;
+            } else if (parseResult.getResult().get().getClassByName(className).isPresent()){
+                return parse(parseResult.getResult().get().getClassByName(className).get());
+            }
         }
         throw new IllegalArgumentException("");
     }
@@ -108,6 +111,22 @@ public final class ObjParser {
         return declaration.isAnnotationPresent(Base.class);
     }
 
+    private boolean isView(ClassOrInterfaceDeclaration declaration){
+        return hasOneField(declaration) && hasSingleOneArgConstructor(declaration);
+    }
+
+    private boolean hasOneField(ClassOrInterfaceDeclaration declaration){
+        return declaration.getFields().size()==1;
+    }
+
+    private boolean hasSingleOneArgConstructor(ClassOrInterfaceDeclaration declaration){
+        final List<ConstructorDeclaration> constructors = declaration.getConstructors();
+        if (constructors.size()==1 && constructors.get(0).getParameters().size()==1){
+            return true;
+        }
+        return false;
+    }
+
     private Obj parsePrimitive(ClassOrInterfaceDeclaration declaration){
         Obj obj = new Obj(declaration.getNameAsString(),ParserUtils.objectType(declaration));
         for (MethodDeclaration m : declaration.getMethods()){
@@ -120,8 +139,15 @@ public final class ObjParser {
                 obj.addPhi(phi);
             } else if (m.getType().isVoidType()){
                 // process delta
-                Delta delta = new Delta(m.getNameAsString(),cparser.parse(m,true));
-                obj.addDelta(delta);
+                List<C> cases = cparser.parse(m, true);
+                if (cases.isEmpty()){
+                    return ParserUtils.invalidObj(m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                } else if (!cases.isEmpty() && forall(cases, c-> ParserUtils.isValid(c))){
+                    Delta delta = new Delta(m.getNameAsString(),cases);
+                    obj.addDelta(delta);
+                } else {
+                    return ParserUtils.invalidObj(m,"expected valid method definition.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                }
             } else {
                 throw new IllegalArgumentException("expected boolean or void method.");
             }

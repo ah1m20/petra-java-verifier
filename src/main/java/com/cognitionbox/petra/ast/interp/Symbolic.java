@@ -40,10 +40,10 @@ public final class Symbolic {
         Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
             !Aepsilon.isPrimitive() &&
-            m_epsilon.isPresent() &&
-            m_epsilon.get().dom().equals(Theta(Aepsilon))
-            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
-            && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
+            m_epsilon.isPresent()
+//           && m_epsilon.get().dom().equals(Theta(Aepsilon))
+//            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+//            && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
         ){
             PROOF_LOGGER.exitWithNonBottom(prog,"ENTRY");
             return m_epsilon;
@@ -61,10 +61,10 @@ public final class Symbolic {
                 //forall(prog.getObjs(), o->interpObj(o).isPresent()) &&
             !Aepsilon.isPrimitive() &&
             interpObj(Aepsilon).isPresent() &&
-            m_epsilon.isPresent() &&
-            m_epsilon.get().dom().equals(Theta(Aepsilon))
-            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
-            && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
+            m_epsilon.isPresent()
+//           && m_epsilon.get().dom().equals(Theta(Aepsilon))
+//            && union(set(list(Aepsilon.getOverlinePhi(), phi->phi.getE()), e->interpE(e,Aepsilon))).equals(Omega(Aepsilon))
+//            && (isReactive?PROOF_LOGGER.hasInitialState(Aepsilon,this):true)
          ){
             PROOF_LOGGER.exitWithNonBottom(prog,"ENTRY");
             return m_epsilon;
@@ -144,8 +144,8 @@ public final class Symbolic {
         if (forall(A.getOverlineBeta(), beta->PROOF_LOGGER.exitWithBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A,"OBJ")) &&
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
                 pairwiseDisjointE(A.getOverlinePhi(), A) &&
-                forall(A.getOverlineDelta(), delta->PROOF_LOGGER.exitWithBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE")) &&
-                (isReactive?PROOF_LOGGER.isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
+                forall(A.getOverlineDelta(), delta->PROOF_LOGGER.exitWithBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE"))
+//                && (isReactive?PROOF_LOGGER.isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
             PROOF_LOGGER.exitWithNonBottom(A,"OBJ");
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));

@@ -18,11 +18,13 @@ public final class Ops {
         return new LinkedHashSet<>(e);
     }
     public static <T> Set<T> set(T... e){
-        return set(Arrays.asList(e));
+        return set(list(e));
     }
 
     public static <T> List<T> list(T... e){
-        return Arrays.asList(e);
+        List<T> list = new ArrayList<>();
+        Arrays.stream(e).forEach(v->list.add(v));
+        return list;
     }
 
     public static <K,V> Map<K,V> map(){
