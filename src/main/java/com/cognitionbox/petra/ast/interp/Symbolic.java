@@ -520,6 +520,7 @@ public final class Symbolic {
             return Optional.of(new Func<>(q.get().dom(), qPrim.get().range(),f.def()));
         } else {
             PROOF_LOGGER.exitWithBottom(binary,A,"SEQ");
+            PROOF_LOGGER.preconditionisNotSubseteqDomain(q.get().range(),qPrim.get().dom(),A);
             return Optional.empty();
         }
     }

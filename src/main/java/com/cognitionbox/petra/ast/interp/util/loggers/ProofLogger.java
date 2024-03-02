@@ -50,6 +50,10 @@ public final class ProofLogger {
         }
     }
 
+    public <T> void preconditionisNotSubseteqDomain(Set<List<String>> a, Set<List<String>> b, Obj A){
+        LOG.info("\n"+" precondition: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to domain:\n\n"+StatesLogging.toString(b));
+    }
+
     public <T> void preconditionisNotSubseteqDomain(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
         LOG.info("\n"+m+" c"+caseId+" precondition: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to domain:\n\n"+StatesLogging.toString(b));
     }

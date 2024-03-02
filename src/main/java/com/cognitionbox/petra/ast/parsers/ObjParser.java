@@ -130,9 +130,6 @@ public final class ObjParser {
     private Obj parsePrimitive(ClassOrInterfaceDeclaration declaration){
         Obj obj = new Obj(declaration.getNameAsString(),ParserUtils.objectType(declaration));
         for (MethodDeclaration m : declaration.getMethods()){
-            if (!m.isPublic()){
-                throw new IllegalArgumentException("expected public method.");
-            }
             if (m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")){
                 // process phi
                 Phi phi = new Phi(m.isAnnotationPresent(Initial.class),m.getNameAsString(),null);
