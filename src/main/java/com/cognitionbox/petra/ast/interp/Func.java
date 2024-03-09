@@ -1,6 +1,8 @@
 package com.cognitionbox.petra.ast.interp;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -9,12 +11,12 @@ import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 public final class Func<T> implements Function<T,T> {
     private final Set<T> domain;
     private final Set<T> range;
-    private final Set<Mapsto<T,T>> def;
+    private Map<T,T> def = new HashMap<>();
 
-    public Func(Set<T> domain, Set<T> range, Set<Mapsto<T,T>> def) {
+    public Func(Set<T> domain, Set<T> range, Set<Map.Entry<T,T>> mappings) {
         this.domain = domain;
         this.range = range;
-        this.def = def;
+        mappings.stream().forEach(m->def.put(m.getKey(),m.getValue()));
     }
 
     public String name() {
@@ -29,34 +31,31 @@ public final class Func<T> implements Function<T,T> {
         return range;
     }
 
-    public Set<Mapsto<T,T>> def() {
-        return def;
+    public Set<Map.Entry<T,T>> def() {
+        return def.entrySet();
     }
 
     public T apply(T in){
-        for (Mapsto<T,T> mapping : def){
-            if (mapping.getFrom().equals(in)){
-                return mapping.getTo();
-            }
+        if (def.containsKey(in)){
+            return def.get(in);
+        } else {
+            throw new IllegalArgumentException("no mapping exists for this input.");
         }
-        throw new IllegalArgumentException("no mapping exists for this input.");
     }
 
     public Func<T> compose(Func<T> f){
-        Set<Mapsto<T,T>> comp = set();
-        for (Mapsto<T,T> left : f.def()){
-            for (Mapsto<T,T> right : this.def()){
-                if (left.getTo().equals(right.getFrom())){
-                    comp.add(mapsto(left.getFrom(),right.getTo()));
-                }
-            }
+        Map<T,T> comp = new HashMap<>();
+        for (T k : f.def.keySet()){
+            T v = f.def.get(k);
+            T r = this.def.get(v);
+            comp.put(k,r);
         }
-        return new Func<>(f.dom(),this.range(),comp);
+        return new Func<>(f.dom(),this.range(),comp.entrySet());
     }
 
     public Func<T> restrict(Set<T> dom){
-        Set<Mapsto<T,T>> restricted = filter(def(), map->dom.contains(map.getFrom()));
-        Set<T> range = set(restricted, map->map.getTo());
+        Set<Map.Entry<T,T>> restricted = filter(def(), map->dom.contains(map.getKey()));
+        Set<T> range = set(restricted, map->map.getValue());
         return new Func<>(dom,range,restricted);
     }
 

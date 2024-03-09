@@ -82,7 +82,9 @@ public final class Symbolic {
         }
     }
 
+    //private Map<Obj,Set<String>> thetaCache = new HashMap<>();
     Set<String> Theta(Obj A){
+        //return thetaCache.computeIfAbsent(A,k->set(set(A.getOverlinePhi()), (e->e.getP())));
         return set(set(A.getOverlinePhi()), (e->e.getP()));
     }
 
@@ -134,24 +136,29 @@ public final class Symbolic {
         return objectTable.lookup(beta.getObjectId());
     }
 
+    //private final Map<Obj,Set<List<String>>> omegaCache = new HashMap<>();
     Set<List<String>> Omega(Obj A){
         List<Set<String>> Thetas = list(A.getOverlineBeta(), beta->Theta(lookupObj(beta)) );
+        //return omegaCache.computeIfAbsent(A,k->product(Thetas));
         return product(Thetas);
     }
 
+    //private final Map<Obj,Optional<IObj>> objCache = new HashMap<>();
     Optional<IObj> interpNonPrimitiveObj(Obj A){
         PROOF_LOGGER.enter();
         if (forall(A.getOverlineBeta(), beta->PROOF_LOGGER.exitWithBottom(beta,interpObj(lookupObj(beta.getObjectId())).isPresent(),A,"OBJ")) &&
                 forall(A.getOverlinePhi(), phi->isNotEmpty(phi.getP(),phi.getE(),A)) &&
-                pairwiseDisjointE(A.getOverlinePhi(), A) &&
+                pairwiseDisjointE(list(A.getOverlinePhi(),phi->phi.getP()),list(A.getOverlinePhi(),phi->interpE(phi.getE(),A)), A) &&
                 forall(A.getOverlineDelta(), delta->PROOF_LOGGER.exitWithBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE"))
 //                && (isReactive?PROOF_LOGGER.isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
             PROOF_LOGGER.exitWithNonBottom(A,"OBJ");
+            //return objCache.computeIfAbsent(A,k->Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A))));
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             //logObjectPrivateStateSpace(Omega(A),A);
             PROOF_LOGGER.exitWithBottom(A,"OBJ");
+            //return objCache.computeIfAbsent(A,k->Optional.empty());
             return Optional.empty();
         }
     }
@@ -197,28 +204,43 @@ public final class Symbolic {
         return record;
     }
 
+    //private final Map<List<C>,Optional<Func<String>>> ovelineCCache = new HashMap<>();
     Optional<Func<String>> interpOverlineC(String m, List<C> ovelineC, Obj A){
         PROOF_LOGGER.enter();
         List<Optional<Func<String>>> interpOvelineC = list(ovelineC, c->interpC(m,c,A));
         if (forall(interpOvelineC,ic->ic.isPresent()) && pairwiseDisjointDomC(m,interpOvelineC,A)){
             PROOF_LOGGER.exitWithNonBottom(lookupDelta(m,A),A,"CASES");
+            //return ovelineCCache.computeIfAbsent(ovelineC,k->Optional.of(functionUnion(list(interpOvelineC, ic-> ic.get()))));
             return Optional.of(functionUnion(list(interpOvelineC, ic-> ic.get())));
         } else {
             PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
+            //return ovelineCCache.computeIfAbsent(ovelineC,k->Optional.empty());
             return Optional.empty();
         }
     }
 
-    boolean pairwiseDisjointE(List<Phi> phis, Obj A) {
-        for (Phi i : phis){
-            for (Phi j : phis){
+//    boolean pairwiseDisjointE(List<String> theta, List<Set<List<String>>> interpEs, Obj A) {
+//        Set<List<String>> set = new HashSet<>();
+//        int expectedTotalSizeOfSets = 0;
+//        for (int i=0;i<theta.size();i++){
+//            Set<List<String>> interpE = interpEs.get(i);
+//            set.addAll(interpE);
+//            expectedTotalSizeOfSets += interpE.size();
+//            if (expectedTotalSizeOfSets!=set.size()){
+//                return false; // if errors we can then explain them using the direct pairwise comparison
+//            }
+//        }
+//        return true;
+//    }
+
+    boolean pairwiseDisjointE(List<String> theta, List<Set<List<String>>> interpEs, Obj A) {
+        for (int i=0;i<theta.size();i++){
+            for (int j=0;j<theta.size();j++){
                 if (i!=j){
-                    Set<List<String>> a = interpE(i.getE(),A);
-                    Set<List<String>> b = interpE(j.getE(),A);
-                    if (intersect(a,b).size()!=0){
+                    if (intersect(interpEs.get(i),interpEs.get(j)).size()!=0){
                         //logPrivateStateSpace(i.getP(),a,A);
                         //logPrivateStateSpace(j.getP(),b,A);
-                        PROOF_LOGGER.logPredicatesOverlap(i.getP(),a,j.getP(),b,A);
+                        PROOF_LOGGER.logPredicatesOverlap(theta.get(i),interpEs.get(i),theta.get(j),interpEs.get(j),A);
                         return false;
                     }
                 }
@@ -246,6 +268,20 @@ public final class Symbolic {
         return true;
     }
 
+//    boolean pairwiseDisjointDomC(String m, List<Optional<Func<String>>> ovelineC, Obj A) {
+//        Set<String> set = new HashSet<>();
+//        int expectedTotalSizeOfSets = 0;
+//        for (int i=0;i<ovelineC.size();i++){
+//            Set<String> dom = ovelineC.get(i).get().dom();
+//            set.addAll(dom);
+//            expectedTotalSizeOfSets += dom.size();
+//            if (expectedTotalSizeOfSets!=set.size()){
+//                return false; // if errors we can then explain them using the direct pairwise comparison
+//            }
+//        }
+//        return true;
+//    }
+
 
     public Optional<Func<String>> interpC(String m, C c, Obj A){
         if (A.isPrimitive() || c.getS() instanceof Skip){
@@ -263,7 +299,13 @@ public final class Symbolic {
                 condition2(m,c,A,s)){
             PROOF_LOGGER.exitWithNonBottom(c,A,"CASE");
             //logEndProofTree();
-            return Optional.of(f(c,A,s));
+            Func<String> f = f(c,A,s);
+            if (!f.def().isEmpty()){
+                return Optional.of(f);
+            } else {
+                PROOF_LOGGER.exitWithBottom(c,A,"CASE");
+                return Optional.empty();
+            }
         } else {
             PROOF_LOGGER.exitWithBottom(c,A,"CASE");
             //logEndProofTree();
@@ -274,7 +316,7 @@ public final class Symbolic {
     Func<String> f(C c, Obj A, Optional<Func<List<String>>> s){
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
-        Set<Mapsto<String,String>> def = set();
+        Set<Map.Entry<String,String>> def = set();
         for (String p : P){
             for (String p_ : Q){
                 Set<List<String>> e_p = interpE(lookupE(p,A),A);
@@ -292,7 +334,7 @@ public final class Symbolic {
     Func<String> f(C c, Obj A){
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
-        Set<Mapsto<String,String>> def = set();
+        Set<Map.Entry<String,String>> def = set();
         for (String p : P){
             for (String p_ : Q){
                 Set<List<String>> e_p = interpE(lookupE(p,A),A);
@@ -317,7 +359,7 @@ public final class Symbolic {
             PROOF_LOGGER.exitWithBottom(c,A,"BASECASE");
             return Optional.empty();
         }
-        Set<Mapsto<String,String>> def = set();
+        Set<Map.Entry<String,String>> def = set();
         for (String p : pre){
             for (String q : post){
                 def.add(mapsto(p,q));
@@ -355,6 +397,7 @@ public final class Symbolic {
         return id(Omega(A));
     }
 
+    //private final Map<Am,Optional<Func<List<String>>>> amCache = new HashMap<>();
     Optional<Func<List<String>>> interpAm(Am am, Obj A){
         PROOF_LOGGER.enter();
         Obj A_ = lookupObj(am.getA(),A);
@@ -372,13 +415,16 @@ public final class Symbolic {
                 }
             }
             PROOF_LOGGER.exitWithNonBottom(am,A,"CALL");
+            //return amCache.computeIfAbsent(am,k->Optional.of(functionProduct(funcs)));
             return Optional.of(functionProduct(funcs));
         } else {
             PROOF_LOGGER.exitWithBottom(am,A,"CALL");
+            //return amCache.computeIfAbsent(am,k->Optional.empty());
             return Optional.empty();
         }
     }
 
+    //private final Map<Ap,Set<List<String>>> apCache = new HashMap<>();
     Set<List<String>> interpAp(Ap ap, Obj A){
         List<Set<String>> listOfStates = new ArrayList<>();
         for (int i=0;i<A.getOverlineBeta().size();i++){
@@ -391,13 +437,17 @@ public final class Symbolic {
                 listOfStates.add(Theta(A_i));
             }
         }
+        //return apCache.computeIfAbsent(ap,k->product(listOfStates));
         return product(listOfStates);
     }
+
+    //private final Map<EUnary,Set<List<String>>> eCache = new HashMap<>();
     Set<List<String>> interpE(EUnary unary, Obj A){
         if (unary.getOperator()==UnaryOperator.NOT){
             Set<List<String>> toRemove = interpE(unary.getInner(),A);
             Set<List<String>> result = Omega(A);
             result.removeAll(toRemove);
+            //return eCache.computeIfAbsent(unary,k->result);
             return result;
         } else if (unary.getOperator()==UnaryOperator.PAREN){
             return interpE(unary.getInner(),A);

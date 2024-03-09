@@ -78,7 +78,7 @@ public abstract class Verification {
         Prog prog = parseSrcFiles(root);
         if (forall(prog.getObjs(), o->o.isValid())){
             List<VerificationTask> tasks = new ArrayList<>();
-            tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> new Symbolic(prog).interpProgQuick(prog).isPresent()));
+            //tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> new Symbolic(prog).interpProgQuick(prog).isPresent()));
             for (Obj o : prog.getObjs()) {
                 if (o instanceof Obj) {
                     tasks.add(new ControlledEnglishTask(o.getA(), () -> {LOG.info(format(PetraControlledEnglish.translate(o),14)); return true;} ));
