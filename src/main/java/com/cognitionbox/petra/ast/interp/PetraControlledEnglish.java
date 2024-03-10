@@ -10,6 +10,8 @@ import com.cognitionbox.petra.ast.terms.expressions.d.DBinary;
 import com.cognitionbox.petra.ast.terms.expressions.d.P;
 import com.cognitionbox.petra.ast.terms.expressions.e.*;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
+import com.cognitionbox.petra.ast.terms.statements.c.CUnary;
+import com.cognitionbox.petra.ast.terms.statements.c.CBinary;
 import com.cognitionbox.petra.ast.terms.statements.s.*;
 import com.google.common.base.CaseFormat;
 
@@ -38,10 +40,7 @@ public final class PetraControlledEnglish {
         StringBuilder deltas = new StringBuilder();
         for (Delta delta : obj.getOverlineDelta()){
             StringBuilder cases = new StringBuilder();
-            cases.append(translate(delta.getOverlineC().get(0)));
-            for (int i=1; i<delta.getOverlineC().size(); i++){
-                cases.append(", or "+translate(delta.getOverlineC().get(i)));
-            }
+            cases.append(translate(delta.getOverlineC()));
             deltas.append("an action "+convert(delta.getM())+" where "+cases+", ");
         }
 
@@ -110,6 +109,14 @@ public final class PetraControlledEnglish {
     }
 
     private static String translate(C c){
+        if (c instanceof CUnary){
+            return translate((CUnary)c);
+        } else if (c instanceof CBinary){
+            return ((CBinary)c).getLeft()+", or "+translate(((CBinary) c).getRight());
+        }
+        throw new IllegalArgumentException();
+    }
+    private static String translate(CUnary c){
         return "given "+translate(c.getPre())+", when "+translate(c.getS())+" completes, then "+translate(c.getPost());
     }
 

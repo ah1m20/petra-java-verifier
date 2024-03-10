@@ -15,7 +15,10 @@ import com.cognitionbox.petra.ast.terms.expressions.d.DBinary;
 import com.cognitionbox.petra.ast.terms.expressions.d.P;
 import com.cognitionbox.petra.ast.terms.expressions.e.*;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
+import com.cognitionbox.petra.ast.terms.statements.c.CUnary;
+import com.cognitionbox.petra.ast.terms.statements.c.CBinary;
 import com.cognitionbox.petra.ast.terms.statements.s.*;
+import com.google.common.collect.Sets;
 
 import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 
@@ -123,7 +126,7 @@ public final class Symbolic {
         }
     }
 
-    List<C> lookupM(String m, Obj A){
+    C lookupM(String m, Obj A){
         Optional<Delta> delta = find(A.getOverlineDelta(), x -> x.getM().equals(m));
         if (delta.isPresent()){
             return delta.get().getOverlineC();
@@ -204,19 +207,22 @@ public final class Symbolic {
         return record;
     }
 
-    //private final Map<List<C>,Optional<Func<String>>> ovelineCCache = new HashMap<>();
-    Optional<Func<String>> interpOverlineC(String m, List<C> ovelineC, Obj A){
+    Optional<Func<String>> interpOverlineC(String m, C ovelineC, Obj A){
         PROOF_LOGGER.enter();
-        List<Optional<Func<String>>> interpOvelineC = list(ovelineC, c->interpC(m,c,A));
-        if (forall(interpOvelineC,ic->ic.isPresent()) && pairwiseDisjointDomC(m,interpOvelineC,A)){
-            PROOF_LOGGER.exitWithNonBottom(lookupDelta(m,A),A,"CASES");
-            //return ovelineCCache.computeIfAbsent(ovelineC,k->Optional.of(functionUnion(list(interpOvelineC, ic-> ic.get()))));
-            return Optional.of(functionUnion(list(interpOvelineC, ic-> ic.get())));
-        } else {
-            PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
-            //return ovelineCCache.computeIfAbsent(ovelineC,k->Optional.empty());
-            return Optional.empty();
+        if (ovelineC instanceof CBinary){
+            Optional<Func<String>> left = interpOverlineC(m,((CBinary) ovelineC).getLeft(),A);
+            Optional<Func<String>> right = interpOverlineC(m,((CBinary) ovelineC).getRight(),A);
+            if (left.isPresent() && right.isPresent()){
+                PROOF_LOGGER.exitWithNonBottom(lookupDelta(m,A),A,"CASES");
+                return Optional.of(functionUnion(left.get(),right.get()));
+            } else {
+                PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
+                return Optional.empty();
+            }
+        } else if (ovelineC instanceof CUnary){
+            return interpC(m, (CUnary) ovelineC,A);
         }
+        throw new IllegalArgumentException();
     }
 
 //    boolean pairwiseDisjointE(List<String> theta, List<Set<List<String>>> interpEs, Obj A) {
@@ -283,7 +289,7 @@ public final class Symbolic {
 //    }
 
 
-    public Optional<Func<String>> interpC(String m, C c, Obj A){
+    public Optional<Func<String>> interpC(String m, CUnary c, Obj A){
         if (A.isPrimitive() || c.getS() instanceof Skip){
             return interpPrimitiveC(c,A);
         } else {
@@ -291,7 +297,7 @@ public final class Symbolic {
         }
     }
 
-    Optional<Func<String>> interpNonPrimitiveC(String m, C c, Obj A){
+    Optional<Func<String>> interpNonPrimitiveC(String m, CUnary c, Obj A){
         //logStartProofTree();
         PROOF_LOGGER.enter();
         Optional<Func<List<String>>> s = interpS(c.getS(),A);
@@ -313,7 +319,7 @@ public final class Symbolic {
         }
     }
 
-    Func<String> f(C c, Obj A, Optional<Func<List<String>>> s){
+    Func<String> f(CUnary c, Obj A, Optional<Func<List<String>>> s){
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
         Set<Map.Entry<String,String>> def = set();
@@ -324,6 +330,7 @@ public final class Symbolic {
                 if (s.isPresent()){
                     if (subseteq(s.get().image(e_p), e_p_)){
                         def.add(mapsto(p,p_));
+                        break;
                     }
                 }
             }
@@ -331,7 +338,7 @@ public final class Symbolic {
         return new Func<>(P,Q,def);
     }
 
-    Func<String> f(C c, Obj A){
+    Func<String> f(CUnary c, Obj A){
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
         Set<Map.Entry<String,String>> def = set();
@@ -350,7 +357,7 @@ public final class Symbolic {
         return new Func<>(P,Q,def);
     }
 
-    Optional<Func<String>> interpPrimitiveC(C c, Obj A){
+    Optional<Func<String>> interpPrimitiveC(CUnary c, Obj A){
         PROOF_LOGGER.enter();
         Set<String> pre = interpPrePost(c.getPre(),A);
         Set<String> post = interpPrePost(c.getPost(),A);
@@ -373,7 +380,7 @@ public final class Symbolic {
         return s.isPresent();
     }
     // TODO
-    boolean condition2(String m, C c, Obj A, Optional<Func<List<String>>> s) {
+    boolean condition2(String m, CUnary c, Obj A, Optional<Func<List<String>>> s) {
         Func<List<String>> interpS = s.get();
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
@@ -444,11 +451,8 @@ public final class Symbolic {
     //private final Map<EUnary,Set<List<String>>> eCache = new HashMap<>();
     Set<List<String>> interpE(EUnary unary, Obj A){
         if (unary.getOperator()==UnaryOperator.NOT){
-            Set<List<String>> toRemove = interpE(unary.getInner(),A);
-            Set<List<String>> result = Omega(A);
-            result.removeAll(toRemove);
-            //return eCache.computeIfAbsent(unary,k->result);
-            return result;
+            return Sets.difference(Omega(A),interpE(unary.getInner(),A));
+            //return eCache.computeIfAbsent(unary,k->Sets.difference(Omega(A),interpE(unary.getInner(),A)));
         } else if (unary.getOperator()==UnaryOperator.PAREN){
             return interpE(unary.getInner(),A);
         }
@@ -524,9 +528,7 @@ public final class Symbolic {
                 //pairwiseDisjointE(o.getOverlinePhi(),o);
                 for (Delta d : o.getOverlineDelta()){
                     System.out.println("\t"+d.getM()+":");
-                    for (C c : d.getOverlineC()){
-                        System.out.println("\t\tcase: "+interpC(d.getM(),c,o));
-                    }
+                    System.out.println("\t\tcase: "+interpOverlineC(d.getM(),d.getOverlineC(),o));
                     //pairwiseDisjointDomC(d.getOverlineC(),o);
                 }
             }

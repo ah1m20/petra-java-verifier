@@ -60,6 +60,8 @@ public final class ProofLogger {
 
     public <T> void imageIsNotSubseteqPostcondition(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
         LOG.info("\n"+m+" c"+caseId+" image: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to postcondition:\n\n"+StatesLogging.toString(b));
+        //Set<String> result a.removeAll(b);
+        //LOG.info("\n"+m+" c"+caseId+" image: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to postcondition:\n\n"+StatesLogging.toString(b));
     }
 
     public void logObjectPrivateStateSpace(Set<List<String>> set, Obj A){

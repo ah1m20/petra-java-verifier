@@ -8,6 +8,8 @@ import com.cognitionbox.petra.ast.terms.Obj;
 import com.cognitionbox.petra.ast.terms.Prog;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
 import com.cognitionbox.petra.ast.interp.junit.tasks.*;
+import com.cognitionbox.petra.ast.terms.statements.c.CBinary;
+import com.cognitionbox.petra.ast.terms.statements.c.CUnary;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -73,6 +75,15 @@ public abstract class Verification {
         }
     }
 
+    private static void addKaseTasks(Prog prog, int i, String m, C c, Obj o, List<VerificationTask> tasks){
+        if (c instanceof CUnary){
+            tasks.add(new ProveKaseTask(i, m, o.getA(), () -> new Symbolic(prog).interpC(m, (CUnary) c, o).isPresent()));
+        } else if (c instanceof CBinary){
+            tasks.add(new ProveKaseTask(i, m, o.getA(), () -> new Symbolic(prog).interpC(m, (CUnary) ((CBinary) c).getLeft(), o).isPresent()));
+            addKaseTasks(prog, i, m, ((CBinary) c).getRight(), o, tasks);
+        }
+    }
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection verify(Class<?> root) {
         Prog prog = parseSrcFiles(root);
@@ -84,10 +95,7 @@ public abstract class Verification {
                     tasks.add(new ControlledEnglishTask(o.getA(), () -> {LOG.info(format(PetraControlledEnglish.translate(o),14)); return true;} ));
                     tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> new Symbolic(prog).interpObj(o).isPresent()));
                     for (Delta d : o.getOverlineDelta()) {
-                        for (int i = 0; i < d.getOverlineC().size(); i++) {
-                            C c = d.getOverlineC().get(i);
-                            tasks.add(new ProveKaseTask(i, d.getM(), o.getA(), () -> new Symbolic(prog).interpC(d.getM(),c, o).isPresent()));
-                        }
+                        addKaseTasks(prog,0,d.getM(),d.getOverlineC(),o,tasks);
                         tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> {
                             Symbolic symbolic = new Symbolic(prog);
                             return symbolic.interpOverlineC(d.getM(),symbolic.lookupM(d.getM(),o),o).isPresent();

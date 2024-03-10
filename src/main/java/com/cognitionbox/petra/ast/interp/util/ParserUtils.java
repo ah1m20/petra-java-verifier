@@ -1,15 +1,13 @@
 package com.cognitionbox.petra.ast.interp.util;
 
 import com.cognitionbox.petra.ast.terms.*;
-import com.cognitionbox.petra.ast.terms.*;
 import com.cognitionbox.petra.ast.terms.expressions.e.E;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
+import com.cognitionbox.petra.ast.terms.statements.c.CUnary;
 import com.cognitionbox.petra.ast.terms.statements.s.Am;
 import com.cognitionbox.petra.ast.terms.statements.s.Z;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-
-import java.util.List;
 
 public final class ParserUtils {
 
@@ -36,7 +34,7 @@ public final class ParserUtils {
         return new E(false,getLineNumber(node),errorMessage);
     }
 
-    public static Delta invalidDelta(Node node, String errorMessage, String methodLabel, List<C> overlineC){
+    public static Delta invalidDelta(Node node, String errorMessage, String methodLabel, C overlineC){
         return new Delta(false,getLineNumber(node),errorMessage,methodLabel,overlineC);
     }
 
@@ -45,7 +43,7 @@ public final class ParserUtils {
     }
 
     public static C invalidC(int id, Node node, String errorMessage){
-        return new C(id, false,getLineNumber(node),errorMessage);
+        return new CUnary(id, false,getLineNumber(node),errorMessage);
     }
 
     public static Am invalidAm(Node node, String errorMessage){

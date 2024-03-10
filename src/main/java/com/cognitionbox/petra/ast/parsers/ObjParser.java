@@ -91,10 +91,10 @@ public final class ObjParser {
                 }
             } else if (m.getType().isVoidType()){
                 // process delta
-                List<C> cases = cparser.parse(m, ParserUtils.isBaseObject(declaration));
-                if (cases.isEmpty()){
+                C cases = cparser.parse(m, ParserUtils.isBaseObject(declaration));
+                if (cases==null){
                     return ParserUtils.invalidObj(m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
-                } else if (!cases.isEmpty() && forall(cases, c-> ParserUtils.isValid(c))){
+                } else if (cases!=null){// && forall(cases, c-> ParserUtils.isValid(c))){
                     Delta delta = new Delta(m.getNameAsString(),cases);
                     obj.addDelta(delta);
                 } else {
@@ -136,10 +136,10 @@ public final class ObjParser {
                 obj.addPhi(phi);
             } else if (m.getType().isVoidType()){
                 // process delta
-                List<C> cases = cparser.parse(m, true);
-                if (cases.isEmpty()){
+                C cases = cparser.parse(m, true);
+                if (cases==null){
                     return ParserUtils.invalidObj(m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
-                } else if (!cases.isEmpty() && forall(cases, c-> ParserUtils.isValid(c))){
+                } else if (cases!=null){// && forall(cases, c-> ParserUtils.isValid(c))){
                     Delta delta = new Delta(m.getNameAsString(),cases);
                     obj.addDelta(delta);
                 } else {

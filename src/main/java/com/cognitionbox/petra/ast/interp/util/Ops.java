@@ -112,6 +112,10 @@ public final class Ops {
         };
     }
 
+    public static <T> Func<T> functionUnion(Func<T> a, Func<T> b){
+        return new Func<T>(union(a.dom(),b.dom()), union(a.range(),b.range()), union(a.def(),b.def()));
+    }
+
     public static <T> Func<T> functionUnion(List<Func<T>> funcs){
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());

@@ -8,14 +8,14 @@ import java.util.List;
 public final class Delta extends Term {
 
     private final String m;
-    private final List<C> overlineC;
+    private final C overlineC;
 
-    public Delta(String methodLabel, List<C> overlineC) {
+    public Delta(String methodLabel, C overlineC) {
         this.m = methodLabel;
         this.overlineC = overlineC;
     }
 
-    public Delta(boolean valid, int lineError, String errorMessage, String methodLabel, List<C> overlineC) {
+    public Delta(boolean valid, int lineError, String errorMessage, String methodLabel, C overlineC) {
         super(valid, lineError, errorMessage);
         this.m = methodLabel;
         this.overlineC = overlineC;
@@ -25,17 +25,17 @@ public final class Delta extends Term {
         return m;
     }
 
-    public List<C> getOverlineC() {
+    public C getOverlineC() {
         return overlineC;
     }
 
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("c0");
-        for (int i=1;i<overlineC.size();i++){
-            sb.append("+c"+i);
-        }
-        return sb.toString();
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("c0");
+//        for (int i=1;i<overlineC.size();i++){
+//            sb.append("+c"+i);
+//        }
+        return overlineC.toString();
     }
 }
