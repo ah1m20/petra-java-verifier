@@ -50,19 +50,19 @@ public final class ProofLogger {
         }
     }
 
-    public <T> void preconditionisNotSubseteqDomain(Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info("\n"+" precondition: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to domain:\n\n"+StatesLogging.toString(b));
-    }
-
-    public <T> void preconditionisNotSubseteqDomain(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info("\n"+m+" c"+caseId+" precondition: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to domain:\n\n"+StatesLogging.toString(b));
-    }
-
-    public <T> void imageIsNotSubseteqPostcondition(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
-        LOG.info("\n"+m+" c"+caseId+" image: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to postcondition:\n\n"+StatesLogging.toString(b));
-        //Set<String> result a.removeAll(b);
-        //LOG.info("\n"+m+" c"+caseId+" image: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to postcondition:\n\n"+StatesLogging.toString(b));
-    }
+//    public <T> void preconditionisNotSubseteqDomain(Set<List<String>> a, Set<List<String>> b, Obj A){
+//        LOG.info("\n"+" precondition: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to domain:\n\n"+StatesLogging.toString(b));
+//    }
+//
+//    public <T> void preconditionisNotSubseteqDomain(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
+//        LOG.info("\n"+m+" c"+caseId+" precondition: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to domain:\n\n"+StatesLogging.toString(b));
+//    }
+//
+//    public <T> void imageIsNotSubseteqPostcondition(String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
+//        LOG.info("\n"+m+" c"+caseId+" image: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to postcondition:\n\n"+StatesLogging.toString(b));
+//        //Set<String> result a.removeAll(b);
+//        //LOG.info("\n"+m+" c"+caseId+" image: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to postcondition:\n\n"+StatesLogging.toString(b));
+//    }
 
     public void logObjectPrivateStateSpace(Set<List<String>> set, Obj A){
         LOG.info("\n[Omega^{"+A.getA()+"}]^{"+A.getA()+"} = "+(!set.isEmpty()?StatesLogging.toString(set):"\\emptyset"));
@@ -72,13 +72,13 @@ public final class ProofLogger {
         LOG.info("\n["+label+"]^{"+A.getA()+"} = "+(!set.isEmpty()?StatesLogging.toString(set):"\\emptyset"));
     }
 
-    public void logCasesDomainOverlap(int i, Set<String> a, int j, Set<String> b, Obj A){
-        LOG.info("\n[c_"+i+"]^{"+A.getA()+"} = \n"+StatesLogging.toString(a)+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = \n"+StatesLogging.toString(b)+"\n\n on states \n\n"+StatesLogging.toString(intersect(a,b)));
-    }
-
-    public void logPredicatesOverlap(String p_i, Set<List<String>> a, String p_j, Set<List<String>> b, Obj A){
-        LOG.info("\n["+p_i+"]^{"+A.getA()+"} = \n"+StatesLogging.toString(a)+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = \n"+StatesLogging.toString(b)+"\n\n on states \n\n"+StatesLogging.toString(intersect(a,b)));
-    }
+//    public void logCasesDomainOverlap(int i, Set<String> a, int j, Set<String> b, Obj A){
+//        LOG.info("\n[c_"+i+"]^{"+A.getA()+"} = \n"+"\n\n overlaps with \n\n"+"[c_"+j+"]^{"+A.getA()+"} = \n"+"\n\n on states \n\n"+StatesLogging.toString(intersect(a,b)));
+//    }
+//
+//    public void logPredicatesOverlap(String p_i, Set<List<String>> a, String p_j, Set<List<String>> b, Obj A){
+//        LOG.info("\n["+p_i+"]^{"+A.getA()+"} = \n"+"\n\n overlaps with \n\n"+"["+p_j+"]^{"+A.getA()+"} = \n"+"\n\n on states \n\n"+StatesLogging.toString(intersect(a,b)));
+//    }
 
     public boolean hasInitialState(Obj A, Symbolic symbolic){
         boolean result = existsOne(A.getOverlinePhi(),phi->symbolic.isInitialState(phi,A));

@@ -41,7 +41,7 @@ public final class CParser {
                         return ParserUtils.invalidC(id,ifStmt,"not valid if statement.");
                     }
                 } else if (ifStmt.getElseStmt().isPresent() && ifStmt.getElseStmt().get().isIfStmt()){
-                    return new CBinary(cbase,parse(id+1,ifStmt.getElseStmt().get().asIfStmt(),isPrimitive));
+                    return new CBinary(id,cbase,parse(id+1,ifStmt.getElseStmt().get().asIfStmt(),isPrimitive));
                 }
             }
         }

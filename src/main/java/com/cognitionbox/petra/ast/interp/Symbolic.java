@@ -3,6 +3,7 @@ package com.cognitionbox.petra.ast.interp;
 import java.util.*;
 import java.util.function.Predicate;
 
+import com.cognitionbox.petra.ast.interp.util.loggers.ExplanationLogger;
 import com.cognitionbox.petra.ast.interp.util.loggers.ProofLogger;
 import com.cognitionbox.petra.ast.terms.Obj;
 import com.cognitionbox.petra.ast.terms.Prog;
@@ -24,6 +25,7 @@ import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 
 public final class Symbolic {
     final private ProofLogger PROOF_LOGGER = new ProofLogger();
+    final private ExplanationLogger EXP_LOGGER = new ExplanationLogger();
     final ObjectTable objectTable = new ObjectTable();
     final boolean isReactive;
     Symbolic(Prog prog){
@@ -213,8 +215,14 @@ public final class Symbolic {
             Optional<Func<String>> left = interpOverlineC(m,((CBinary) ovelineC).getLeft(),A);
             Optional<Func<String>> right = interpOverlineC(m,((CBinary) ovelineC).getRight(),A);
             if (left.isPresent() && right.isPresent()){
-                PROOF_LOGGER.exitWithNonBottom(lookupDelta(m,A),A,"CASES");
-                return Optional.of(functionUnion(left.get(),right.get()));
+                if (intersect(left.get().dom(),right.get().dom()).isEmpty()){
+                    PROOF_LOGGER.exitWithNonBottom(lookupDelta(m,A),A,"CASES");
+                    return Optional.of(functionUnion(left.get(),right.get()));
+                } else {
+                    PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
+                    EXP_LOGGER.logCasesDomainOverlap(A.getFullyQualifiedClassName(),"CASES",m,((CBinary) ovelineC).getLeft().getId(),left.get().dom(),((CBinary) ovelineC).getRight().getId(),right.get().dom(),A);
+                    return Optional.empty();
+                }
             } else {
                 PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
                 return Optional.empty();
@@ -246,7 +254,7 @@ public final class Symbolic {
                     if (intersect(interpEs.get(i),interpEs.get(j)).size()!=0){
                         //logPrivateStateSpace(i.getP(),a,A);
                         //logPrivateStateSpace(j.getP(),b,A);
-                        PROOF_LOGGER.logPredicatesOverlap(theta.get(i),interpEs.get(i),theta.get(j),interpEs.get(j),A);
+                        EXP_LOGGER.logPredicatesOverlap(A.getFullyQualifiedClassName(),"OBJ",theta.get(i),interpEs.get(i),theta.get(j),interpEs.get(j),A);
                         return false;
                     }
                 }
@@ -265,7 +273,7 @@ public final class Symbolic {
                         return false;
                     }
                     if (intersect(a.get().dom(),b.get().dom()).size()!=0){
-                        PROOF_LOGGER.logCasesDomainOverlap(i,a.get().dom(),j,b.get().dom(),A);
+                        EXP_LOGGER.logCasesDomainOverlap(A.getFullyQualifiedClassName(),"CASES",m,i,a.get().dom(),j,b.get().dom(),A);
                         return false;
                     }
                 }
@@ -324,18 +332,22 @@ public final class Symbolic {
         Set<String> Q = interpPrePost(c.getPost(),A);
         Set<Map.Entry<String,String>> def = set();
         for (String p : P){
+            int matches = 0;
             for (String p_ : Q){
                 Set<List<String>> e_p = interpE(lookupE(p,A),A);
                 Set<List<String>> e_p_ = interpE(lookupE(p_,A),A);
                 if (s.isPresent()){
                     if (subseteq(s.get().image(e_p), e_p_)){
                         def.add(mapsto(p,p_));
-                        break;
+                        matches++;
                     }
                 }
             }
+            if (matches>1){
+                return func(P,Q,set());
+            }
         }
-        return new Func<>(P,Q,def);
+        return func(P,Q,def);
     }
 
     Func<String> f(CUnary c, Obj A){
@@ -389,12 +401,12 @@ public final class Symbolic {
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
         if (!(subseteq(in,interpS.dom()) )){
-            PROOF_LOGGER.preconditionisNotSubseteqDomain(m,c.getId(),in,interpS.dom(),A);
+            EXP_LOGGER.preconditionisNotSubseteqDomain(A.getFullyQualifiedClassName(),"CASE",m,c.getId(),in,interpS.dom(),A);
             return false;
         }
         Set<List<String>> image = interpS.image(in);
         if (!subseteq(image, out)){
-            PROOF_LOGGER.imageIsNotSubseteqPostcondition(m,c.getId(),image,out,A);
+            EXP_LOGGER.imageIsNotSubseteqPostcondition(A.getFullyQualifiedClassName(),"CASE",m,c.getId(),image,out,A);
             return false;
         }
         return true;
@@ -572,7 +584,7 @@ public final class Symbolic {
             return Optional.of(new Func<>(q.get().dom(), qPrim.get().range(),f.def()));
         } else {
             PROOF_LOGGER.exitWithBottom(binary,A,"SEQ");
-            PROOF_LOGGER.preconditionisNotSubseteqDomain(q.get().range(),qPrim.get().dom(),A);
+            EXP_LOGGER.preconditionisNotSubseteqDomain(A.getFullyQualifiedClassName(),"SEQ","",0,q.get().range(),qPrim.get().dom(),A);
             return Optional.empty();
         }
     }

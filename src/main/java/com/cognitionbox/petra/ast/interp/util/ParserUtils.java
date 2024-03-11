@@ -26,8 +26,12 @@ public final class ParserUtils {
         return -1;
     }
 
-    public static Obj invalidObj(Node node, String errorMessage, String objectName, ObjType objType){
-        return new Obj(false,getLineNumber(node),errorMessage,objectName,objType);
+    public static Obj invalidObj(ClassOrInterfaceDeclaration declaration, Node node, String errorMessage, String objectName, ObjType objType){
+        return new Obj(declaration.getFullyQualifiedName().get(),false,getLineNumber(node),errorMessage,objectName,objType);
+    }
+
+    public static Obj invalidObj(ClassOrInterfaceDeclaration declaration, String errorMessage, String objectName, ObjType objType){
+        return invalidObj(declaration,declaration,errorMessage,objectName,objType);
     }
 
     public static E invalidE(Node node, String errorMessage){
@@ -51,7 +55,7 @@ public final class ParserUtils {
     }
 
     public static Obj externalObject(ClassOrInterfaceDeclaration declaration){
-        return new Obj(declaration.getNameAsString(),ObjType.EXTERNAL);
+        return new Obj(declaration.getFullyQualifiedName().get(),declaration.getNameAsString(),ObjType.EXTERNAL);
     }
 
     public static boolean isBaseObject(ClassOrInterfaceDeclaration declaration){

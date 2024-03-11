@@ -80,7 +80,7 @@ public abstract class Verification {
             tasks.add(new ProveKaseTask(i, m, o.getA(), () -> new Symbolic(prog).interpC(m, (CUnary) c, o).isPresent()));
         } else if (c instanceof CBinary){
             tasks.add(new ProveKaseTask(i, m, o.getA(), () -> new Symbolic(prog).interpC(m, (CUnary) ((CBinary) c).getLeft(), o).isPresent()));
-            addKaseTasks(prog, i, m, ((CBinary) c).getRight(), o, tasks);
+            addKaseTasks(prog, i+1, m, ((CBinary) c).getRight(), o, tasks);
         }
     }
 

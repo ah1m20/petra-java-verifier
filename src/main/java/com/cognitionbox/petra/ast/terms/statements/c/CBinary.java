@@ -4,8 +4,8 @@ public final class CBinary extends C {
     private final C left;
     private final C right;
 
-    public CBinary(C left, C right) {
-        super(true,-1,null);
+    public CBinary(int id, C left, C right) {
+        super(id,true,-1,null);
         this.left = left;
         this.right = right;
     }
