@@ -112,7 +112,7 @@ public final class PetraControlledEnglish {
         if (c instanceof CUnary){
             return translate((CUnary)c);
         } else if (c instanceof CBinary){
-            return ((CBinary)c).getLeft()+", or "+translate(((CBinary) c).getRight());
+            return translate(((CBinary)c).getLeft())+", or "+translate(((CBinary) c).getRight());
         }
         throw new IllegalArgumentException();
     }
@@ -123,7 +123,6 @@ public final class PetraControlledEnglish {
     public static String format(String s, int wordsPerLine){
         String[] split = s.split(" ");
         StringBuilder output = new StringBuilder();
-        output.append("\n");
         for (int i=0;i<split.length;i++){
             output.append(split[i]+" ");
             if (i!=0 && i%wordsPerLine==0){

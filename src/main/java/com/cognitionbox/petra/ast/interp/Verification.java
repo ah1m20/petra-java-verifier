@@ -1,6 +1,6 @@
 package com.cognitionbox.petra.ast.interp;
 
-import com.cognitionbox.petra.ast.interp.util.loggers.Logger;
+import com.cognitionbox.petra.ast.interp.util.loggers.ControlledEnglishLogger;
 import com.cognitionbox.petra.ast.parsers.MainParser;
 import com.cognitionbox.petra.ast.parsers.ObjParser;
 import com.cognitionbox.petra.ast.terms.Delta;
@@ -28,8 +28,12 @@ import static com.cognitionbox.petra.ast.interp.util.Ops.list;
 import static org.junit.Assert.assertTrue;
 
 public abstract class Verification {
-
-    private static final Logger LOG = new Logger();
+    private static final ControlledEnglishLogger LOG = new ControlledEnglishLogger();
+    private static final boolean controlledEnglishEnabled;
+    static {
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("petra");
+        controlledEnglishEnabled = Boolean.parseBoolean(resourceBundle.getString("petra.controlledEnglish"));
+    }
 
     private VerificationTask task;
     public Verification(VerificationTask task) {
@@ -75,13 +79,25 @@ public abstract class Verification {
         }
     }
 
-    private static void addKaseTasks(Prog prog, int i, String m, C c, Obj o, List<VerificationTask> tasks){
+    private static void addObjRuleTask(Symbolic symbolic, Obj o, List<VerificationTask> tasks){
+        tasks.add(new ObjRule(o.getA(), () -> symbolic.interpObj(o).isPresent()));
+    }
+
+    private static void addCasesRuleTask(Symbolic symbolic, Obj o, Delta d, List<VerificationTask> tasks){
+        tasks.add(new CasesRule(d.getM(), o.getA(), () -> symbolic.interpOverlineC(d.getM(),symbolic.lookupM(d.getM(),o),o).isPresent()));
+    }
+
+    private static void addCaseRuleTasks(Symbolic symbolic, int i, String m, C c, Obj o, List<VerificationTask> tasks){
         if (c instanceof CUnary){
-            tasks.add(new ProveKaseTask(i, m, o.getA(), () -> new Symbolic(prog).interpC(m, (CUnary) c, o).isPresent()));
+            tasks.add(new CaseRule(i, m, o.getA(), () -> symbolic.interpC(m, (CUnary) c, o).isPresent()));
         } else if (c instanceof CBinary){
-            tasks.add(new ProveKaseTask(i, m, o.getA(), () -> new Symbolic(prog).interpC(m, (CUnary) ((CBinary) c).getLeft(), o).isPresent()));
-            addKaseTasks(prog, i+1, m, ((CBinary) c).getRight(), o, tasks);
+            tasks.add(new CaseRule(i, m, o.getA(), () -> symbolic.interpC(m, (CUnary) ((CBinary) c).getLeft(), o).isPresent()));
+            addCaseRuleTasks(symbolic, i+1, m, ((CBinary) c).getRight(), o, tasks);
         }
+    }
+
+    private static void addControlledEnglishTask(Obj o, List<VerificationTask> tasks){
+        tasks.add(new ControlledEnglish(o.getA(), () -> {LOG.logControlledEnglishToFile(o.getFullyQualifiedClassName(),format(PetraControlledEnglish.translate(o),14)); return true;} ));
     }
 
     @Parameterized.Parameters(name = "{0}")
@@ -90,22 +106,20 @@ public abstract class Verification {
         if (forall(prog.getObjs(), o->o.isValid())){
             List<VerificationTask> tasks = new ArrayList<>();
             //tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> new Symbolic(prog).interpProgQuick(prog).isPresent()));
+            Symbolic symbolic = new Symbolic(prog);
             for (Obj o : prog.getObjs()) {
-                if (o instanceof Obj) {
-                    tasks.add(new ControlledEnglishTask(o.getA(), () -> {LOG.info(format(PetraControlledEnglish.translate(o),14)); return true;} ));
-                    tasks.add(new ProveSoundnessAndCompletenessTask(o.getA(), () -> new Symbolic(prog).interpObj(o).isPresent()));
-                    for (Delta d : o.getOverlineDelta()) {
-                        addKaseTasks(prog,0,d.getM(),d.getOverlineC(),o,tasks);
-                        tasks.add(new ProveMethodTask(d.getM(), o.getA(), () -> {
-                            Symbolic symbolic = new Symbolic(prog);
-                            return symbolic.interpOverlineC(d.getM(),symbolic.lookupM(d.getM(),o),o).isPresent();
-                        }));
-                    }
+                addObjRuleTask(symbolic,o,tasks);
+                for (Delta d : o.getOverlineDelta()) {
+                    addCaseRuleTasks(symbolic,0,d.getM(),d.getOverlineC(),o,tasks);
+                    addCasesRuleTask(symbolic,o,d,tasks);
+                }
+                if (controlledEnglishEnabled){
+                    addControlledEnglishTask(o,tasks);
                 }
             }
             return tasks;
         } else {
-            return list(filter(prog.getObjs(), o->!o.isValid()), o->new SyntaxInvalid(o.getA(),o.getLineError(),o.getErrorMessage()));
+            return list(filter(prog.getObjs(), o->!o.isValid()), o->new Syntax(o.getA(),o.getLineError(),o.getErrorMessage()));
         }
     }
 

@@ -3,13 +3,32 @@ package com.cognitionbox.petra.ast.interp.util.loggers;
 import com.cognitionbox.petra.ast.terms.Obj;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import static com.cognitionbox.petra.ast.interp.util.Ops.intersect;
 
-public final class ExplanationLogger {
+public final class ErrorLogger {
+
+    static {
+        try {
+            try (Stream<Path> walk = Files.walk(Paths.get("./target/petra/errors/"))) {
+                walk.sorted(Comparator.reverseOrder())
+                        .forEach(p -> {
+                            try {
+                                Files.delete(p);
+                            } catch (IOException e) {}
+                        });
+            }
+        } catch (IOException e) {}
+    }
 
     public <T> void preconditionisNotSubseteqDomain(String fullyQualifiedClassName, String ruleName, String m, int caseId, Set<List<String>> a, Set<List<String>> b, Obj A){
         logExplanation(fullyQualifiedClassName,ruleName,m,caseId,"\n"+" precondition: \n\n"+StatesLogging.toString(a)+"\n\nis not subset or equal to domain:\n\n"+StatesLogging.toString(b));
@@ -29,8 +48,8 @@ public final class ExplanationLogger {
         logExplanation(fullyQualifiedClassName,ruleName,"",0,"\n[Omega^{"+A.getA()+"}]^{"+A.getA()+"} = "+(!set.isEmpty()?StatesLogging.toString(set):"\\emptyset"));
     }
 
-    public void logPrivateStateSpace(String fullyQualifiedClassName, String ruleName, String label, Set<List<String>> set, Obj A){
-        logExplanation(fullyQualifiedClassName,ruleName,"",0,"\n["+label+"]^{"+A.getA()+"} = "+(!set.isEmpty()?StatesLogging.toString(set):"\\emptyset"));
+    public void logPrivateStateSpace(String label, Set<List<String>> set, Obj A){
+        logExplanation(A.getFullyQualifiedClassName(),"OBJ","",0,"\n["+label+"]^{"+A.getA()+"} = "+(!set.isEmpty()?StatesLogging.toString(set):"\\emptyset"));
     }
 
     public void logCasesDomainOverlap(String fullyQualifiedClassName, String ruleName, String m, int i, Set<String> a, int j, Set<String> b, Obj A){
@@ -46,23 +65,17 @@ public final class ExplanationLogger {
     }
 
     private void logExplanation(String fullyQualifiedClassName, String ruleName, String m, int id, String explanation){
-        String rootPath = "./target/errors/";
+        String rootPath = "./target/petra/errors/";
         String packagePath = fullyQualifiedClassName.substring(0, fullyQualifiedClassName.lastIndexOf('.')).replace('.', File.separatorChar);
         String filePath = rootPath + File.separator + packagePath;
         String className = fullyQualifiedClassName.substring(fullyQualifiedClassName.lastIndexOf('.') + 1);
         String fileName = className+"_"+ruleName+"_"+m+"_"+id+"_bot.pex";
         String fullFilePath = filePath + File.separator + fileName;
         try {
-            File directory = new File(filePath);
-            //directory.delete();
-            if (!directory.exists()) {
-                directory.mkdirs();
+            if (!Files.exists(Paths.get(filePath))){
+                Files.createDirectories(Paths.get(filePath));
             }
-            File newFile = new File(fullFilePath);
-            newFile.createNewFile();
-            FileWriter writer = new FileWriter(newFile);
-            writer.write(explanation);
-            writer.close();
+            Files.write(Paths.get(fullFilePath), Arrays.asList(explanation));
         } catch (IOException e) {
             e.printStackTrace();
         }

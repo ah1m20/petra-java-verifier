@@ -2,9 +2,9 @@ package com.cognitionbox.petra.ast.interp.junit.tasks;
 
 import java.util.function.Supplier;
 
-public class ProveEntryPointTask extends BaseVerificationTask {
+public class ObjRule extends BaseVerificationTask {
 
-    public ProveEntryPointTask(String objectName, Supplier<Boolean> supplier) {
+    public ObjRule(String objectName, Supplier<Boolean> supplier) {
         super(objectName,supplier);
     }
 
