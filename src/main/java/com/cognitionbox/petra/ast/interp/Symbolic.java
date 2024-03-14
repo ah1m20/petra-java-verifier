@@ -64,7 +64,7 @@ public final class Symbolic {
         Optional<Func<String>> m_epsilon = interpOverlineC(prog.getM(),lookupM(prog.getM(),Aepsilon),Aepsilon);
         if (
                 forall(prog.getObjs(), o->interpObj(o).isPresent()) &&
-            !Aepsilon.isPrimitive()
+                forall(Aepsilon.getOverlineDelta(), delta->PROOF_LOGGER.exitWithBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),Aepsilon), Aepsilon).isPresent(),Aepsilon,"RESOLVE"))
 //            && interpObj(Aepsilon).isPresent() &&
 //            m_epsilon.isPresent()
 //           && m_epsilon.get().dom().equals(Theta(Aepsilon))
@@ -161,11 +161,11 @@ public final class Symbolic {
                 // && forall(A.getOverlineDelta(), delta->PROOF_LOGGER.exitWithBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE"))
 //                && (isReactive?PROOF_LOGGER.isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
-            PROOF_LOGGER.exitWithNonBottom(A,A,"OBJ");
+            //PROOF_LOGGER.exitWithNonBottom(A,A,"OBJ");
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             //logObjectPrivateStateSpace(Omega(A),A);
-            PROOF_LOGGER.exitWithBottom(A,A,"OBJ");
+            //PROOF_LOGGER.exitWithBottom(A,A,"OBJ");
             return Optional.empty();
         }
     }
@@ -232,6 +232,7 @@ public final class Symbolic {
                 }
             } else {
                 PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
+                //ERROR_LOGGER.logEmptyCompositions(A.getFullyQualifiedClassName(),"CASES",m,left.get().dom(),right.get().dom());
                 return Optional.empty();
             }
         } else if (ovelineC instanceof CUnary){
@@ -311,7 +312,7 @@ public final class Symbolic {
     }
 
     public Optional<Func<String>> interpCImpl(String m, CUnary c, Obj A){
-        if (A.isPrimitive() || c.getS() instanceof Skip){
+        if (A.isPrimitive()){
             return interpPrimitiveC(c,A);
         } else {
             return interpNonPrimitiveC(m,c,A);

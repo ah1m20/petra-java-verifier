@@ -12,14 +12,18 @@ public final class Obj extends Term {
 
     private final ObjType objType;
 
-    public Obj(String fullyQualifiedClassName, String A, ObjType objType) {
+    private final boolean entry;
+
+    public Obj(boolean entry, String fullyQualifiedClassName, String A, ObjType objType) {
+        this.entry = entry;
         this.fullyQualifiedClassName = fullyQualifiedClassName;
         this.A = A;
         this.objType = objType;
     }
 
-    public Obj(String fullyQualifiedClassName, boolean valid, int lineError, String errorMessage, String a, ObjType objType) {
+    public Obj(boolean entry, String fullyQualifiedClassName, boolean valid, int lineError, String errorMessage, String a, ObjType objType) {
         super(valid, lineError, errorMessage);
+        this.entry = entry;
         this.fullyQualifiedClassName = fullyQualifiedClassName;
         this.A = a;
         this.objType = objType;
@@ -63,6 +67,10 @@ public final class Obj extends Term {
 
     public boolean isExternal() {
         return objType==ObjType.EXTERNAL;
+    }
+
+    public boolean isEntry() {
+        return entry;
     }
 
     @Override
