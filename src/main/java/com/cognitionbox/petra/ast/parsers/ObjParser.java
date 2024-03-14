@@ -64,12 +64,12 @@ public final class ObjParser {
 
     private Obj parsePetraObject(ClassOrInterfaceDeclaration declaration){
         if (declaration.isInterface() || !declaration.isPublic()){
-            return ParserUtils.invalidObj(declaration,"expected public class.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+            return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,"expected public class.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
         }
-        Obj obj = new Obj(declaration.getFullyQualifiedName().get(),declaration.getNameAsString(), ParserUtils.objectType(declaration));
+        Obj obj = new Obj(ParserUtils.isEntry(declaration),declaration.getFullyQualifiedName().get(),declaration.getNameAsString(), ParserUtils.objectType(declaration));
         for (FieldDeclaration f : declaration.getFields()){
             if (!f.isPrivate() || !f.isFinal() || f.getVariables().size()!=1){
-                return ParserUtils.invalidObj(declaration,f,"expected a single private final field.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,f,"expected a single private final field.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
             }
             if (!f.isAnnotationPresent(External.class)){
                 VariableDeclarator v = f.getVariable(0);
@@ -78,7 +78,7 @@ public final class ObjParser {
         }
         for (MethodDeclaration m : declaration.getMethods()){
             if (!m.isPublic()){
-                return ParserUtils.invalidObj(declaration,m,"expected public method.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,m,"expected public method.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
             }
             if (m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")){
                 // process phi
@@ -87,21 +87,21 @@ public final class ObjParser {
                     Phi phi = new Phi(m.isAnnotationPresent(Initial.class),m.getNameAsString(),e);
                     obj.addPhi(phi);
                 } else {
-                    return ParserUtils.invalidObj(declaration,m,"expected valid boolean expression.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                    return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,m,"expected valid boolean expression.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
                 }
             } else if (m.getType().isVoidType()){
                 // process delta
                 C cases = cparser.parse(m, ParserUtils.isBaseObject(declaration));
                 if (cases==null){
-                    return ParserUtils.invalidObj(declaration,m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
-                } else if (cases!=null){// && forall(cases, c-> ParserUtils.isValid(c))){
-                    Delta delta = new Delta(m.getNameAsString(),cases);
+                    return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                } else if (cases!=null && ParserUtils.isEntry(m)?ParserUtils.isEntry(declaration):true){// && forall(cases, c-> ParserUtils.isValid(c))){
+                    Delta delta = new Delta(ParserUtils.isEntry(m),m.getNameAsString(),cases);
                     obj.addDelta(delta);
                 } else {
-                    return ParserUtils.invalidObj(declaration,m,"expected valid method definition.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                    return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,m,"expected valid method definition.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
                 }
             } else {
-                return ParserUtils.invalidObj(declaration,m,"expected boolean or void method.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,m,"expected boolean or void method.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
             }
         }
         return obj;
@@ -128,24 +128,24 @@ public final class ObjParser {
     }
 
     private Obj parsePrimitive(ClassOrInterfaceDeclaration declaration){
-        Obj obj = new Obj(declaration.getFullyQualifiedName().get(),declaration.getNameAsString(),ParserUtils.objectType(declaration));
+        Obj obj = new Obj(ParserUtils.isEntry(declaration),declaration.getFullyQualifiedName().get(),declaration.getNameAsString(),ParserUtils.objectType(declaration));
         for (MethodDeclaration m : declaration.getMethods()){
             if (m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")){
                 // process phi
                 Phi phi = new Phi(m.isAnnotationPresent(Initial.class),m.getNameAsString(),null);
                 obj.addPhi(phi);
-            } else if (m.getType().isVoidType()){
+            } else if (m.getType().isVoidType() && !m.isAnnotationPresent(Update.class)){
                 // process delta
                 C cases = cparser.parse(m, true);
                 if (cases==null){
-                    return ParserUtils.invalidObj(declaration,m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
-                } else if (cases!=null){// && forall(cases, c-> ParserUtils.isValid(c))){
-                    Delta delta = new Delta(m.getNameAsString(),cases);
+                    return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,m,"expected body of one if statement or an if-else chain.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                } else if (cases!=null && ParserUtils.isEntry(m)?ParserUtils.isEntry(declaration):true){// && forall(cases, c-> ParserUtils.isValid(c))){
+                    Delta delta = new Delta(ParserUtils.isEntry(m),m.getNameAsString(),cases);
                     obj.addDelta(delta);
                 } else {
-                    return ParserUtils.invalidObj(declaration,m,"expected valid method definition.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
+                    return ParserUtils.invalidObj(ParserUtils.isEntry(declaration),declaration,m,"expected valid method definition.",declaration.getNameAsString(), ParserUtils.objectType(declaration));
                 }
-            } else {
+            } else if (!m.getType().isVoidType()) {
                 throw new IllegalArgumentException("expected boolean or void method.");
             }
         }

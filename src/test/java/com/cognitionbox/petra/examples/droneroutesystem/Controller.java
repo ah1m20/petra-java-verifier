@@ -7,10 +7,12 @@ package com.cognitionbox.petra.examples.droneroutesystem;
  * As Petra is new language / paradigm for formal verification it is difficult to map directly from ideas to verified models, without strong process for doing so.
  */
 
+import com.cognitionbox.petra.ast.terms.Entry;
 import com.cognitionbox.petra.ast.terms.Initial;
 
 import static com.cognitionbox.petra.ast.interp.util.Program.par;
 
+@Entry
 public class Controller implements Runnable {
 	private final SysWrapper sys = new SysWrapper();
 	private final RoutePlan routePlan = new RoutePlan();
@@ -26,7 +28,7 @@ public class Controller implements Runnable {
 	public boolean temperatureWarning(){
 		return control.on() && diagnostics.temperatureWarning();}
 
-	public void run(){
+	@Entry public void run(){
 		if (grounded()){
 			sys.exit();
 			assert(grounded());

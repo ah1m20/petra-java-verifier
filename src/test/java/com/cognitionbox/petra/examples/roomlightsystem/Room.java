@@ -1,7 +1,10 @@
 package com.cognitionbox.petra.examples.roomlightsystem;
 
+import com.cognitionbox.petra.ast.terms.Entry;
+
 import static com.cognitionbox.petra.ast.interp.util.Program.par;
 
+@Entry
 public class Room implements Runnable {
 	private final Light centre = new Light();
 	private final Light side = new Light();
@@ -10,7 +13,7 @@ public class Room implements Runnable {
 
 	public boolean other() { return !(centre.on() && side.on()) && !(centre.off() && side.off()); }
 
-	public void run() {
+	@Entry public void run() {
 		if (other()){
 			;
 			assert(other());

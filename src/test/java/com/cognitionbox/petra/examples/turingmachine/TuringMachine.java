@@ -17,12 +17,14 @@ package com.cognitionbox.petra.examples.turingmachine;
  * [0,0,0,0,0] State A
  */
 
+import com.cognitionbox.petra.ast.terms.Entry;
 import com.cognitionbox.petra.ast.terms.External;
 import com.cognitionbox.petra.examples.turingmachine.external.Tape;
 import com.cognitionbox.petra.examples.turingmachine.objects.*;
 
 import static com.cognitionbox.petra.ast.interp.util.Program.seq;
 
+@Entry
 public class TuringMachine implements Runnable {
 
     @External
@@ -40,7 +42,7 @@ public class TuringMachine implements Runnable {
     public boolean c(){return state.isB() && headMove.movedLeft() && headDir.moveLeftOnly() && headVal.headFalse();}
     public boolean d(){return state.isB() && headMove.movedLeft() && headDir.moveRightOnly() && headVal.headFalse();}
 
-    public void run(){
+    @Entry public void run(){
         if (start()) {
             seq(headMove::moveRight,headVal::writeTrue);
             assert (a());

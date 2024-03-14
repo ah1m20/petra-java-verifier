@@ -1,6 +1,7 @@
 package com.cognitionbox.petra.ast.parsers;
 
 import com.cognitionbox.petra.ast.terms.expressions.PrePost;
+import com.cognitionbox.petra.ast.terms.expressions.d.P;
 import com.cognitionbox.petra.ast.terms.statements.c.C;
 import com.cognitionbox.petra.ast.terms.statements.c.CUnary;
 import com.cognitionbox.petra.ast.terms.statements.c.CBinary;
@@ -28,10 +29,17 @@ public final class CParser {
 
     private C parse(int id, IfStmt ifStmt, boolean isPrimitive){
         int size = ifStmt.getThenStmt().asBlockStmt().getStatements().size();
-        if (size > 1 && ifStmt.getThenStmt().asBlockStmt().getStatements().get(size - 1).isAssertStmt()) {
+        if (size > 0) { // && ifStmt.getThenStmt().asBlockStmt().getStatements().get(size - 1).isAssertStmt()
             PrePost pre = dParser.parse(ifStmt.getCondition());
-            S s = !isPrimitive?sParser.parseS(ifStmt.getThenStmt().asBlockStmt().getStatements().subList(0,size - 1)):new G("assumed");
-            PrePost post = dParser.parse(ifStmt.getThenStmt().asBlockStmt().getStatements().get(size - 1).asAssertStmt().getCheck().asEnclosedExpr().getInner());
+            final PrePost post;
+            final S s;
+            if (ifStmt.getThenStmt().asBlockStmt().getStatements().get(size-1).isAssertStmt()){
+                s = !isPrimitive?sParser.parseS(ifStmt.getThenStmt().asBlockStmt().getStatements().subList(0,size-1)):new G("assumed");
+                post = dParser.parse(ifStmt.getThenStmt().asBlockStmt().getStatements().get(size - 1).asAssertStmt().getCheck().asEnclosedExpr().getInner());
+            } else {
+                s = !isPrimitive?sParser.parseS(ifStmt.getThenStmt().asBlockStmt().getStatements().subList(0,size)):new G("assumed");
+                post = new P("true");
+            }
             CUnary cbase = new CUnary(id,pre, s, post);
             if (s==null || s.isValid()){
                 if (!ifStmt.getElseStmt().isPresent()) {

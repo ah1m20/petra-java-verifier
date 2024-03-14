@@ -19,8 +19,10 @@ public final class DParser {
             return new DBinary(
                         parse(expression.asBinaryExpr().getLeft()),
                         parse(expression.asBinaryExpr().getRight()));
+        } else if (expression.isBooleanLiteralExpr() && expression.asBooleanLiteralExpr().getValue()) {
+            return new P(Boolean.toString(expression.asBooleanLiteralExpr().getValue()));
         } else {
-            throw new IllegalArgumentException("must be call to single boolean method or expression of boolean method calls.");
+            throw new IllegalArgumentException("must be call to single boolean method, a boolean literal true value, or a disjunction of boolean method calls.");
         }
     }
 }

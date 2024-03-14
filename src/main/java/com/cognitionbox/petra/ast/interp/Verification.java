@@ -48,7 +48,7 @@ public abstract class Verification {
     private static Prog parseSrcFiles(Class<?> root) {
         List<Obj> objs = new ArrayList<>();
         AtomicBoolean isReactive = new AtomicBoolean(false);
-        try (Stream<Path> stream = Files.walk(Paths.get(rootDir), Integer.MAX_VALUE)) {
+        try (Stream<Path> stream = Files.walk(Paths.get(rootDir), Integer.MAX_VALUE).sorted(Comparator.reverseOrder())) {
             stream
                     .filter(path -> path.getFileName().toString().contains(JAVA_FILE_EXT))
                     .filter(path -> path.toString().replaceAll("\\\\","\\.").contains(root.getCanonicalName().replaceAll("\\."+root.getSimpleName(),"")))
@@ -63,6 +63,8 @@ public abstract class Verification {
                                 Obj obj = parser.parse(file.getName().replaceAll("\\.java",""));
                                 if (obj!=null && !obj.isExternal()){
                                     objs.add(obj);
+                                } else {
+                                    int x = 7;
                                 }
                             }
                         } catch (Exception e){
@@ -72,11 +74,7 @@ public abstract class Verification {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (isReactive.get()){
-            return new Prog(true,"run",root.getSimpleName(),objs);
-        } else {
-            return new Prog(false,"run",root.getSimpleName(),objs);
-        }
+        return new Prog(isReactive.get(),root.getSimpleName(),objs);
     }
 
     private static void addObjRuleTask(Symbolic symbolic, Obj o, List<VerificationTask> tasks){
@@ -100,12 +98,15 @@ public abstract class Verification {
         tasks.add(new ControlledEnglish(o.getA(), () -> {LOG.logControlledEnglishToFile(o.getFullyQualifiedClassName(),format(PetraControlledEnglish.translate(o),14)); return true;} ));
     }
 
+    private static void addEntryPointTask(Symbolic symbolic, Prog prog, List<VerificationTask> tasks){
+        tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> symbolic.interpProg(prog).isPresent()));
+    }
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection verify(Class<?> root) {
         Prog prog = parseSrcFiles(root);
         if (forall(prog.getObjs(), o->o.isValid())){
             List<VerificationTask> tasks = new ArrayList<>();
-            //tasks.add(new ProveEntryPointTask(prog.getAepsilon(), () -> new Symbolic(prog).interpProgQuick(prog).isPresent()));
             Symbolic symbolic = new Symbolic(prog);
             for (Obj o : prog.getObjs()) {
                 addObjRuleTask(symbolic,o,tasks);
@@ -117,6 +118,7 @@ public abstract class Verification {
                     addControlledEnglishTask(o,tasks);
                 }
             }
+            addEntryPointTask(symbolic,prog,tasks);
             return tasks;
         } else {
             return list(filter(prog.getObjs(), o->!o.isValid()), o->new Syntax(o.getA(),o.getLineError(),o.getErrorMessage()));

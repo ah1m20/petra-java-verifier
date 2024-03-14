@@ -8,6 +8,7 @@ import com.cognitionbox.petra.ast.terms.statements.s.Am;
 import com.cognitionbox.petra.ast.terms.statements.s.Z;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 
 public final class ParserUtils {
 
@@ -26,20 +27,20 @@ public final class ParserUtils {
         return -1;
     }
 
-    public static Obj invalidObj(ClassOrInterfaceDeclaration declaration, Node node, String errorMessage, String objectName, ObjType objType){
-        return new Obj(declaration.getFullyQualifiedName().get(),false,getLineNumber(node),errorMessage,objectName,objType);
+    public static Obj invalidObj(boolean entry, ClassOrInterfaceDeclaration declaration, Node node, String errorMessage, String objectName, ObjType objType){
+        return new Obj(entry,declaration.getFullyQualifiedName().get(),false,getLineNumber(node),errorMessage,objectName,objType);
     }
 
-    public static Obj invalidObj(ClassOrInterfaceDeclaration declaration, String errorMessage, String objectName, ObjType objType){
-        return invalidObj(declaration,declaration,errorMessage,objectName,objType);
+    public static Obj invalidObj(boolean entry, ClassOrInterfaceDeclaration declaration, String errorMessage, String objectName, ObjType objType){
+        return invalidObj(entry,declaration,declaration,errorMessage,objectName,objType);
     }
 
     public static E invalidE(Node node, String errorMessage){
         return new E(false,getLineNumber(node),errorMessage);
     }
 
-    public static Delta invalidDelta(Node node, String errorMessage, String methodLabel, C overlineC){
-        return new Delta(false,getLineNumber(node),errorMessage,methodLabel,overlineC);
+    public static Delta invalidDelta(boolean entry, Node node, String errorMessage, String methodLabel, C overlineC){
+        return new Delta(entry,false,getLineNumber(node),errorMessage,methodLabel,overlineC);
     }
 
     public static Z invalidZ(Node node, String errorMessage){
@@ -55,9 +56,15 @@ public final class ParserUtils {
     }
 
     public static Obj externalObject(ClassOrInterfaceDeclaration declaration){
-        return new Obj(declaration.getFullyQualifiedName().get(),declaration.getNameAsString(),ObjType.EXTERNAL);
+        return new Obj(false,declaration.getFullyQualifiedName().get(),declaration.getNameAsString(),ObjType.EXTERNAL);
     }
 
+    public static boolean isEntry(MethodDeclaration declaration){
+        return declaration.isAnnotationPresent(Entry.class);
+    }
+    public static boolean isEntry(ClassOrInterfaceDeclaration declaration){
+        return declaration.isAnnotationPresent(Entry.class);
+    }
     public static boolean isBaseObject(ClassOrInterfaceDeclaration declaration){
         return declaration.isAnnotationPresent(Base.class);
     }

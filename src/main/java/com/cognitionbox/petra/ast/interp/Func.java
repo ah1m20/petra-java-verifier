@@ -43,11 +43,24 @@ public final class Func<T> implements Function<T,T> {
         }
     }
 
+    private T composeHelper(T in, Map<T,T> after){
+        if (in.equals("true") && !after.containsKey("true")){
+            throw new IllegalArgumentException("does not compose.");
+        } else if (in.equals("true") && after.containsKey("true")){
+            return (T) "true";
+        } else if (!in.equals("true") && after.containsKey("true")){
+            return in;
+        } else if (!in.equals("true") && !after.containsKey("true")){
+            return after.get(in);
+        } else {
+            throw new IllegalArgumentException("does not compose.");
+        }
+    }
     public Func<T> compose(Func<T> f){
         Map<T,T> comp = new HashMap<>();
         for (T k : f.def.keySet()){
             T v = f.def.get(k);
-            T r = this.def.get(v);
+            T r = composeHelper(v,this.def);
             comp.put(k,r);
         }
         return new Func<>(f.dom(),this.range(),comp.entrySet());

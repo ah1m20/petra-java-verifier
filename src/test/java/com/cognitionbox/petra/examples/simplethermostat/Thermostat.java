@@ -1,8 +1,9 @@
 package com.cognitionbox.petra.examples.simplethermostat;
 
+import com.cognitionbox.petra.ast.terms.Entry;
 import com.cognitionbox.petra.ast.terms.Initial;
 
-public class Thermostat implements Runnable {
+@Entry public class Thermostat implements Runnable {
 
     private final Logging logging = new Logging();
     private final Temperature temperature = new Temperature();
@@ -21,21 +22,22 @@ public class Thermostat implements Runnable {
         return control.on() && temperature.aboveOrEqualToTarget();
     }
 
+    @Entry
     public void run(){
         if (OffAndBelowTarget()){
             logging.logOffAndBelowTarget();
             control.turnOn();
-            assert(OnAndBelowTarget() ^ OnAndOnOrAboveTarget());
+            assert(true);
         } else if (OffAndOnOrAboveTarget()){
             logging.logOffAndOnOrAboveTarget();
-            assert(OffAndBelowTarget() ^ OffAndOnOrAboveTarget());
+            assert(true);
         } else if (OnAndBelowTarget()){
             logging.logOnAndBelowTarget();
-            assert(OnAndBelowTarget() ^ OnAndOnOrAboveTarget());
+            assert(true);
         } else if (OnAndOnOrAboveTarget()){
             logging.logOnAndOnOrAboveTarget();
             control.turnOff();
-            assert(OffAndBelowTarget() ^ OffAndOnOrAboveTarget());
+            assert(true);
         }
     }
 }

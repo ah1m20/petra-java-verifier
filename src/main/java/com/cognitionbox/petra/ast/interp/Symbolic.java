@@ -22,7 +22,7 @@ import com.cognitionbox.petra.ast.terms.statements.s.*;
 import com.google.common.collect.Sets;
 
 import static com.cognitionbox.petra.ast.interp.util.Ops.*;
-
+import static com.cognitionbox.petra.ast.interp.util.TrueOps.*;
 public final class Symbolic {
     final private ProofLogger PROOF_LOGGER = new ProofLogger();
     final private ErrorLogger ERROR_LOGGER = new ErrorLogger();
@@ -98,6 +98,11 @@ public final class Symbolic {
         return set(set(A.getOverlinePhi()), (e->e.getP()));
     }
 
+    Set<P> ThetaP(Obj A){
+        //return thetaCache.computeIfAbsent(A,k->set(set(A.getOverlinePhi()), (e->e.getP())));
+        return set(set(A.getOverlinePhi()), (e->new P(e.getP())));
+    }
+
     Phi lookupPhi(String p, Obj A){
         Optional<Phi> phi = find(A.getOverlinePhi(), x->x.getP().equals(p));
         if (phi.isPresent()){
@@ -161,11 +166,11 @@ public final class Symbolic {
                 // && forall(A.getOverlineDelta(), delta->PROOF_LOGGER.exitWithBottom(delta,interpOverlineC(delta.getM(),lookupM(delta.getM(),A), A).isPresent(),A,"RESOLVE"))
 //                && (isReactive?PROOF_LOGGER.isEqual(union(set(list(A.getOverlinePhi(), phi->phi.getE()), e->interpE(e,A))), Omega(A), A):true)
         ){
-            PROOF_LOGGER.exitWithNonBottom(A,A,"OBJ");
+            //PROOF_LOGGER.exitWithNonBottom(A,A,"OBJ");
             return Optional.of(new IObj(Omega(A), interpOverlinePhi(A.getOverlinePhi(),A),interpDeltas(A.getOverlineDelta(),A)));
         } else {
             //logObjectPrivateStateSpace(Omega(A),A);
-            PROOF_LOGGER.exitWithBottom(A,A,"OBJ");
+            //PROOF_LOGGER.exitWithBottom(A,A,"OBJ");
             return Optional.empty();
         }
     }
@@ -232,6 +237,7 @@ public final class Symbolic {
                 }
             } else {
                 PROOF_LOGGER.exitWithBottom(lookupDelta(m,A),A,"CASES");
+                //ERROR_LOGGER.logEmptyCompositions(A.getFullyQualifiedClassName(),"CASES",m,left.get().dom(),right.get().dom());
                 return Optional.empty();
             }
         } else if (ovelineC instanceof CUnary){
@@ -311,7 +317,7 @@ public final class Symbolic {
     }
 
     public Optional<Func<String>> interpCImpl(String m, CUnary c, Obj A){
-        if (A.isPrimitive() || c.getS() instanceof Skip){
+        if (A.isPrimitive()){
             return interpPrimitiveC(c,A);
         } else {
             return interpNonPrimitiveC(m,c,A);
@@ -347,10 +353,10 @@ public final class Symbolic {
         for (String p : P){
             int matches = 0;
             for (String p_ : Q){
-                Set<List<String>> e_p = interpE(lookupE(p,A),A);
-                Set<List<String>> e_p_ = interpE(lookupE(p_,A),A);
+                Set<List<String>> e_p = p.equals("true")?interpE(new True(),A):interpE(lookupE(p,A),A);
+                Set<List<String>> e_p_ = p_.equals("true")?interpE(new True(),A):interpE(lookupE(p_,A),A);
                 if (s.isPresent()){
-                    if (subseteq(s.get().image(e_p), e_p_)){
+                    if (subseteqOmega(s.get().image(e_p), e_p_)){
                         def.add(mapsto(p,p_));
                         matches++;
                     }
@@ -373,7 +379,7 @@ public final class Symbolic {
                 Set<List<String>> e_p_ = interpE(lookupE(p_,A),A);
                 Optional<Func<List<String>>> s = interpS(c.getS(),A);
                 if (s.isPresent()){
-                    if (subseteq(s.get().image(e_p), e_p_)){
+                    if (subseteqOmega(s.get().image(e_p), e_p_)){
                         def.add(mapsto(p,p_));
                     }
                 }
@@ -409,16 +415,16 @@ public final class Symbolic {
         Func<List<String>> interpS = s.get();
         Set<String> P = interpPrePost(c.getPre(),A);
         Set<String> Q = interpPrePost(c.getPost(),A);
-        Set<E> e_p = set(P, p-> lookupE(p,A));
-        Set<E> e_q = set(Q, q-> lookupE(q,A));
+        Set<E> e_p = set(P, p-> p.equals("true")?new True():lookupE(p,A));
+        Set<E> e_q = set(Q, q-> q.equals("true")?new True():lookupE(q,A));
         Set<List<String>> in = union(set(e_p, e-> interpE(e,A)));
         Set<List<String>> out = union(set(e_q, e-> interpE(e,A)));
-        if (!(subseteq(in,interpS.dom()) )){
+        if (!(subseteqOmega(in,interpS.dom()) )){
             ERROR_LOGGER.preconditionisNotSubseteqDomain(A.getFullyQualifiedClassName(),"CASE",m,c.getId(),in,interpS.dom(),A);
             return false;
         }
         Set<List<String>> image = interpS.image(in);
-        if (!subseteq(image, out)){
+        if (!subseteqOmega(image, out)){
             ERROR_LOGGER.imageIsNotSubseteqPostcondition(A.getFullyQualifiedClassName(),"CASE",m,c.getId(),image,out,A);
             return false;
         }
@@ -591,7 +597,7 @@ public final class Symbolic {
         PROOF_LOGGER.enter();
         Optional<Func<List<String>>> q = interpQ(binary.getLeft(), A);
         Optional<Func<List<String>>> qPrim = interpQ(binary.getRight(), A);
-        if (q.isPresent() && qPrim.isPresent() && subseteq(q.get().range(), qPrim.get().dom())){
+        if (q.isPresent() && qPrim.isPresent() && subseteqOmega(q.get().range(), qPrim.get().dom())){
             Func<List<String>> f = qPrim.get().compose(q.get());
             PROOF_LOGGER.exitWithNonBottom(binary,A,"SEQ");
             return Optional.of(new Func<>(q.get().dom(), qPrim.get().range(),f.def()));

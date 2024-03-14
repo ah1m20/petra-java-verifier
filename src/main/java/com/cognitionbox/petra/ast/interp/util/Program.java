@@ -28,11 +28,7 @@ public final class Program {
                 objs.add(o);
             }
         }
-        if (isReactive){
-            return new Prog(true,entryPointMethodName,rootObjectName,objs);
-        } else {
-            return new Prog(false,entryPointMethodName,rootObjectName,objs);
-        }
+        return new Prog(isReactive,rootObjectName,objs);
     }
 
     public static void seq(Runnable... runnables){

@@ -1,9 +1,11 @@
 package com.cognitionbox.petra.examples.buildingalarmsystem;
 
+import com.cognitionbox.petra.ast.terms.Entry;
 import com.cognitionbox.petra.ast.terms.Initial;
 
 import static com.cognitionbox.petra.ast.interp.util.Program.par;
 
+@Entry
 public class Building implements Runnable {
 	private final Room front = new Room();
 	private final Room kitchen = new Room();
@@ -18,7 +20,7 @@ public class Building implements Runnable {
 								!(!front.bothArmed() && !kitchen.bothArmed() && bedroom.bothArmed()) &&
 								!(!front.bothArmed() && !kitchen.bothArmed() && !bedroom.bothArmed()); }
 
-	public void run() {
+	@Entry public void run() {
 		if (other()){
 			par(()->bedroom.disarm(),
 				()-> front.disarm(),
