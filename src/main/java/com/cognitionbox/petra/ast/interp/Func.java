@@ -1,7 +1,7 @@
 package com.cognitionbox.petra.ast.interp;
 
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -11,7 +11,7 @@ import static com.cognitionbox.petra.ast.interp.util.Ops.*;
 public final class Func<T> implements Function<T,T> {
     private final Set<T> domain;
     private final Set<T> range;
-    private Map<T,T> def = new HashMap<>();
+    private Map<T,T> def = new LinkedHashMap<>();
 
     public Func(Set<T> domain, Set<T> range, Set<Map.Entry<T,T>> mappings) {
         this.domain = domain;
@@ -44,7 +44,7 @@ public final class Func<T> implements Function<T,T> {
     }
 
     public Func<T> compose(Func<T> f){
-        Map<T,T> comp = new HashMap<>();
+        Map<T,T> comp = new LinkedHashMap<>();
         for (T k : f.def.keySet()){
             T v = f.def.get(k);
             T r = this.def.get(v);

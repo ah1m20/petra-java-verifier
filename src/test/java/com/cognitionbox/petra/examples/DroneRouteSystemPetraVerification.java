@@ -1,7 +1,7 @@
 package com.cognitionbox.petra.examples;
 
-import com.cognitionbox.petra.ast.interp.Verification;
-import com.cognitionbox.petra.ast.interp.junit.tasks.VerificationTask;
+import com.cognitionbox.petra.ast.interp.PetraVerification;
+import com.cognitionbox.petra.ast.interp.junit.tasks.PetraTask;
 import com.cognitionbox.petra.examples.droneroutesystem.Controller;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -9,8 +9,8 @@ import org.junit.runners.Parameterized;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public class DroneRouteSystemVerification extends Verification {
-    public DroneRouteSystemVerification(VerificationTask task) {
+public class DroneRouteSystemPetraVerification extends PetraVerification {
+    public DroneRouteSystemPetraVerification(PetraTask task) {
         super(task);
     }
 

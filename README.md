@@ -187,7 +187,7 @@ Then within your Java project test folder, create a verification class for the e
 ```java
 @RunWith(Parameterized.class)
 public class LightVerification extends Verification {
-    public LightVerification(VerificationTask task) {
+    public LightVerification(PetraTask task) {
         super(task);
     }
 

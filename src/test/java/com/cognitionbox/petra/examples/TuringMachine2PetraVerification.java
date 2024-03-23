@@ -1,17 +1,18 @@
 package com.cognitionbox.petra.examples;
 
-import com.cognitionbox.petra.ast.interp.Verification;
-import com.cognitionbox.petra.ast.interp.junit.tasks.VerificationTask;
+import com.cognitionbox.petra.ast.interp.PetraVerification;
+import com.cognitionbox.petra.ast.interp.junit.tasks.PetraTask;
+import com.cognitionbox.petra.examples.turingmachine2.TuringMachine;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import com.cognitionbox.petra.examples.turingmachine.TuringMachine;
+
 import java.util.Collection;
 
 @Ignore
 @RunWith(Parameterized.class)
-public class TuringMachineVerification extends Verification {
-    public TuringMachineVerification(VerificationTask task) {
+public class TuringMachine2PetraVerification extends PetraVerification {
+    public TuringMachine2PetraVerification(PetraTask task) {
         super(task);
     }
 

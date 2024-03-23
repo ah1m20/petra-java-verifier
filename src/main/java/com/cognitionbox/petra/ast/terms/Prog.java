@@ -13,7 +13,7 @@ public class Prog extends Term {
         this.reactive = reactive;
         this.Aepsilon = aepsilon;
         this.objs = objs;
-        this.m = getEntryPoint(objs).orElseThrow(()->new IllegalArgumentException("Invalid entry points: There needs to be exactly one class marked @Entry and at least one method in this class marked @Entry."));
+        this.m = getEntryPoint(objs).orElse(null);//.orElseThrow(()->new IllegalArgumentException("Invalid entry points: There needs to be exactly one class marked @Entry and at least one method in this class marked @Entry."));
     }
 
     public Prog(String aepsilon, List<Obj> objs) {

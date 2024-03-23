@@ -1,21 +1,26 @@
 package com.cognitionbox.petra.ast.interp.junit.tasks;
 
-import java.util.function.Supplier;
+import com.cognitionbox.petra.ast.interp.Symbolic;
+import com.cognitionbox.petra.ast.terms.Delta;
+import com.cognitionbox.petra.ast.terms.Obj;
 
-public class CasesRule extends BaseVerificationTask {
+public final class CasesRule extends SemanticsTask {
+    private final Obj o;
+    private final Delta d;
 
-    private final String methodName;
-    public CasesRule(String methodName, String objectName, Supplier<Boolean> supplier) {
-        super(objectName, supplier);
-        this.methodName = methodName;
+    public CasesRule(int sequenceNumber, Symbolic symbolic, Obj o, Delta d) {
+        super(sequenceNumber,symbolic);
+        this.o = o;
+        this.d = d;
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()+":"+getObjectName()+":"+methodName;
+        return getClass().getSimpleName()+":"+o.getA()+":"+d.getM();
     }
 
-    public String getMethodName() {
-        return methodName;
+    @Override
+    public Boolean call() throws Exception {
+        return symbolic.interpOverlineC(d.getM(),symbolic.lookupM(d.getM(),o),o).isPresent();
     }
 }

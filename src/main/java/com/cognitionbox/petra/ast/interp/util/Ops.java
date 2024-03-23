@@ -1,7 +1,6 @@
 package com.cognitionbox.petra.ast.interp.util;
 
 import com.cognitionbox.petra.ast.interp.Func;
-import com.google.common.collect.Sets;
 
 import java.util.*;
 import java.util.function.Function;
@@ -78,19 +77,33 @@ public final class Ops {
     public static <T> boolean subseteq(Set<T> a, Set<T> b){
         return b.containsAll(a);
     }
-    public static <T> Set<T> union(Set<T> a, Set<T> b){
-        return Sets.union(a,b);
+    public static <T> Set<T> bigUnion(Collection<Set<T>> sets){
+        Set<T> set = new LinkedHashSet<>();
+        sets.forEach(s->set.addAll(s));
+        return set;
     }
-    public static <T> Set<T> union(Collection<Set<T>> sets){
-        return sets.stream().reduce((a,b)->Sets.union(a,b)).get();
+    public static <T> Set<T> union(Set<T> a, Set<T> b){
+        Set<T> set = new LinkedHashSet<>();
+        set.addAll(a);
+        set.addAll(b);
+        return set;
     }
 
     public static <T> Set<T> intersect(Set<T> a, Set<T> b){
-        return Sets.intersection(a,b);
+        Set<T> set = new LinkedHashSet<>();
+        set.addAll(a);
+        set.retainAll(b);
+        return set;
+    }
+
+    public static <T> Set<T> difference(Set<T> a, Set<T> b){
+        Set<T> set = new LinkedHashSet<>(a);
+        set.removeAll(b);
+        return set;
     }
 
     public static <T> Set<List<T>> product(List<Set<T>> sets){
-        return Sets.cartesianProduct(sets);
+        return com.google.common.collect.Sets.cartesianProduct(sets);
     }
 
     public static <T> Map.Entry<T,T> mapsto(T from, T too){
@@ -120,7 +133,7 @@ public final class Ops {
         List<Set<T>> doms = funcs.stream().map(f->f.dom()).collect(Collectors.toList());
         List<Set<T>> ranges = funcs.stream().map(f->f.range()).collect(Collectors.toList());
         List<Set<Map.Entry<T,T>>> defs = funcs.stream().map(f->f.def()).collect(Collectors.toList());
-        return new Func<T>(union(doms), union(ranges), union(defs));
+        return new Func<T>(bigUnion(doms), bigUnion(ranges), bigUnion(defs));
     }
 
     public static <T> Func<List<T>> functionProduct(List<Func<T>> funcs){
